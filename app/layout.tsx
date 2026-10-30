@@ -16,22 +16,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" className="h-full">
-      <body className="min-h-full flex flex-col antialiased bg-[#fcfbfe] text-[#1e1e24]">
+      <body className="min-h-full flex flex-col antialiased bg-gradient-to-br from-[#fcfbfe] via-[#faf7fd] to-[#f5eefc] text-[#1e1e24]">
         {/* Header Navigation */}
-        <header className="w-full bg-white border-b border-[#e6e2ea] sticky top-0 z-40 shadow-xs">
+        <header className="w-full bg-white/80 backdrop-blur-xl border-b border-[#582c83]/10 sticky top-0 z-40 shadow-[0_4px_25px_rgba(88,44,131,0.04)] transition-all">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-10 h-10 shrink-0">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-10 h-10 shrink-0 p-1 rounded-xl bg-white/90 border border-[#582c83]/15 shadow-xs group-hover:scale-105 transition-transform">
                 <Image
                   src="/images/meeting.png"
                   alt="ตราสัญลักษณ์ระบบจองห้องประชุม"
                   fill
-                  className="object-contain"
+                  className="object-contain p-0.5"
                   priority
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-semibold text-base sm:text-lg text-[#582c83] leading-tight">
+                <span className="font-bold text-base sm:text-lg text-[#582c83] leading-tight tracking-tight group-hover:text-[#48236b] transition-colors">
                   ระบบจองห้องประชุม
                 </span>
                 <span className="text-xs text-[#595963]">
@@ -40,16 +40,16 @@ export default function RootLayout({
               </div>
             </Link>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-2.5">
               <Link
                 href="/book"
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-[#582c83] hover:bg-[#48236b] transition-colors touch-target shadow-xs"
+                className="inline-flex items-center justify-center px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-[#582c83] to-[#48236b] hover:from-[#48236b] hover:to-[#381a54] shadow-[0_4px_14px_rgba(88,44,131,0.2)] hover:shadow-[0_6px_18px_rgba(88,44,131,0.3)] hover:-translate-y-0.5 transition-all touch-target"
               >
                 จองห้องประชุม
               </Link>
               <Link
                 href="/admin"
-                className="inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium rounded-lg text-[#582c83] bg-[#f5f0fa] hover:bg-[#ebe2f5] transition-colors touch-target"
+                className="inline-flex items-center justify-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-[#582c83] bg-[#582c83]/10 hover:bg-[#582c83]/15 border border-[#582c83]/15 transition-all touch-target"
               >
                 ผู้ดูแลระบบ
               </Link>

@@ -97,10 +97,10 @@ export function PublicCalendar() {
   return (
     <div className="w-full space-y-6">
       {/* Header Controls */}
-      <div className="bg-white rounded-2xl border border-[#e6e2ea] p-4 sm:p-6 shadow-xs space-y-4">
+      <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-5 sm:p-7 shadow-[0_12px_40px_rgba(88,44,131,0.06)] space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-[#1e1e24] flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1e1e24] flex items-center gap-2 tracking-tight">
               <CalendarIcon className="w-5 h-5 text-[#582c83]" />
               ตารางการใช้ห้องประชุม
             </h2>
@@ -110,13 +110,13 @@ export function PublicCalendar() {
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1 bg-[#f5f0fa] p-1 rounded-xl self-start sm:self-auto">
+          <div className="flex items-center gap-1 bg-[#582c83]/10 p-1 rounded-2xl self-start sm:self-auto border border-[#582c83]/15">
             <button
               onClick={() => setViewMode("month")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors touch-target ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all touch-target ${
                 viewMode === "month"
-                  ? "bg-[#582c83] text-white shadow-xs"
-                  : "text-[#582c83] hover:bg-white"
+                  ? "bg-gradient-to-r from-[#582c83] to-[#48236b] text-white shadow-xs"
+                  : "text-[#582c83] hover:bg-white/80"
               }`}
             >
               <CalendarIcon className="w-4 h-4" />
@@ -124,10 +124,10 @@ export function PublicCalendar() {
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors touch-target ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all touch-target ${
                 viewMode === "list"
-                  ? "bg-[#582c83] text-white shadow-xs"
-                  : "text-[#582c83] hover:bg-white"
+                  ? "bg-gradient-to-r from-[#582c83] to-[#48236b] text-white shadow-xs"
+                  : "text-[#582c83] hover:bg-white/80"
               }`}
             >
               <List className="w-4 h-4" />
@@ -137,7 +137,7 @@ export function PublicCalendar() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#e6e2ea] text-xs">
+        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[#582c83]/10 text-xs">
           <span className="font-semibold text-[#1e1e24] flex items-center gap-1">
             <Filter className="w-3.5 h-3.5 text-[#582c83]" />
             กรองตามห้อง:
@@ -193,9 +193,9 @@ export function PublicCalendar() {
         </div>
       ) : viewMode === "month" ? (
         /* =================== MONTH VIEW =================== */
-        <div className="bg-white rounded-2xl border border-[#e6e2ea] overflow-hidden shadow-xs">
+        <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-white/60 overflow-hidden shadow-[0_12px_40px_rgba(88,44,131,0.06)]">
           {/* Month Navigation */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#e6e2ea] bg-gray-50/50">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#582c83]/10 bg-[#582c83]/5">
             <h3 className="font-bold text-base sm:text-lg text-[#1e1e24]">{thaiMonthName}</h3>
             <div className="flex items-center gap-2">
               <button

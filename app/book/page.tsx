@@ -82,8 +82,8 @@ export default function BookingWizardPage() {
         setErrorMsg("ระยะเวลาการจองขั้นต่ำต้องไม่น้อยกว่า 2 ชั่วโมง");
         return false;
       }
-      if (startMins < 8 * 60 || endMins > 18 * 60) {
-        setErrorMsg("ช่วงเวลาเปิดให้บริการคือ 08:00 – 18:00 น.");
+      if (startMins < 8 * 60 + 30 || endMins > 16 * 60 + 30) {
+        setErrorMsg("ช่วงเวลาเปิดให้บริการคือ 08:30 – 16:30 น.");
         return false;
       }
     }
@@ -222,7 +222,7 @@ export default function BookingWizardPage() {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-12">
       {/* Wizard Step Bar */}
-      <div className="bg-white rounded-2xl border border-[#e6e2ea] p-4 sm:p-6 shadow-xs">
+      <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-4 sm:p-6 shadow-[0_12px_40px_rgba(88,44,131,0.06)]">
         <div className="flex items-center justify-between overflow-x-auto pb-2 sm:pb-0 gap-2">
           {STEPS.map((s) => {
             const Icon = s.icon;
@@ -270,7 +270,7 @@ export default function BookingWizardPage() {
       )}
 
       {/* Form Step Body */}
-      <div className="bg-white rounded-2xl border border-[#e6e2ea] p-6 sm:p-8 shadow-xs">
+      <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-6 sm:p-9 shadow-[0_12px_40px_rgba(88,44,131,0.06)]">
         {/* ============================================================ */}
         {/* STEP 1: ข้อมูลกิจกรรม */}
         {/* ============================================================ */}
@@ -423,8 +423,8 @@ export default function BookingWizardPage() {
                   </label>
                   <input
                     type="time"
-                    min="08:00"
-                    max="18:00"
+                    min="08:30"
+                    max="16:30"
                     step="1800"
                     value={formData.start_time}
                     onChange={(e) => updateFormData({ start_time: e.target.value })}
@@ -438,8 +438,8 @@ export default function BookingWizardPage() {
                   </label>
                   <input
                     type="time"
-                    min="08:00"
-                    max="18:00"
+                    min="08:30"
+                    max="16:30"
                     step="1800"
                     value={formData.end_time}
                     onChange={(e) => updateFormData({ end_time: e.target.value })}
@@ -447,7 +447,7 @@ export default function BookingWizardPage() {
                   />
                 </div>
                 <p className="col-span-2 text-xs text-[#595963]">
-                  เปิดให้บริการ 08:00 – 18:00 น. (ขั้นต่ำ 2 ชั่วโมง จองล่วงหน้าได้ไม่เกิน 60 วัน)
+                  เปิดให้บริการ 08:30 – 16:30 น. (ขั้นต่ำ 2 ชั่วโมง จองล่วงหน้าได้ไม่เกิน 60 วัน)
                 </p>
               </div>
             </div>

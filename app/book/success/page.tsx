@@ -35,7 +35,7 @@ export default function BookingSuccessPage() {
       </div>
 
       {booking && (
-        <div className="bg-white rounded-2xl border border-[#e6e2ea] p-6 text-left space-y-3 shadow-xs">
+        <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-6 sm:p-7 text-left space-y-3 shadow-[0_12px_40px_rgba(88,44,131,0.06)]">
           <div className="flex items-center justify-between pb-3 border-b border-[#e6e2ea]">
             <span className="text-xs text-[#595963]">รหัสอ้างอิงการจอง:</span>
             <span className="font-mono font-bold text-base text-[#582c83] bg-[#f5f0fa] px-3 py-1 rounded-lg">

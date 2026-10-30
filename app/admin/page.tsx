@@ -171,13 +171,13 @@ export default function AdminDashboardPage() {
   return (
     <div className="w-full space-y-6 pb-12">
       {/* Top Admin Header */}
-      <div className="bg-white rounded-2xl border border-[#e6e2ea] p-4 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-5 sm:p-7 shadow-[0_12px_40px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#582c83] text-white flex items-center justify-center font-bold">
-            <ShieldCheck className="w-5 h-5" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#582c83] to-[#48236b] text-white flex items-center justify-center font-bold shadow-md">
+            <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-[#1e1e24]">แดชบอร์ดผู้ดูแลระบบ (Admin)</h1>
+            <h1 className="text-xl font-extrabold text-[#1e1e24] tracking-tight">แดชบอร์ดผู้ดูแลระบบ (Admin)</h1>
             <p className="text-xs text-[#595963]">
               เข้าสู่ระบบโดย: <strong>{adminUser.displayName}</strong> ({adminUser.username})
             </p>
@@ -194,7 +194,7 @@ export default function AdminDashboardPage() {
           />
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold touch-target transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold touch-target transition-all hover:shadow-xs active:scale-95"
           >
             <LogOut className="w-3.5 h-3.5" />
             ออกจากระบบ
@@ -214,20 +214,20 @@ export default function AdminDashboardPage() {
           <button
             key={st.id}
             onClick={() => setStatusFilter(st.id)}
-            className={`p-3.5 rounded-xl border text-left transition-all ${
+            className={`p-4 rounded-2xl border text-left transition-all ${
               statusFilter === st.id
-                ? "bg-white border-[#582c83] ring-2 ring-[#582c83] shadow-xs"
-                : "bg-white border-[#e6e2ea] hover:bg-gray-50"
+                ? "bg-white border-[#582c83] ring-2 ring-[#582c83]/40 shadow-sm"
+                : "bg-white/80 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-xs"
             }`}
           >
-            <span className="text-xs font-medium text-[#595963] block">{st.label}</span>
-            <span className={`text-xl font-bold ${st.color} block mt-0.5`}>{st.count}</span>
+            <span className="text-xs font-semibold text-[#595963] block">{st.label}</span>
+            <span className={`text-2xl font-black ${st.color} block mt-0.5`}>{st.count}</span>
           </button>
         ))}
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl border border-[#e6e2ea] p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-4 sm:p-5 shadow-[0_12px_40px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -279,7 +279,7 @@ export default function AdminDashboardPage() {
             return (
               <div
                 key={b.id}
-                className="bg-white rounded-2xl border border-[#e6e2ea] p-5 sm:p-6 shadow-xs space-y-4 hover:border-[#582c83]/40 transition-colors"
+                className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-6 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(88,44,131,0.08)] transition-all space-y-4"
               >
                 {/* Header row */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e6e2ea]">

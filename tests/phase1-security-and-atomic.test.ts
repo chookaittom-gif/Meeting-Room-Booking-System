@@ -275,6 +275,36 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
     expect(result.booking.staff_count).toBe(30);
   });
 
+  it('4.7 should reject bookings outside 08:30 – 16:30 operating hours', async () => {
+    // 08:00 Bangkok = 01:00 UTC (too early, starts before 08:30)
+    const earlyDate = new Date();
+    earlyDate.setUTCDate(earlyDate.getUTCDate() + 2);
+    earlyDate.setUTCHours(1, 0, 0, 0); // 08:00 Bangkok
+    const earlyStart = Math.floor(earlyDate.getTime() / 1000);
+
+    await expect(
+      createBookingAtomic(db, makeValidPayload({
+        request_key: 'early-key',
+        starts_at: earlyStart,
+        ends_at: earlyStart + 7200, // 10:00 Bangkok
+      }))
+    ).rejects.toThrow('ช่วงเวลาให้บริการคือ 08:30 – 16:30 น.');
+
+    // 15:00 - 17:00 Bangkok (ends after 16:30)
+    const lateDate = new Date();
+    lateDate.setUTCDate(lateDate.getUTCDate() + 2);
+    lateDate.setUTCHours(8, 0, 0, 0); // 15:00 Bangkok
+    const lateStart = Math.floor(lateDate.getTime() / 1000);
+
+    await expect(
+      createBookingAtomic(db, makeValidPayload({
+        request_key: 'late-key',
+        starts_at: lateStart,
+        ends_at: lateStart + 7200, // 17:00 Bangkok
+      }))
+    ).rejects.toThrow('ช่วงเวลาให้บริการคือ 08:30 – 16:30 น.');
+  });
+
   // -------------------------------------------------------------
   // 5. Status Transitions & Line Queue Tests
   // -------------------------------------------------------------

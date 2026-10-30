@@ -71,15 +71,15 @@ export function validateBookingPayload(payload: CreateBookingPayload, roomCapaci
     throw new ValidationError('เวลาจองขั้นต่ำต้องไม่น้อยกว่า 2 ชั่วโมง');
   }
 
-  // Service hours check: 08:00 - 18:00 Bangkok time (UTC+7)
+  // Service hours check: 08:30 - 16:30 Bangkok time (UTC+7)
   const startLocal = getBangkokHour(payload.starts_at);
   const endLocal = getBangkokHour(payload.ends_at);
 
   const startMins = startLocal.hour * 60 + startLocal.minute;
   const endMins = endLocal.hour * 60 + endLocal.minute;
 
-  if (startMins < 8 * 60 || endMins > 18 * 60 || (endLocal.hour === 18 && endLocal.minute > 0)) {
-    throw new ValidationError('ช่วงเวลาให้บริการคือ 08:00 – 18:00 น.');
+  if (startMins < 8 * 60 + 30 || endMins > 16 * 60 + 30) {
+    throw new ValidationError('ช่วงเวลาให้บริการคือ 08:30 – 16:30 น.');
   }
 
   // Advance booking check: max 60 days
