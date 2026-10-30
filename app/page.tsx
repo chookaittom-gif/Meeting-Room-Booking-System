@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PublicCalendar } from "./components/PublicCalendar";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center space-y-8 py-4 sm:py-8">
+    <div className="flex flex-col items-center justify-center space-y-10 py-4 sm:py-6">
       {/* Hero Section */}
-      <div className="w-full bg-white rounded-2xl border border-[#e6e2ea] overflow-hidden shadow-sm">
+      <div className="w-full bg-white rounded-2xl border border-[#e6e2ea] overflow-hidden shadow-xs">
         <div className="relative w-full h-48 sm:h-72 bg-[#582c83]/5">
           <Image
             src="/images/meeting-room.png"
@@ -14,9 +15,9 @@ export default function HomePage() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-6">
             <div className="text-white">
-              <span className="inline-block px-3 py-1 bg-[#582c83] text-white text-xs font-semibold rounded-full mb-2">
+              <span className="inline-block px-3 py-1 bg-[#582c83] text-white text-xs font-semibold rounded-full mb-2 shadow-xs">
                 บริการจองห้องประชุมออนไลน์
               </span>
               <h1 className="text-xl sm:text-3xl font-bold">
@@ -42,7 +43,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link
               href="/book"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white font-medium text-base shadow-sm transition-colors touch-target text-center"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white font-bold text-base shadow-sm transition-colors touch-target text-center"
             >
               เริ่มจองห้องประชุม
             </Link>
@@ -77,6 +78,11 @@ export default function HomePage() {
             ห้องประชุมขนาดใหญ่ รองรับผู้เข้าร่วมได้ถึง 300 คน พร้อมระบบโสตทัศนูปกรณ์ครบครันสำหรับงานสัมมนาขนาดใหญ่
           </p>
         </div>
+      </div>
+
+      {/* Public Calendar Section */}
+      <div className="w-full pt-4">
+        <PublicCalendar />
       </div>
     </div>
   );
