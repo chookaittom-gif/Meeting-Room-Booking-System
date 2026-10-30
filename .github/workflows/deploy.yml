@@ -29,11 +29,11 @@ jobs:
       - name: TypeScript Check
         run: npm run typecheck
 
-      - name: Run Automated Tests (47 Tests)
-        run: npm run test
-
       - name: Build Next.js & Cloudflare Worker Bundle
         run: npm run build:worker
+
+      - name: Run Automated Tests (47 Tests)
+        run: npm run test
 
   deploy-production:
     name: Deploy to Cloudflare Workers (Production)
