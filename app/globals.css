@@ -2,15 +2,15 @@
 
 @layer base {
   :root {
-    --brand-primary: #8b5cf6;
-    --brand-primary-hover: #7c3aed;
-    --brand-primary-dark: #582c83;
-    --brand-accent: #f59e0b;
-    --brand-ink: #f8fafc;
-    --brand-ink-muted: #94a3b8;
-    --brand-ground: #0b0816;
-    --brand-surface: #16112a;
-    --brand-border: rgba(255, 255, 255, 0.1);
+    --brand-primary: #582c83;
+    --brand-primary-hover: #48236b;
+    --brand-primary-light: #f5f0fa;
+    --brand-accent: #cba052;
+    --brand-ink: #1e1e24;
+    --brand-ink-muted: #595963;
+    --brand-ground: #fbfbfe;
+    --brand-surface: #ffffff;
+    --brand-border: #e6e2ea;
   }
 
   body {
@@ -27,13 +27,21 @@
   min-width: 44px;
 }
 
-/* Cyber glow utilities */
-.glow-border {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Royal Aurora Pearl Utilities */
+.pearl-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 12px 40px rgba(88, 44, 131, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.pearl-card-hover {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glow-border:hover {
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+.pearl-card-hover:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 16px 48px rgba(88, 44, 131, 0.1), 0 4px 12px rgba(139, 92, 246, 0.06);
+  transform: translateY(-2px);
 }
