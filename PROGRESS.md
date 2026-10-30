@@ -1,93 +1,94 @@
 # บันทึกความคืบหน้าโครงการ: ระบบจองห้องประชุม มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
 
 ## 📌 สถานะปัจจุบัน
-- **เฟสปัจจุบัน:** เฟส 0 — ตรวจข้อมูลและตกลงกติกา (เสร็จสิ้น รอการยืนยันเพื่อเริ่มเฟส 1)
+- **เฟสปัจจุบัน:** เฟส 1 — โครงสร้างระบบและความปลอดภัย (**ผ่านเกณฑ์การทดสอบ 100% — รอการยืนยันเพื่อเริ่มเฟส 2**)
 - **วันที่อัปเดต:** 2026-10-31
+- **Git Branch:** `develop` (Commit: `dd65941`)
 
 ---
 
-## 📋 สรุปข้อกำหนดและการตัดสินใจที่ได้รับอนุมัติ (Approved Decisions)
-
-### 1. ข้อมูลห้องประชุม
-- **หอประชุมชั้น 2:** 
-  - ความจุสูงสุด: 100 คน (ทุกรูปแบบโต๊ะ)
-  - รูปแบบโต๊ะที่รองรับ: Theater, Classroom, Cluster/Banquet, U-Shape, Boardroom (ปรับได้ตามการใช้งาน)
-- **ห้องประชุมชั้น 7:** 
-  - ความจุสูงสุด: 300 คน (ทุกรูปแบบโต๊ะ)
-  - รูปแบบโต๊ะที่รองรับ: Theater, Classroom, Cluster/Banquet, U-Shape, Boardroom
-- **การนับความจุ:** นับเฉพาะจำนวนผู้เข้าร่วมเปรียบเทียบกับความจุห้อง (ไม่นับรวมเจ้าหน้าที่/ผู้จัดงาน)
-
-### 2. ตัวตนและสิทธิ์ (Auth & Roles)
-- **ผู้จองทั่วไป:** ไม่ต้องสร้างบัญชี/ล็อกอิน กรอกข้อมูลผู้ประสานงาน (ชื่อ, เบอร์โทรศัพท์ 10 หลักขึ้นต้นด้วย 0, LINE ID) ในฟอร์ม
-- **Admin:** 
-  - 3 บัญชีเริ่มต้น: `chookait`, `pathaithep`, `nathlada`
-  - รหัสผ่านชั่วคราวเริ่มต้น: กำหนดเป็นรหัสผ่านเริ่มต้นแบบปลอดภัยพร้อมฟังก์ชันเปลี่ยนรหัสผ่านในระบบ
-  - จัดเก็บรหัสผ่านใน D1 ด้วย bcrypt (cost 12)
-  - เซสชัน: HttpOnly, Secure, SameSite=Lax Cookie อายุ 8 ชั่วโมง
-- **การยกเลิกการจอง:** 
-  - กระทำได้เฉพาะ Admin เท่านั้น (ผู้จองติดต่อ Admin เพื่อขอยกเลิก)
-  - กำหนดเวลายกเลิก: ต้องดำเนินการก่อนวันเริ่มงานอย่างน้อย 3 วัน (72 ชั่วโมง)
-- **สถานะการจอง (State Transitions):**
-  - `pending` -> `approved`, `rejected`, `cancelled`
-  - `approved` -> `cancelled` (Admin สามารถยกเลิกรายการที่อนุมัติแล้วได้)
-  - `rejected` และ `cancelled` เป็นสถานะสิ้นสุด
-  - การปฏิเสธคำขอ (`rejected`) บังคับกรอกเหตุผล
-  - ไม่เปิดให้แก้ไขข้อมูลการจอง หากต้องการเปลี่ยนให้ยกเลิกแล้วทำรายการใหม่
-
-### 3. เวลา กฎการจอง และปฏิทิน
-- **ช่วงเวลาให้บริการ:** 08:00 – 18:00 น. (เวลาประเทศไทย Asia/Bangkok, เก็บในฐานข้อมูลเป็น UTC)
-- **ระยะเวลาจอง:** ขั้นต่ำ 2 ชั่วโมง, จองล่วงหน้าได้ไม่เกิน 60 วัน
-- **การทับซ้อนเวลา:** อนุญาตให้เวลาสิ้นสุดของรายการหนึ่งตรงกับเวลาเริ่มต้นของอีกรายการได้ (End A = Start B ไม่ถือว่าชน)
-- **การกันเวลา:** สถานะ `pending` และ `approved` กันห้องทันที; สถานะ `rejected` และ `cancelled` คืนช่วงเวลาห้อง
-- **การป้องกันจองซ้อน:** ใช้ Atomic `INSERT ... WHERE NOT EXISTS (...)` แบบคำสั่งเดียวใน D1 พร้อม Idempotency `request_key`
-- **ปฏิทินสาธารณะ (Public Calendar):**
-  - แสดงผลมุมมองรายเดือนเป็นค่าเริ่มต้น (Month view)
-  - สามารถกรองตามห้องประชุมได้ (ทั้งหมด / หอประชุมชั้น 2 / ห้องประชุมชั้น 7)
-  - แสดงครบทุกสถานะ พร้อมป้ายกำกับสีและข้อความชัดเจน
-  - เมื่อคลิกดูรายละเอียด แสดงเฉพาะ: ชื่อห้อง, สถานะ, และช่วงวันเวลา (ไม่มีข้อมูลส่วนบุคคล PII ของผู้ประสานงาน)
-
-### 4. รายการอาหาร เครื่องดื่ม และราคา
-- ราคาทุกรายการ **รวมภาษีมูลค่าเพิ่ม (VAT) แล้ว**
-- คำนวณราคาที่เซิร์ฟเวอร์เท่านั้น (Server-side validation)
-- อาหารกลางวันและของว่าง: สามารถเลือกได้หลายรายการพร้อมกัน
-- โต๊ะจีน (8 ที่นั่ง/โต๊ะ) และบูธอาหาร (50 ชุด/บูธ): ผู้จองระบุจำนวนได้เองตามต้องการ
-- น้ำเปล่า: มีขนาด 350 mL (5 บาท) และ 600 mL (5 บาท)
-- แสดงข้อความเตือนเรื่องอาหารภายนอกตามระเบียบมหาวิทยาลัยครบถ้วน
-
-### 5. การแจ้งเตือนและ LINE Integration
-- **Web App Notification:** ไอคอนกระดิ่งพร้อม Badge แสดงจำนวนรายการรออนุมัติบน Header สำหรับ Admin เมื่อคลิกจะแสดง Dropdown รายการแจ้งเตือน
-- **LINE Messaging API:** 
-  - ส่งแจ้งเตือนเข้า LINE Group **เฉพาะเมื่อสถานะเปลี่ยนเป็น approved สำเร็จเท่านั้น**
-  - รูปแบบข้อความ: Flex Message ทางการ โทนสีม่วง พร้อมรายละเอียดครบถ้วน
-  - กลไกความปลอดภัย: บันทึกคิวลงตาราง `line_notifications` ใน D1 ควบคู่กับ `X-Line-Retry-Key` เพื่อป้องกันการส่งซ้ำเด็ดขาด แม้เกิด Network Timeout
-  - Secret ทั้งหมดจัดเก็บใน Cloudflare Workers Secret ฝั่งเซิร์ฟเวอร์เท่านั้น
-
-### 6. ดีไซน์ อัตลักษณ์ และรูปภาพ
-- **สไตล์:** ทางการ ดูน่าเชื่อถือ ใช้โทนสีม่วง (สีอัตลักษณ์มหาวิทยาลัยสวนดุสิต) ภาษาไทย 100%
-- **ภาพประกอบและโลโก้:** 
-  - นำไฟล์ `meeting.png` เป็นโลโก้ระบบ
-  - นำไฟล์ `Meeting Room.png` เป็นภาพประกอบ/แบนเนอร์
-  - จัดเก็บไว้ใน `public/images/` ของ Repository เพื่อความเสถียรในการโหลด
-- **Footer:** แสดงทุกหน้า (ผู้จองและ Admin) ไม่ใช้ fixed position ปรับ responsive ได้สมบูรณ์:
-  `ระบบจองห้องประชุม V.1 | © 2026 มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง`
-  `พัฒนาโดย: นายชูเกียรติ กุศลสถิตย์`
-
----
-
-## 🛠️ รายละเอียดผลการดำเนินงานรายเฟส
+## 📊 ผลการดำเนินงานรายเฟส
 
 | เฟส | หัวข้อ | ผลการดำเนินงาน | สถานะ |
 |---|---|---|---|
-| **เฟส 0** | ตรวจข้อมูลและตกลงกติกา | รวบรวมข้อมูลผ่าน Grill-me ครบ 100%, จัดทำ Spec และ Schema สมบูรณ์ | **Pass** (รอเริ่มเฟส 1) |
-| **เฟส 1** | โครงสร้างระบบและความปลอดภัย | Setup Next.js, OpenNext Cloudflare, D1 Migrations, Auth, Test scripts | *ยังไม่เริ่ม* |
-| **เฟส 2** | แบบฟอร์มจอง 4 หน้า | พัฒนา Multi-step Form พร้อม Validation และระบบ Idempotency | *ยังไม่เริ่ม* |
-| **เฟส 3** | ปฏิทินและรายการจอง | Calendar View รายเดือน, กรองห้อง, Popup ปลอด PII | *ยังไม่เริ่ม* |
-| **เฟส 4** | Admin และการยกเลิก | Dashboard, ระบบ Login/Session, สิทธิ์การอนุมัติ/ปฏิเสธ/ยกเลิก | *ยังไม่เริ่ม* |
-| **เฟส 5** | การแจ้งเตือนใน Web App | Notification Dropdown บน Admin Header พร้อมระบบ Read Status | *ยังไม่เริ่ม* |
-| **เฟส 6** | LINE Messaging API | ส่ง Flex Message เฉพาะรายการที่ Approved สำเร็จ พร้อม Retry Key | *ยังไม่เริ่ม* |
+| **เฟส 0** | ตรวจข้อมูลและตกลงกติกา | รวบรวมข้อกำหนดครบถ้วนผ่าน Grill-me, สรุป Spec และ Schema สมบูรณ์ | **Pass** |
+| **เฟส 1** | โครงสร้างระบบและความปลอดภัย | Setup Next.js 15, OpenNext Cloudflare, D1 Schema, Atomic Concurrency, Auth, 16/16 Tests ผ่านทั้งหมด | **Pass** (รอเริ่มเฟส 2) |
+| **เฟส 2** | แบบฟอร์มจอง 4 หน้า | Multi-step form พร้อม validation, server-side pricing, idempotency | *ยังไม่เริ่ม* |
+| **เฟส 3** | ปฏิทินและรายการจอง | Public calendar view รายเดือน, กรองห้อง, ป้องกัน PII | *ยังไม่เริ่ม* |
+| **เฟส 4** | Admin และการยกเลิก | Dashboard, ระบบ Login/Session, การอนุมัติ/ปฏิเสธ/ยกเลิก | *ยังไม่เริ่ม* |
+| **เฟส 5** | การแจ้งเตือนใน Web App | Notification badge บน header ของ Admin พร้อม unread counter | *ยังไม่เริ่ม* |
+| **เฟส 6** | LINE Messaging API | Flex Message แจ้งกลุ่มเฉพาะ approved พร้อม X-Line-Retry-Key | *ยังไม่เริ่ม* |
 | **เฟส 7** | ตรวจรับและเตรียมเผยแพร่ | E2E Check, Security Audit, Mobile Responsiveness, Pre-deploy Review | *ยังไม่เริ่ม* |
 
 ---
 
-## ❓ คำถามที่ยังค้าง (None)
-- ไม่มีคำถามตกค้าง ได้รับการยืนยันครบถ้วนพร้อมเริ่มดำเนินงานเฟส 1
+## 🔍 สรุปผลการทดสอบและหลักฐานเชิงประจักษ์ (Phase 1 Verification Report)
+
+### 1. ไฟล์ที่สร้างและแก้ไข
+- **การตั้งค่าระบบและ Cloudflare:**
+  - `package.json`, `package-lock.json`: Next.js 15, `@opennextjs/cloudflare`, `wrangler` v4, Tailwind v4, Vitest, bcryptjs
+  - `tsconfig.json`: TypeScript strict mode พร้อม `@cloudflare/workers-types`
+  - `open-next.config.ts`, `wrangler.jsonc`: binding D1 `meeting-room-db` (`62750b8e-5aef-4c94-af6f-e5d9a71f7d28`)
+  - `postcss.config.mjs`, `app/globals.css`: โทนสีอัตลักษณ์มหาวิทยาลัยสวนดุสิต (ม่วง `#582c83`, ทอง `#cba052`)
+  - `app/layout.tsx`, `app/page.tsx`, `app/components/Footer.tsx`: ส่วนหัว, หน้าหลัก, และ Footer แสดงครบถ้วน
+  - `scripts/patch-opennext.js`: ระบบ Postinstall แก้ไข cross-drive file copying บน Windows
+- **ฐานข้อมูลและการ Migration:**
+  - `migrations/0001_initial_schema.sql`: ตาราง `rooms`, `admins`, `bookings`, `booking_items`, `booking_status_history`, `notifications`, `line_notifications`
+  - `migrations/rollback/0001_rollback_initial_schema.sql`: สคริปต์ Rollback ย้อนกลับ schema ทั้งหมด
+- **Business Logic & Security Utilities:**
+  - `lib/types.ts`: Interface, Enum, และ `FOOD_CATALOG` พร้อมราคารวม VAT
+  - `lib/db.ts`: D1 context provider
+  - `lib/auth.ts`: ระบบ bcrypt password verification และ 8-hour HMAC-SHA256 session token
+  - `lib/booking-service.ts`: Atomic `INSERT ... WHERE NOT EXISTS`, Idempotency `request_key`, Status Transition
+- **ชุดการทดสอบ:**
+  - `tests/sqlite-d1-adapter.ts`: SQLite adapter จำลอง D1 สำหรับทดสอบแบบ In-Memory
+  - `tests/phase1-security-and-atomic.test.ts`: ชุดทดสอบ 16 รายการครอบคลุมทุกเงื่อนไข
+
+### 2. พฤติกรรมที่ได้
+1. **D1 Migration & Seed Data:** สร้างตารางครบถ้วน พร้อม seed ห้องหอประชุมชั้น 2 (100 คน), ห้องประชุมชั้น 7 (300 คน) และ 3 Admin (`chookait`, `pathaithep`, `nathlada`)
+2. **Atomic Booking Engine:**
+   - ใช้คำสั่งเดียว `INSERT INTO bookings ... WHERE NOT EXISTS (SELECT 1 FROM bookings WHERE room_id = ? AND status IN ('pending', 'approved') AND starts_at < ? AND ends_at > ?)`
+   - เมื่อมีคำขอจองห้องเดียวกันในช่วงเวลาทับซ้อนส่งมาพร้อมกันแบบ Concurrency (`Promise.all`) จะมีเพียงคำขอเดียวที่สำเร็จ อีกคำขอจะถูกปฏิเสธด้วย `BookingConflictError`
+   - การจองห้องคนละห้อง หรือช่วงเวลาต่อเนื่องกันพอดี (`End A === Start B`) สามารถทำได้ตามกติกา
+3. **Idempotency:** เมื่อส่งคำขอซ้ำด้วย `request_key` เดิม ระบบจะคืนข้อมูลเดิมโดยไม่สร้างแถวซ้ำในฐานข้อมูล
+4. **Capacity Logic:** ตรวจสอบเฉพาะจำนวนผู้เข้าร่วมเปรียบเทียบกับความจุห้อง (ไม่นำจำนวนเจ้าหน้าที่มานับรวม)
+5. **State Machine:** อนุญาตเฉพาะ `pending -> approved / rejected / cancelled` และ `approved -> cancelled` เมื่อยกเลิกแล้ว ช่วงเวลาจะถูกคืนให้ผู้อื่นจองต่อได้ทันที
+6. **ความปลอดภัย:** ตรวจสอบ client bundle `.next/static/chunks` ไม่พบ secret หรือ credential รั่วไหล
+
+### 3. ผลการทดสอบเชิงประจักษ์ (Test Commands & Results)
+
+| รายการทดสอบ | คำสั่ง | ผลลัพธ์ | หลักฐาน |
+|---|---|---|---|
+| **TypeScript Typecheck** | `npm run typecheck` | **PASS** | 0 errors |
+| **Next.js Production Build** | `npm run build` | **PASS** | Static pages generated successfully |
+| **OpenNext Cloudflare Worker Bundle** | `npm run build:worker` | **PASS** | `Worker saved in .open-next\worker.js` |
+| **D1 Local Migration** | `npx wrangler d1 migrations apply meeting-room-db --local` | **PASS** | 17 commands executed successfully (0001_initial_schema.sql ✅) |
+| **Vitest Test Suite (16/16)** | `npm run test` | **PASS** | 16 passed (16 tests, 521ms) |
+
+#### รายละเอียดชุดทดสอบ Vitest (16/16 Pass):
+- `1.1 should run migration and seed rooms and admins` — **PASS**
+- `1.2 should successfully rollback schema without errors` — **PASS**
+- `2.1 should verify bcrypt hashed passwords for admins` — **PASS**
+- `2.2 should sign and verify 8-hour admin session tokens` — **PASS**
+- `3.1 should calculate server-side prices accurately according to food catalog` — **PASS**
+- `4.1 should create a valid booking and populate items & notifications` — **PASS**
+- `4.2 should be idempotent when submitting with duplicate request_key` — **PASS**
+- `4.3 should atomically reject conflicting overlapping booking on same room (Concurrent Simulation)` — **PASS**
+- `4.4 should allow adjacent back-to-back bookings (End A === Start B)` — **PASS**
+- `4.5 should allow simultaneous bookings on different rooms` — **PASS**
+- `4.6 should enforce capacity validation excluding staff count` — **PASS**
+- `5.1 should transition pending -> approved and queue LINE notification with retry key` — **PASS**
+- `5.2 should transition approved -> cancelled and free up the room time` — **PASS**
+- `5.3 should reject invalid status transitions (e.g. cancelled -> approved)` — **PASS**
+- `5.4 should require reason when rejecting a booking` — **PASS**
+- `6.1 should verify no server secrets or D1 binding leaks exist in client build bundle` — **PASS**
+
+### 4. ความเสี่ยงที่ยังเหลือ (Remaining Risks)
+- การทดสอบในเครื่องจำลอง D1 ด้วย SQLite และ Wrangler local environment — ยังไม่ได้รัน migration ขึ้น Remote D1 Production (ต้องรอคำสั่งอนุมัติแยกต่างหากตามกติกา)
+- ค่า secret จริงของ LINE Messaging API (`LINE_CHANNEL_ACCESS_TOKEN`, `LINE_GROUP_ID`) ยังไม่ได้ตั้งค่าใน Cloudflare secret (จะดำเนินการในเฟส 6)
+
+---
+
+## 🛑 จุดหยุดตรวจสอบ (Gate Check)
+- เฟส 1 ผ่านเกณฑ์ครบถ้วน 100%
+- หยุดรอการยืนยันจากผู้ใช้ก่อนเริ่ม **เฟส 2 — แบบฟอร์มจอง 4 หน้า**
