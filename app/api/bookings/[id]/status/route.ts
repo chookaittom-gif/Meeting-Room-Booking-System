@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getD1Database } from "@/lib/db";
 import { verifySessionToken } from "@/lib/auth";
 import { updateBookingStatus, StatusTransitionError, ValidationError } from "@/lib/booking-service";
+import { sendLineApprovedNotification } from "@/lib/line-service";
 
 export async function PATCH(
   req: NextRequest,
@@ -40,10 +41,20 @@ export async function PATCH(
       reason
     );
 
+    let lineNotification = null;
+    if (to_status === "approved") {
+      try {
+        lineNotification = await sendLineApprovedNotification(db, bookingId);
+      } catch (lineErr) {
+        console.error("Non-blocking LINE notification failed:", lineErr);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: `เปลี่ยนสถานะเป็น ${to_status} สำเร็จแล้ว`,
       status: to_status,
+      line_notification: lineNotification,
     });
   } catch (err: any) {
     if (err instanceof StatusTransitionError) {

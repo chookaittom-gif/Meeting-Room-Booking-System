@@ -40,3 +40,5 @@ Thumbs.db
 # Skill artifacts / temporary
 .superpowers/
 .taste-skill/
+Pic/
+Prompt*.txt

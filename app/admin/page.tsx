@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookingStatus, TableLayout, MeetingType } from "@/lib/types";
+import { AdminNotificationBell } from "@/app/components/AdminNotificationBell";
 import {
   ShieldCheck,
   LogOut,
@@ -183,7 +184,14 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <AdminNotificationBell
+            onSelectBooking={(code) => {
+              setSearchQuery(code);
+              setStatusFilter("all");
+              setRoomFilter("all");
+            }}
+          />
           <button
             onClick={handleLogout}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold touch-target transition-colors"
