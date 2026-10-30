@@ -42,3 +42,8 @@ Thumbs.db
 .taste-skill/
 Pic/
 Prompt*.txt
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+
+.playwright-cli/

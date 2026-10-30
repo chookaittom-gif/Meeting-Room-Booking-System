@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Lock, User, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
+import { Lock, User, AlertCircle, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -48,12 +48,12 @@ export default function AdminLoginPage() {
 
   return (
     <div className="relative flex items-center justify-center py-12 sm:py-20 px-4 min-h-[calc(100vh-160px)]">
-      {/* Ambient background glow (Futuristic Glass effect) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-96 h-80 sm:h-96 bg-gradient-to-tr from-[#582c83]/20 via-purple-300/20 to-[#cba052]/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      {/* Ambient background glow (Futuristic Cyber Glass effect) */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-96 h-80 sm:h-96 bg-gradient-to-tr from-violet-600/25 via-purple-900/20 to-amber-500/15 rounded-full blur-[100px] pointer-events-none -z-10" />
 
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl border border-white/60 p-7 sm:p-9 shadow-[0_20px_50px_rgba(88,44,131,0.08)] space-y-6">
+      <div className="w-full max-w-md bg-[#16112a]/90 backdrop-blur-3xl rounded-3xl border border-white/15 p-7 sm:p-9 shadow-[0_25px_60px_rgba(0,0,0,0.85)] hover:border-violet-500/40 transition-all space-y-6">
         <div className="text-center space-y-2">
-          <div className="relative w-16 h-16 mx-auto mb-2 p-1.5 rounded-2xl bg-gradient-to-br from-[#582c83]/10 to-transparent border border-[#582c83]/15 shadow-inner">
+          <div className="relative w-16 h-16 mx-auto mb-2 p-1.5 rounded-2xl bg-white/10 border border-white/15 shadow-inner">
             <Image
               src="/images/meeting.png"
               alt="ระบบจองห้องประชุม"
@@ -62,39 +62,42 @@ export default function AdminLoginPage() {
               priority
             />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#1e1e24] tracking-tight">เข้าสู่ระบบผู้ดูแล (Admin)</h1>
-          <p className="text-xs text-[#595963]">
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center justify-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-violet-400" />
+            เข้าสู่ระบบผู้ดูแล (Admin)
+          </h1>
+          <p className="text-xs text-violet-300/80 font-medium">
             ระบบจองห้องประชุม มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
           </p>
         </div>
 
         {errorMsg && (
-          <div role="alert" className="bg-red-50/90 backdrop-blur-xs border border-red-200/80 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-red-800 shadow-xs">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+          <div role="alert" className="bg-rose-950/60 backdrop-blur-md border border-rose-500/50 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-rose-200 shadow-lg">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
             <div className="flex-1 font-medium">{errorMsg}</div>
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#1e1e24] flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-[#582c83]" />
+            <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-violet-400" />
               ชื่อผู้ใช้ (Username)
             </label>
             <input
               type="text"
               required
               autoComplete="username"
-              placeholder="chookait / pathaithep / nathlada"
+              placeholder="กรอกชื่อผู้ใช้..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white/90 focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target transition-all placeholder:text-[#a1a1aa]"
+              className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-sm text-white touch-target transition-all placeholder:text-slate-500 shadow-inner"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#1e1e24] flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-[#582c83]" />
+            <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-violet-400" />
               รหัสผ่าน (Password)
             </label>
             <div className="relative">
@@ -102,16 +105,16 @@ export default function AdminLoginPage() {
                 type={showPassword ? "text" : "password"}
                 required
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder="กรอกรหัสผ่าน..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-4 pr-11 py-2.5 rounded-xl border border-[#e6e2ea] bg-white/90 focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target transition-all placeholder:text-[#a1a1aa]"
+                className="w-full pl-4 pr-12 py-2.5 rounded-xl border border-white/10 bg-white/5 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-sm text-white touch-target transition-all placeholder:text-slate-500 shadow-inner"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-[#71717a] hover:text-[#582c83] rounded-lg transition-colors touch-target focus:outline-none focus:ring-2 focus:ring-[#582c83]"
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors touch-target rounded-lg"
               >
                 {showPassword ? (
                   <EyeOff className="w-4 h-4" />
@@ -125,12 +128,12 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-[#582c83] to-[#48236b] hover:from-[#48236b] hover:to-[#361952] text-white font-bold text-sm touch-target transition-all shadow-[0_4px_16px_rgba(88,44,131,0.25)] hover:shadow-[0_6px_20px_rgba(88,44,131,0.35)] flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99]"
+            className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 via-[#582c83] to-violet-700 hover:from-violet-500 hover:to-violet-600 shadow-[0_0_25px_rgba(139,92,246,0.4)] hover:shadow-[0_0_35px_rgba(139,92,246,0.6)] border border-violet-400/40 transition-all touch-target flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                กำลังเข้าสู่ระบบ...
+                กำลังตรวจสอบข้อมูล...
               </>
             ) : (
               "เข้าสู่ระบบ"

@@ -46,7 +46,6 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
@@ -113,33 +112,33 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
     switch (eventType) {
       case "pending":
         return {
-          icon: <Clock className="w-3.5 h-3.5 text-amber-600" />,
+          icon: <Clock className="w-3.5 h-3.5 text-amber-400" />,
           title: "คำขอจองใหม่",
-          bg: "bg-amber-50 text-amber-800 border-amber-200",
+          bg: "bg-amber-500/20 text-amber-300 border-amber-500/40",
         };
       case "approved":
         return {
-          icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />,
+          icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />,
           title: "อนุมัติแล้ว",
-          bg: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          bg: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
         };
       case "rejected":
         return {
-          icon: <XCircle className="w-3.5 h-3.5 text-rose-600" />,
+          icon: <XCircle className="w-3.5 h-3.5 text-rose-400" />,
           title: "ไม่อนุมัติ",
-          bg: "bg-rose-50 text-rose-800 border-rose-200",
+          bg: "bg-rose-500/20 text-rose-300 border-rose-500/40",
         };
       case "cancelled":
         return {
-          icon: <AlertTriangle className="w-3.5 h-3.5 text-gray-600" />,
+          icon: <AlertTriangle className="w-3.5 h-3.5 text-slate-400" />,
           title: "ยกเลิกแล้ว",
-          bg: "bg-gray-100 text-gray-700 border-gray-200",
+          bg: "bg-slate-700/40 text-slate-300 border-slate-600/40",
         };
       default:
         return {
-          icon: <Bell className="w-3.5 h-3.5 text-purple-600" />,
+          icon: <Bell className="w-3.5 h-3.5 text-violet-400" />,
           title: "การแจ้งเตือน",
-          bg: "bg-purple-50 text-purple-800 border-purple-200",
+          bg: "bg-violet-500/20 text-violet-300 border-violet-500/40",
         };
     }
   };
@@ -151,11 +150,11 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="การแจ้งเตือน"
-        className="relative inline-flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-[#e6e2ea] text-[#595963] hover:text-[#582c83] hover:border-[#582c83] hover:bg-[#faf8fd] transition-colors touch-target focus:outline-hidden focus:ring-2 focus:ring-[#582c83]"
+        className="relative inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:border-violet-500/40 hover:bg-white/10 transition-all touch-target focus:outline-hidden focus:ring-2 focus:ring-violet-500"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[11px] font-bold text-white shadow-xs animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[11px] font-bold text-white shadow-[0_0_10px_rgba(244,63,94,0.6)] animate-pulse">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -163,13 +162,13 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-[#e6e2ea] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-[#16112a] border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85)] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-[#faf8fd] border-b border-[#e6e2ea]">
+          <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-[#1e1e24]">การแจ้งเตือน</span>
+              <span className="font-extrabold text-sm text-white">การแจ้งเตือน HUD</span>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-rose-100 text-rose-700">
+                <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">
                   {unreadCount} ใหม่
                 </span>
               )}
@@ -178,7 +177,7 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
               <button
                 type="button"
                 onClick={(e) => handleMarkAsRead("all", e)}
-                className="inline-flex items-center gap-1 text-xs text-[#582c83] hover:text-[#432066] font-medium py-1 px-2 rounded-lg hover:bg-white transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-violet-300 hover:text-white font-bold py-1 px-2 rounded-xl hover:bg-white/10 transition-colors"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 อ่านทั้งหมด
@@ -187,10 +186,10 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
           </div>
 
           {/* List items */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-gray-100">
+          <div className="max-h-[380px] overflow-y-auto divide-y divide-white/10">
             {notifications.length === 0 ? (
-              <div className="py-8 text-center text-[#8e8e99] space-y-2">
-                <Bell className="w-8 h-8 mx-auto opacity-30 text-[#582c83]" />
+              <div className="py-8 text-center text-slate-400 space-y-2">
+                <Bell className="w-8 h-8 mx-auto opacity-30 text-violet-400" />
                 <p className="text-xs">ไม่มีรายการแจ้งเตือน</p>
               </div>
             ) : (
@@ -200,43 +199,34 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
                   <div
                     key={item.id}
                     onClick={() => handleNotificationClick(item)}
-                    className={`p-3.5 sm:p-4 cursor-pointer transition-colors flex items-start gap-3 hover:bg-[#fcfbfe] ${
-                      item.is_read === 0 ? "bg-[#faf8fd]" : "bg-white"
+                    className={`p-3.5 hover:bg-white/5 transition-colors cursor-pointer flex items-start gap-3 ${
+                      item.is_read === 0 ? "bg-violet-950/20" : ""
                     }`}
                   >
                     <div className="mt-0.5 shrink-0">{badge.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border ${badge.bg}`}
-                        >
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${badge.bg}`}>
                           {badge.title}
                         </span>
-                        <span className="text-[11px] text-[#8e8e99]">
+                        <span className="text-[10px] text-slate-400 font-mono">
                           {formatRelativeThaiTime(item.created_at)}
                         </span>
                       </div>
-                      <p className="text-xs font-semibold text-[#1e1e24] truncate">
-                        {item.activity_name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1 text-[11px] text-[#595963]">
-                        <span className="font-mono font-medium text-[#582c83]">
-                          {item.booking_code}
-                        </span>
-                        <span>•</span>
-                        <span>
-                          {item.room_id === "floor2" ? "หอประชุมชั้น 2" : "ห้องประชุมชั้น 7"}
-                        </span>
+                      <p className="font-bold text-xs text-white truncate">{item.activity_name}</p>
+                      <div className="flex items-center justify-between text-[11px] text-slate-300">
+                        <span className="font-mono text-violet-300">{item.booking_code}</span>
+                        {item.is_read === 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleMarkAsRead(item.id, e)}
+                            className="text-[10px] text-violet-400 hover:text-violet-300 underline"
+                          >
+                            ทำเครื่องหมายอ่านแล้ว
+                          </button>
+                        )}
                       </div>
-                      {item.reason && (
-                        <p className="mt-1 text-[11px] text-rose-700 bg-rose-50/70 p-1 rounded">
-                          เหตุผล: {item.reason}
-                        </p>
-                      )}
                     </div>
-                    {item.is_read === 0 && (
-                      <span className="w-2 h-2 rounded-full bg-[#582c83] shrink-0 mt-2" />
-                    )}
                   </div>
                 );
               })

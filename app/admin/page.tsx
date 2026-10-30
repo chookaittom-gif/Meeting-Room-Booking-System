@@ -21,13 +21,15 @@ import {
   ChevronDown,
   X,
   User,
+  Activity,
+  Layers,
 } from "lucide-react";
 
-const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string }> = {
-  pending: { label: "รอการอนุมัติ", bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-300" },
-  approved: { label: "อนุมัติแล้ว", bg: "bg-emerald-50", text: "text-emerald-800", border: "border-emerald-300" },
-  rejected: { label: "ไม่อนุมัติ", bg: "bg-rose-50", text: "text-rose-800", border: "border-rose-300" },
-  cancelled: { label: "ยกเลิก", bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" },
+const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string; dot: string; pulse: boolean }> = {
+  pending: { label: "รอการอนุมัติ", bg: "bg-amber-500/20", text: "text-amber-300", border: "border-amber-500/40", dot: "bg-amber-400", pulse: true },
+  approved: { label: "อนุมัติแล้ว", bg: "bg-emerald-500/20", text: "text-emerald-300", border: "border-emerald-500/40", dot: "bg-emerald-400", pulse: false },
+  rejected: { label: "ไม่อนุมัติ", bg: "bg-rose-500/20", text: "text-rose-300", border: "border-rose-500/40", dot: "bg-rose-400", pulse: false },
+  cancelled: { label: "ยกเลิก", bg: "bg-slate-700/40", text: "text-slate-400", border: "border-slate-600/40", dot: "bg-slate-400", pulse: false },
 };
 
 function formatThaiDate(epochSec: number): string {
@@ -89,9 +91,13 @@ export default function AdminDashboardPage() {
 
       const res = await fetch(`/api/admin/bookings?${params.toString()}`);
       if (!res.ok) {
-        if (res.status === 401) router.push("/admin/login");
-        return;
+        if (res.status === 401) {
+          router.push("/admin/login");
+          return;
+        }
+        throw new Error("Failed to load");
       }
+
       const data = (await res.json()) as any;
       setBookings(data.bookings || []);
     } catch (err) {
@@ -113,30 +119,36 @@ export default function AdminDashboardPage() {
   };
 
   const handleLogout = async () => {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+      router.push("/admin/login");
+    } catch {
+      router.push("/admin/login");
+    }
   };
 
-  // Status update action
   const handleUpdateStatus = async (
     bookingId: string,
-    fromStatus: BookingStatus,
-    toStatus: BookingStatus,
+    expectedCurrentStatus: BookingStatus,
+    newStatus: BookingStatus,
     reason?: string
   ) => {
     setIsProcessingAction(true);
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/status`, {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ from_status: fromStatus, to_status: toStatus, reason }),
+        body: JSON.stringify({
+          expected_current_status: expectedCurrentStatus,
+          new_status: newStatus,
+          reason,
+        }),
       });
 
       const data = (await res.json()) as any;
 
       if (!res.ok) {
-        alert(data.error || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
-        setIsProcessingAction(false);
+        alert(data.error || "เกิดข้อผิดพลาดในการปรับสถานะ");
         return;
       }
 
@@ -163,7 +175,7 @@ export default function AdminDashboardPage() {
   if (!adminUser) {
     return (
       <div className="flex items-center justify-center min-h-[300px]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#582c83]" />
+        <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
       </div>
     );
   }
@@ -171,15 +183,17 @@ export default function AdminDashboardPage() {
   return (
     <div className="w-full space-y-6 pb-12">
       {/* Top Admin Header */}
-      <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-5 sm:p-7 shadow-[0_12px_40px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#582c83] to-[#48236b] text-white flex items-center justify-center font-bold shadow-md">
+      <div className="bg-[#16112a]/90 backdrop-blur-3xl rounded-3xl border border-white/10 p-5 sm:p-7 shadow-[0_12px_45px_rgba(0,0,0,0.6)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-[#582c83] text-white flex items-center justify-center font-bold shadow-[0_0_20px_rgba(139,92,246,0.4)] border border-violet-400/30">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-[#1e1e24] tracking-tight">แดชบอร์ดผู้ดูแลระบบ (Admin)</h1>
-            <p className="text-xs text-[#595963]">
-              เข้าสู่ระบบโดย: <strong>{adminUser.displayName}</strong> ({adminUser.username})
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+              แผงควบคุม Cyber Command (Admin)
+            </h1>
+            <p className="text-xs text-slate-300 font-medium">
+              เข้าสู่ระบบโดย: <strong className="text-violet-300">{adminUser.displayName}</strong> ({adminUser.username})
             </p>
           </div>
         </div>
@@ -194,7 +208,7 @@ export default function AdminDashboardPage() {
           />
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold touch-target transition-all hover:shadow-xs active:scale-95"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 text-xs font-bold touch-target transition-all hover:shadow-[0_0_15px_rgba(244,63,94,0.3)] active:scale-95"
           >
             <LogOut className="w-3.5 h-3.5" />
             ออกจากระบบ
@@ -202,57 +216,69 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Stats Counter Bar */}
+      {/* Stats Counter Bar (Telemetry HUD) */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          { id: "all", label: "ทั้งหมด", count: stats.all, color: "text-[#582c83]" },
-          { id: "pending", label: "รอการอนุมัติ", count: stats.pending, color: "text-amber-600" },
-          { id: "approved", label: "อนุมัติแล้ว", count: stats.approved, color: "text-emerald-600" },
-          { id: "rejected", label: "ไม่อนุมัติ", count: stats.rejected, color: "text-rose-600" },
-          { id: "cancelled", label: "ยกเลิก", count: stats.cancelled, color: "text-gray-600" },
+          { id: "all", label: "ทั้งหมด", count: stats.all, color: "text-violet-300", dot: "bg-violet-400", pulse: false },
+          { id: "pending", label: "รอการอนุมัติ", count: stats.pending, color: "text-amber-300", dot: "bg-amber-400", pulse: true },
+          { id: "approved", label: "อนุมัติแล้ว", count: stats.approved, color: "text-emerald-300", dot: "bg-emerald-400", pulse: false },
+          { id: "rejected", label: "ไม่อนุมัติ", count: stats.rejected, color: "text-rose-300", dot: "bg-rose-400", pulse: false },
+          { id: "cancelled", label: "ยกเลิก", count: stats.cancelled, color: "text-slate-400", dot: "bg-slate-400", pulse: false },
         ].map((st) => (
           <button
             key={st.id}
             onClick={() => setStatusFilter(st.id)}
             className={`p-4 rounded-2xl border text-left transition-all ${
               statusFilter === st.id
-                ? "bg-white border-[#582c83] ring-2 ring-[#582c83]/40 shadow-sm"
-                : "bg-white/80 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-xs"
+                ? "bg-violet-950/50 border-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.35)] ring-2 ring-violet-500/50"
+                : "bg-[#16112a]/80 backdrop-blur-2xl border-white/10 hover:border-violet-500/40 hover:bg-white/5"
             }`}
           >
-            <span className="text-xs font-semibold text-[#595963] block">{st.label}</span>
-            <span className={`text-2xl font-black ${st.color} block mt-0.5`}>{st.count}</span>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-300 block">{st.label}</span>
+              {st.pulse ? (
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+              ) : (
+                <span className={`inline-block w-2 h-2 rounded-full ${st.dot}`}></span>
+              )}
+            </div>
+            <span className={`text-2xl sm:text-3xl font-black ${st.color} block mt-1 tracking-tight`}>
+              {st.count}
+            </span>
           </button>
         ))}
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-4 sm:p-5 shadow-[0_12px_40px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-[#16112a]/90 backdrop-blur-3xl rounded-3xl border border-white/10 p-4 sm:p-5 shadow-[0_12px_45px_rgba(0,0,0,0.6)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="ค้นหาชื่อกิจกรรม, โครงการ, ผู้ประสานงาน หรือรหัสจอง..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#e6e2ea] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-xs touch-target"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-xs touch-target shadow-inner"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 rounded-xl bg-[#582c83] text-white font-medium touch-target hover:bg-[#48236b]"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-[#582c83] text-white font-bold touch-target hover:from-violet-500 hover:to-violet-700 shadow-[0_0_15px_rgba(139,92,246,0.4)] border border-violet-400/30 transition-all shrink-0"
           >
             ค้นหา
           </button>
         </form>
 
         <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-          <span className="font-semibold text-[#1e1e24] shrink-0">ห้อง:</span>
+          <span className="font-bold text-slate-300 shrink-0">ห้อง:</span>
           <select
             value={roomFilter}
             onChange={(e) => setRoomFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-[#e6e2ea] bg-white text-xs touch-target focus:outline-none focus:ring-2 focus:ring-[#582c83]"
+            className="px-3 py-2 rounded-xl border border-white/10 bg-[#140f26] text-white text-xs touch-target focus:outline-none focus:ring-2 focus:ring-violet-500 font-medium"
           >
             <option value="all">ทุกห้อง</option>
             <option value="floor2">หอประชุมชั้น 2</option>
@@ -263,12 +289,12 @@ export default function AdminDashboardPage() {
 
       {/* Bookings List */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-[#e6e2ea]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#582c83]" />
-          <p className="text-sm text-[#595963] mt-3">กำลังโหลดข้อมูลรายการจอง...</p>
+        <div className="flex flex-col items-center justify-center p-12 bg-[#16112a]/80 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
+          <p className="text-sm text-slate-300 mt-3 font-medium">กำลังโหลดข้อมูลรายการจอง...</p>
         </div>
       ) : bookings.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#e6e2ea] p-12 text-center text-sm text-[#595963]">
+        <div className="bg-[#16112a]/80 backdrop-blur-2xl rounded-3xl border border-white/10 p-12 text-center text-sm text-slate-400 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
           ไม่พบรายการจองตามเงื่อนไขที่เลือก
         </div>
       ) : (
@@ -279,72 +305,75 @@ export default function AdminDashboardPage() {
             return (
               <div
                 key={b.id}
-                className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/60 p-6 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(88,44,131,0.08)] transition-all space-y-4"
+                className="bg-[#16112a]/85 backdrop-blur-2xl rounded-3xl border border-white/10 p-6 sm:p-7 shadow-[0_8px_35px_rgba(0,0,0,0.5)] hover:border-violet-500/40 hover:shadow-[0_0_35px_rgba(139,92,246,0.18)] transition-all space-y-4"
               >
                 {/* Header row */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e6e2ea]">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
                   <div className="flex items-center gap-2">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border} shadow-inner`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                       {cfg.label}
                     </span>
-                    <span className="text-xs font-semibold text-[#582c83] bg-[#f5f0fa] px-2.5 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-violet-300 bg-violet-950/60 border border-violet-500/30 px-2.5 py-1 rounded-xl">
                       {b.room_name}
                     </span>
-                    <span className="font-mono text-xs font-bold text-[#595963]">{b.booking_code}</span>
+                    <span className="font-mono text-xs font-bold text-slate-400 bg-white/5 border border-white/5 px-2 py-0.5 rounded-md">
+                      {b.booking_code}
+                    </span>
                   </div>
 
-                  <div className="text-xs text-[#595963]">
+                  <div className="text-xs text-slate-400 font-medium">
                     ยื่นคำขอเมื่อ: {formatThaiDate(b.created_at)}
                   </div>
                 </div>
 
                 {/* Main info row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2 space-y-1.5">
-                    <h3 className="font-bold text-base text-[#1e1e24]">{b.activity_name}</h3>
-                    <p className="text-xs text-[#595963]">โครงการ: {b.project_name}</p>
-                    <div className="text-xs text-[#1e1e24] font-medium flex flex-wrap items-center gap-3 pt-1">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-[#582c83]" />
+                  <div className="md:col-span-2 space-y-2">
+                    <h3 className="font-extrabold text-base sm:text-lg text-white">{b.activity_name}</h3>
+                    <p className="text-xs text-slate-300 font-medium">โครงการ: {b.project_name}</p>
+                    <div className="text-xs text-slate-300 font-medium flex flex-wrap items-center gap-3 pt-1">
+                      <span className="flex items-center gap-1.5 text-violet-300">
+                        <Clock className="w-3.5 h-3.5 text-violet-400" />
                         {formatThaiDate(b.starts_at)} ({formatThaiTime(b.starts_at)} – {formatThaiTime(b.ends_at)})
                       </span>
-                      <span>•</span>
-                      <span>ผู้เข้าร่วม: {b.attendees_count} คน (เจ้าหน้าที่ {b.staff_count} คน)</span>
-                      <span>•</span>
-                      <span>ผังโต๊ะ: {b.table_layout}</span>
+                      <span className="text-slate-600">•</span>
+                      <span>ผู้เข้าร่วม: <strong className="text-white">{b.attendees_count}</strong> คน (เจ้าหน้าที่ {b.staff_count} คน)</span>
+                      <span className="text-slate-600">•</span>
+                      <span>ผังโต๊ะ: <strong className="text-white">{b.table_layout}</strong></span>
                     </div>
                   </div>
 
                   {/* Coordinator & Price */}
-                  <div className="bg-[#fcfbfe] rounded-xl p-3 border border-[#e6e2ea] space-y-1 text-xs">
-                    <span className="font-bold text-[#582c83] block">ผู้ประสานงาน:</span>
-                    <p className="font-semibold text-[#1e1e24]">{b.coordinator_name}</p>
-                    <p className="flex items-center gap-1 text-[#595963]">
-                      <Phone className="w-3 h-3 text-[#582c83]" />
-                      <a href={`tel:${b.coordinator_phone}`} className="hover:underline text-[#582c83] font-medium">
+                  <div className="bg-white/5 rounded-2xl p-3.5 border border-white/10 space-y-1.5 text-xs">
+                    <span className="font-bold text-violet-300 block">ผู้ประสานงาน:</span>
+                    <p className="font-bold text-white">{b.coordinator_name}</p>
+                    <p className="flex items-center gap-1 text-slate-300">
+                      <Phone className="w-3 h-3 text-violet-400" />
+                      <a href={`tel:${b.coordinator_phone}`} className="hover:underline text-violet-300 font-medium">
                         {b.coordinator_phone}
                       </a>
                     </p>
                     {b.coordinator_line_id && (
-                      <p className="flex items-center gap-1 text-[#595963]">
-                        <MessageSquare className="w-3 h-3 text-emerald-600" />
+                      <p className="flex items-center gap-1 text-slate-300">
+                        <MessageSquare className="w-3 h-3 text-emerald-400" />
                         LINE: {b.coordinator_line_id}
                       </p>
                     )}
-                    <div className="pt-2 border-t border-[#e6e2ea] flex justify-between items-center font-bold">
-                      <span className="text-gray-600">ยอดรวม (VAT):</span>
-                      <span className="text-[#582c83] text-sm">{b.total_price_thb?.toLocaleString()} บาท</span>
+                    <div className="pt-2 border-t border-white/10 flex justify-between items-center font-bold">
+                      <span className="text-slate-400">ยอดรวม (VAT):</span>
+                      <span className="text-amber-300 text-sm font-extrabold">{b.total_price_thb?.toLocaleString()} บาท</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions row */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#e6e2ea]">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
                   <button
                     onClick={() => setSelectedBookingDetails(b)}
-                    className="text-xs font-semibold text-[#582c83] hover:underline flex items-center gap-1 touch-target"
+                    className="text-xs font-bold text-violet-300 hover:text-white flex items-center gap-1.5 touch-target transition-colors"
                   >
-                    <Utensils className="w-3.5 h-3.5" />
+                    <Utensils className="w-3.5 h-3.5 text-violet-400" />
                     ดูรายการอาหาร/ของว่าง ({b.items?.length || 0} รายการ) และประวัติ
                   </button>
 
@@ -354,7 +383,7 @@ export default function AdminDashboardPage() {
                         <button
                           disabled={isProcessingAction}
                           onClick={() => handleUpdateStatus(b.id, "pending", "approved")}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold touch-target shadow-xs disabled:opacity-50 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold touch-target shadow-[0_0_15px_rgba(16,185,129,0.35)] disabled:opacity-50 transition-all active:scale-95"
                         >
                           <CheckCircle className="w-4 h-4" />
                           อนุมัติ
@@ -365,7 +394,7 @@ export default function AdminDashboardPage() {
                             setRejectingBooking(b);
                             setRejectReason("");
                           }}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold touch-target shadow-xs disabled:opacity-50 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold touch-target shadow-[0_0_15px_rgba(244,63,94,0.35)] disabled:opacity-50 transition-all active:scale-95"
                         >
                           <XCircle className="w-4 h-4" />
                           ไม่อนุมัติ
@@ -377,7 +406,7 @@ export default function AdminDashboardPage() {
                               handleUpdateStatus(b.id, "pending", "cancelled", "ยกเลิกคำขอ");
                             }
                           }}
-                          className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 text-xs font-medium touch-target transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-white/15 bg-white/5 text-slate-300 hover:bg-white/10 text-xs font-bold touch-target transition-all"
                         >
                           ยกเลิก
                         </button>
@@ -392,9 +421,9 @@ export default function AdminDashboardPage() {
                             handleUpdateStatus(b.id, "approved", "cancelled", "ผู้ดูแลยกเลิกหลังการอนุมัติ");
                           }
                         }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-300 text-red-700 hover:bg-red-50 text-xs font-bold touch-target transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 text-xs font-bold touch-target transition-all shadow-[0_0_15px_rgba(244,63,94,0.25)]"
                       >
-                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                        <AlertTriangle className="w-4 h-4 text-rose-400" />
                         ยกเลิกการจองนี้
                       </button>
                     )}
@@ -408,28 +437,28 @@ export default function AdminDashboardPage() {
 
       {/* Reject Reason Modal */}
       {rejectingBooking && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full border border-[#e6e2ea] shadow-xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#e6e2ea]">
-              <h3 className="font-bold text-base text-red-700 flex items-center gap-1.5">
-                <XCircle className="w-5 h-5 text-red-600" />
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#16112a] rounded-3xl max-w-md w-full border border-white/15 shadow-[0_20px_70px_rgba(0,0,0,0.9)] p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <h3 className="font-extrabold text-base text-rose-400 flex items-center gap-1.5">
+                <XCircle className="w-5 h-5 text-rose-400" />
                 ระบุเหตุผลที่ไม่อนุมัติคำขอ
               </h3>
               <button
                 onClick={() => setRejectingBooking(null)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 touch-target"
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 touch-target"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="text-xs text-[#595963]">
-              คำขอ: <strong className="text-[#1e1e24]">{rejectingBooking.activity_name}</strong> ({rejectingBooking.booking_code})
+            <div className="text-xs text-slate-300 font-medium">
+              คำขอ: <strong className="text-white">{rejectingBooking.activity_name}</strong> ({rejectingBooking.booking_code})
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#1e1e24]">
-                เหตุผลการไม่อนุมัติ <span className="text-red-500">*</span>
+              <label className="text-xs font-bold text-slate-200">
+                เหตุผลการไม่อนุมัติ <span className="text-rose-400">*</span>
               </label>
               <textarea
                 rows={3}
@@ -437,16 +466,16 @@ export default function AdminDashboardPage() {
                 placeholder="เช่น ห้องปิดปรับปรุงระบบไฟฟ้าในวันดังกล่าว หรือ ขัดต่อระเบียบการใช้สถานที่"
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                className="w-full p-3 rounded-xl border border-[#e6e2ea] focus:outline-none focus:ring-2 focus:ring-red-500 text-xs touch-target"
+                className="w-full p-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500 text-xs touch-target shadow-inner"
               />
-              <p className="text-[11px] text-gray-500">เหตุผลนี้จะถูกบันทึกในประวัติของระบบ</p>
+              <p className="text-[11px] text-slate-400">เหตุผลนี้จะถูกบันทึกในประวัติของระบบ</p>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setRejectingBooking(null)}
-                className="px-4 py-2 rounded-xl border border-[#e6e2ea] text-xs font-semibold text-[#1e1e24] hover:bg-gray-50 touch-target"
+                className="px-4 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-300 hover:bg-white/5 touch-target"
               >
                 ยกเลิก
               </button>
@@ -454,7 +483,7 @@ export default function AdminDashboardPage() {
                 type="button"
                 disabled={!rejectReason.trim() || isProcessingAction}
                 onClick={() => handleUpdateStatus(rejectingBooking.id, "pending", "rejected", rejectReason.trim())}
-                className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold touch-target shadow-xs disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold touch-target shadow-[0_0_15px_rgba(244,63,94,0.4)] disabled:opacity-50"
               >
                 {isProcessingAction ? "กำลังบันทึก..." : "ยืนยันไม่อนุมัติ"}
               </button>
@@ -465,16 +494,16 @@ export default function AdminDashboardPage() {
 
       {/* Details & Items Modal */}
       {selectedBookingDetails && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full border border-[#e6e2ea] shadow-xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-[#e6e2ea]">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#16112a] rounded-3xl max-w-lg w-full border border-white/15 shadow-[0_20px_70px_rgba(0,0,0,0.9)] p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div>
-                <h3 className="font-bold text-base text-[#1e1e24]">รายละเอียดรายการจอง</h3>
-                <span className="font-mono text-xs text-[#582c83] font-bold">{selectedBookingDetails.booking_code}</span>
+                <h3 className="font-extrabold text-base text-white">รายละเอียดรายการจอง</h3>
+                <span className="font-mono text-xs text-violet-300 font-bold">{selectedBookingDetails.booking_code}</span>
               </div>
               <button
                 onClick={() => setSelectedBookingDetails(null)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 touch-target"
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 touch-target"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -482,32 +511,32 @@ export default function AdminDashboardPage() {
 
             {/* Food items */}
             <div className="space-y-2">
-              <h4 className="font-bold text-xs text-[#582c83]">รายการอาหารและเครื่องดื่ม</h4>
+              <h4 className="font-bold text-xs text-violet-300">รายการอาหารและเครื่องดื่ม</h4>
               {!selectedBookingDetails.items || selectedBookingDetails.items.length === 0 ? (
-                <p className="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-xl">ไม่มีรายการอาหารและเครื่องดื่ม</p>
+                <p className="text-xs text-slate-400 italic p-3 bg-white/5 rounded-2xl border border-white/5">ไม่มีรายการอาหารและเครื่องดื่ม</p>
               ) : (
-                <div className="border border-[#e6e2ea] rounded-xl overflow-hidden text-xs">
+                <div className="border border-white/10 rounded-2xl overflow-hidden text-xs">
                   <table className="w-full text-left">
-                    <thead className="bg-[#f5f0fa] text-[#582c83] font-bold">
+                    <thead className="bg-white/5 text-violet-200 font-bold border-b border-white/10">
                       <tr>
-                        <th className="py-2 px-3">รายการ</th>
-                        <th className="py-2 px-3 text-center">จำนวน</th>
-                        <th className="py-2 px-3 text-right">รวม (บาท)</th>
+                        <th className="py-2.5 px-3">รายการ</th>
+                        <th className="py-2.5 px-3 text-center">จำนวน</th>
+                        <th className="py-2.5 px-3 text-right">รวม (บาท)</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#e6e2ea]">
+                    <tbody className="divide-y divide-white/10">
                       {selectedBookingDetails.items.map((it: any) => (
-                        <tr key={it.id}>
-                          <td className="py-2 px-3 font-medium">{it.item_name}</td>
-                          <td className="py-2 px-3 text-center">{it.quantity}</td>
-                          <td className="py-2 px-3 text-right font-semibold">{it.subtotal.toLocaleString()}</td>
+                        <tr key={it.id} className="hover:bg-white/5">
+                          <td className="py-2.5 px-3 font-medium text-white">{it.item_name}</td>
+                          <td className="py-2.5 px-3 text-center text-slate-300">{it.quantity}</td>
+                          <td className="py-2.5 px-3 text-right font-bold text-slate-200">{it.subtotal.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className="bg-[#fcfbfe] border-t border-[#e6e2ea] font-bold">
+                    <tfoot className="bg-white/5 border-t border-white/10 font-bold">
                       <tr>
-                        <td colSpan={2} className="py-2 px-3 text-right">ยอดรวม (VAT):</td>
-                        <td className="py-2 px-3 text-right text-[#582c83]">{selectedBookingDetails.total_price_thb?.toLocaleString()} บาท</td>
+                        <td colSpan={2} className="py-2.5 px-3 text-right text-slate-300">ยอดรวม (VAT):</td>
+                        <td className="py-2.5 px-3 text-right text-amber-300 font-extrabold">{selectedBookingDetails.total_price_thb?.toLocaleString()} บาท</td>
                       </tr>
                     </tfoot>
                   </table>
@@ -516,18 +545,18 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Status History */}
-            <div className="space-y-2 pt-2 border-t border-[#e6e2ea]">
-              <h4 className="font-bold text-xs text-[#582c83]">ประวัติการเปลี่ยนสถานะ</h4>
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <h4 className="font-bold text-xs text-violet-300">ประวัติการเปลี่ยนสถานะ</h4>
               <div className="space-y-2">
                 {selectedBookingDetails.history?.map((h: any, idx: number) => (
-                  <div key={idx} className="p-2.5 rounded-xl bg-gray-50 border border-[#e6e2ea] text-xs space-y-0.5">
-                    <div className="flex items-center justify-between font-semibold">
-                      <span className="text-[#1e1e24]">
+                  <div key={idx} className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs space-y-0.5">
+                    <div className="flex items-center justify-between font-bold">
+                      <span className="text-white">
                         {h.from_status ? `${h.from_status} → ` : ""}{h.to_status}
                       </span>
-                      <span className="text-gray-500 text-[11px]">{formatThaiDate(h.changed_at)} {formatThaiTime(h.changed_at)}</span>
+                      <span className="text-slate-400 text-[11px]">{formatThaiDate(h.changed_at)} {formatThaiTime(h.changed_at)}</span>
                     </div>
-                    {h.reason && <p className="text-gray-600 text-[11px]">เหตุผล: {h.reason}</p>}
+                    {h.reason && <p className="text-slate-300 text-[11px]">เหตุผล: {h.reason}</p>}
                   </div>
                 ))}
               </div>
@@ -536,7 +565,7 @@ export default function AdminDashboardPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedBookingDetails(null)}
-                className="px-5 py-2 rounded-xl bg-white border border-[#e6e2ea] text-xs font-semibold text-[#1e1e24] hover:bg-gray-50 touch-target"
+                className="px-5 py-2 rounded-xl bg-white/10 border border-white/15 text-xs font-bold text-white hover:bg-white/15 touch-target transition-all"
               >
                 ปิดหน้าต่าง
               </button>
