@@ -1,46 +1,45 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PublicCalendar } from "./components/PublicCalendar";
-import { Sparkles, ArrowRight, MapPin, Users2, Clock, CheckCircle2 } from "lucide-react";
+import { Sparkles, ArrowRight, MapPin, Users2, Clock } from "lucide-react";
 
 export default function HomePage() {
   return (
     <div className="relative flex flex-col items-center justify-center space-y-8 sm:space-y-10 py-2 sm:py-4">
       {/* Hero Section */}
       <div className="w-full bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 overflow-hidden shadow-[0_16px_48px_rgba(88,44,131,0.07)] hover:shadow-[0_20px_60px_rgba(88,44,131,0.12)] transition-all duration-300">
-        <div className="relative w-full h-64 sm:h-88 bg-gradient-to-br from-violet-100 via-purple-50 to-amber-50">
+        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[3/2] max-h-[540px] bg-gradient-to-br from-violet-100 via-purple-50 to-amber-50 overflow-hidden group">
           <Image
-            src="/images/meeting-room.png"
-            alt="ภาพหอประชุมและห้องประชุม มหาวิทยาลัยสวนดุสิต ลำปาง"
+            src="/images/meeting-room.jpg"
+            alt="ภาพหอประชุมและห้องประชุม มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง"
             fill
-            className="object-cover"
+            className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.01]"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex items-end p-6 sm:p-9">
-            <div className="text-white space-y-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#582c83]/90 backdrop-blur-md text-white text-xs font-bold rounded-full shadow-md border border-white/25">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                บริการจองห้องประชุมออนไลน์
-              </span>
-              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
-                หอประชุมชั้น 2 และห้องประชุมชั้น 7
-              </h1>
-              <p className="text-xs sm:text-base text-purple-100 flex items-center gap-1.5 font-medium">
-                <MapPin className="w-4 h-4 text-amber-300 shrink-0" />
-                มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
-              </p>
-            </div>
+          {/* Subtle Ambient Vignette & Floating Badge */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10 pointer-events-none" />
+          <div className="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-10">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/92 backdrop-blur-md text-[#582c83] text-xs font-bold rounded-full shadow-[0_4px_16px_rgba(88,44,131,0.15)] border border-white/90">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              บริการจองห้องประชุมออนไลน์
+            </span>
           </div>
         </div>
 
-        <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-[#582c83]/10 bg-gradient-to-r from-white via-[#faf7fd] to-white">
-          <div className="space-y-1.5">
-            <h2 className="text-lg sm:text-xl font-extrabold text-[#1e1e24] tracking-tight flex items-center gap-2">
-              <Clock className="w-5 h-5 text-[#582c83]" />
-              ตรวจสอบวันว่างและส่งคำขอจองห้องประชุม
-            </h2>
-            <p className="text-sm text-[#595963] max-w-xl leading-relaxed">
-              เปิดให้บริการทุกวัน ระหว่างเวลา 08:30 – 16:30 น. รองรับรูปแบบโต๊ะทั้ง Theater, Classroom, Cluster, U-Shape และ Boardroom พร้อมบริการอาหารกลางวันและเครื่องดื่ม
+        <div className="p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-t border-[#582c83]/10 bg-gradient-to-r from-white via-[#faf7fd] to-white">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-[#1e1e24] tracking-tight">
+                หอประชุมชั้น 2 และห้องประชุมชั้น 7
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#582c83]/10 text-[#582c83] border border-[#582c83]/15">
+                <MapPin className="w-3 h-3 text-[#582c83]" />
+                มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
+              </span>
+            </div>
+            <p className="text-sm text-[#595963] max-w-2xl leading-relaxed flex items-start gap-1.5">
+              <Clock className="w-4 h-4 text-[#582c83] shrink-0 mt-0.5" />
+              <span>เปิดให้บริการทุกวัน ระหว่างเวลา <strong>08:30 – 16:30 น.</strong> รองรับรูปแบบโต๊ะทั้ง Theater, Classroom, Cluster, U-Shape และ Boardroom พร้อมบริการอาหารกลางวันและเครื่องดื่ม</span>
             </p>
           </div>
 
