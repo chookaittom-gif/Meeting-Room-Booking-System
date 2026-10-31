@@ -47,38 +47,40 @@ export default function RootLayout({
                   priority
                 />
               </div>
-              <div className="flex flex-col leading-tight">
-                <span className="font-extrabold text-base sm:text-lg text-[#582c83] tracking-tight">
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="font-extrabold text-sm sm:text-lg text-[#582c83] tracking-tight whitespace-nowrap">
                   ระบบจองห้องประชุม
                 </span>
-                <span className="text-[11px] text-[#52525b] font-medium">
+                <span className="hidden sm:block text-[11px] text-[#52525b] font-medium whitespace-nowrap">
                   มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
                 </span>
               </div>
             </Link>
 
-            <nav className="flex items-center gap-2 sm:gap-3" aria-label="เมนูหลัก">
+            <nav className="flex items-center gap-1.5 sm:gap-3 shrink-0" aria-label="เมนูหลัก">
               <Link
                 href="/stats"
                 aria-label="สถิติการจอง"
-                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target"
+                className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
               >
                 <BarChart3 className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">สถิติ</span>
               </Link>
               <Link
                 href="/book"
-                className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-white bg-[#582c83] hover:bg-[#48236b] shadow-[0_2px_8px_rgba(88,44,131,0.22)] hover:shadow-[0_4px_14px_rgba(88,44,131,0.3)] transition-colors touch-target"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-white bg-[#582c83] hover:bg-[#48236b] shadow-[0_2px_8px_rgba(88,44,131,0.22)] hover:shadow-[0_4px_14px_rgba(88,44,131,0.3)] transition-colors touch-target whitespace-nowrap"
               >
                 <CalendarDays className="w-4 h-4" aria-hidden="true" />
-                <span>จองห้องประชุม</span>
+                <span className="hidden min-[420px]:inline">จองห้องประชุม</span>
+                <span className="min-[420px]:hidden">จองห้อง</span>
               </Link>
               <Link
                 href="/admin"
-                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target"
+                aria-label="ผู้ดูแลระบบ"
+                className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
               >
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-                <span>ผู้ดูแลระบบ</span>
+                <span className="hidden sm:inline">ผู้ดูแลระบบ</span>
               </Link>
             </nav>
           </div>
