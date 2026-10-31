@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookingStatus, TableLayout, MeetingType } from "@/lib/types";
 import { AdminNotificationBell } from "@/app/components/AdminNotificationBell";
+import { AdminUserManagementModal } from "@/app/components/AdminUserManagementModal";
 import {
   ShieldCheck,
   LogOut,
@@ -22,6 +23,7 @@ import {
   X,
   User,
   Sparkles,
+  Users,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string; dot: string; pulse: boolean }> = {
@@ -70,6 +72,7 @@ export default function AdminDashboardPage() {
   const [isTogglingLine, setIsTogglingLine] = useState(false);
   const [isTestingPing, setIsTestingPing] = useState(false);
   const [pingFeedback, setPingFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
 
   const loadSettings = async () => {
     try {
@@ -255,9 +258,21 @@ export default function AdminDashboardPage() {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#1e1e24] tracking-tight flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-black text-[#1e1e24] tracking-tight">
               แผงควบคุมระบบ (Admin Dashboard)
             </h1>
+              {adminUser.role === "superadmin" ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#f5f0fa] text-[#582c83] border border-[#582c83]/20 shadow-2xs">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  Superadmin
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                  ผู้ดูแลระบบ
+                </span>
+              )}
+            </div>
             <p className="text-xs text-[#595963] font-medium">
               เข้าสู่ระบบโดย: <strong className="text-[#582c83]">{adminUser.displayName}</strong> ({adminUser.username})
             </p>
@@ -265,6 +280,17 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {adminUser.role === "superadmin" && (
+            <button
+              type="button"
+              onClick={() => setIsUserManagementOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#582c83]/20 bg-[#f5f0fa] hover:bg-[#ede5f7] text-[#582c83] text-xs font-bold touch-target transition-all shadow-2xs active:scale-95"
+              title="จัดการผู้ดูแลระบบและรหัสผ่าน"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>จัดการผู้ดูแลระบบ</span>
+            </button>
+          )}
           <AdminNotificationBell
             onSelectBooking={(code) => {
               setSearchQuery(code);
@@ -708,6 +734,14 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </div>
+      )}
+      {/* User Management Modal */}
+      {adminUser.role === 'superadmin' && (
+        <AdminUserManagementModal
+          isOpen={isUserManagementOpen}
+          onClose={() => setIsUserManagementOpen(false)}
+          currentAdmin={adminUser}
+        />
       )}
     </div>
   );

@@ -165,3 +165,14 @@ export interface PublicCalendarEvent {
   ends_at: number;
   status: BookingStatus;
 }
+
+export type AdminRole = 'superadmin' | 'admin';
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  displayName: string;
+  role: AdminRole;
+  createdAt?: number;
+}
+
