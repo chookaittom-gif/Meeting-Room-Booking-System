@@ -41,7 +41,7 @@ export default async function RootLayout({
         {/* Header Navigation */}
         <header className="w-full bg-white border-b border-[#e4e2ea] sticky top-0 z-40 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
           <div className="max-w-5xl mx-auto px-4 py-0 flex items-center justify-between" style={{ minHeight: "64px" }}>
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group" aria-label="หน้าหลัก ระบบจองห้องประชุม">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0" aria-label="หน้าหลัก ระบบจองห้องประชุม">
               <div
                 className="relative w-10 h-10 shrink-0 rounded-[10px] bg-[#f5f0fa] border border-[#582c83]/20 flex items-center justify-center overflow-hidden"
                 aria-hidden="true"
@@ -72,7 +72,8 @@ export default async function RootLayout({
               >
                 <CalendarDays className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden min-[420px]:inline">จองห้องประชุม</span>
-                <span className="min-[420px]:hidden">จองห้อง</span>
+                <span className="hidden min-[375px]:inline min-[420px]:hidden">จองห้อง</span>
+                <span className="min-[375px]:hidden">จอง</span>
               </Link>
               <Link
                 href="/stats"
