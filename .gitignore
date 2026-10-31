@@ -48,3 +48,6 @@ scratch/
 /graft/
 
 .playwright-cli/
+
+# ZCode workspace session data (plans, local tooling)
+.zcode/
