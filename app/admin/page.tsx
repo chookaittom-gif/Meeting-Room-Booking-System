@@ -25,6 +25,7 @@ import {
   User,
   Sparkles,
   Users,
+  FileText,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string; dot: string; pulse: boolean }> = {
@@ -344,6 +345,14 @@ export default function AdminDashboardPage() {
               <span>จัดการผู้ดูแลระบบ</span>
             </button>
           )}
+          <a
+            href="/admin/report"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#582c83]/20 bg-[#f5f0fa] hover:bg-[#ede5f7] text-[#582c83] text-xs font-bold touch-target transition-all shadow-2xs active:scale-95"
+            title="รายงานสรุปการใช้บริการห้องประชุมประจำเดือน"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>รายงานประจำเดือน</span>
+          </a>
           <AdminNotificationBell
             onSelectBooking={(code) => {
               setSearchQuery(code);
