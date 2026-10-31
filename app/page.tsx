@@ -269,12 +269,6 @@ export default function HomePage() {
                 <p className="text-[#71717a] text-[11px]">ไม่เปิดเผยข้อมูลส่วนบุคคลในตาราง</p>
               </div>
             </div>
-            <Link
-              href="/admin"
-              className="text-xs font-bold text-[#582c83] hover:underline shrink-0"
-            >
-              เข้าสู่ระบบ →
-            </Link>
           </div>
         </div>
       </section>
