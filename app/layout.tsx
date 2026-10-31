@@ -3,11 +3,17 @@ import "./globals.css";
 import { Footer } from "./components/Footer";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, ShieldCheck } from "lucide-react";
+import { CalendarDays, ShieldCheck, BarChart3 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "ระบบจองห้องประชุม | มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
   description: "ระบบบริการจองหอประชุมชั้น 2 และห้องประชุมชั้น 7 มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16 32x32", type: "image/x-icon" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -52,6 +58,14 @@ export default function RootLayout({
             </Link>
 
             <nav className="flex items-center gap-2 sm:gap-3" aria-label="เมนูหลัก">
+              <Link
+                href="/stats"
+                aria-label="สถิติการจอง"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target"
+              >
+                <BarChart3 className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden sm:inline">สถิติ</span>
+              </Link>
               <Link
                 href="/book"
                 className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-white bg-[#582c83] hover:bg-[#48236b] shadow-[0_2px_8px_rgba(88,44,131,0.22)] hover:shadow-[0_4px_14px_rgba(88,44,131,0.3)] transition-colors touch-target"

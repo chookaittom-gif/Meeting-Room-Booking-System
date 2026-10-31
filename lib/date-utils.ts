@@ -47,3 +47,14 @@ export function formatThaiEpochTime(epochSec: number): string {
   const m = String(bkk.getUTCMinutes()).padStart(2, "0");
   return `${h}:${m} น.`;
 }
+
+/**
+ * Format YYYY-MM month key to short Thai Buddhist month-year (e.g. "2026-11" -> "พ.ย. 2569")
+ */
+export function formatThaiMonthYearShort(monthKey: string): string {
+  const [yearStr, monthStr] = monthKey.split("-");
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10);
+  if (!year || !month || month < 1 || month > 12) return monthKey;
+  return `${THAI_SHORT_MONTHS[month - 1]} ${year + 543}`;
+}

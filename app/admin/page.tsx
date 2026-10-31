@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BookingStatus, TableLayout, MeetingType } from "@/lib/types";
 import { AdminNotificationBell } from "@/app/components/AdminNotificationBell";
 import { AdminUserManagementModal } from "@/app/components/AdminUserManagementModal";
+import { useAlertDialog } from "@/app/components/AlertDialog";
 import {
   ShieldCheck,
   LogOut,
@@ -62,6 +63,7 @@ export default function AdminDashboardPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [isProcessingAction, setIsProcessingAction] = useState(false);
   const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
+  const dialog = useAlertDialog();
 
   // LINE Notification settings state
   const [lineSettings, setLineSettings] = useState<{ enabled: boolean; groupId: string | null; configured: boolean }>({
@@ -136,11 +138,22 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch("/api/admin/me");
       if (!res.ok) {
-        router.push("/admin/login?reason=expired");
+        // Only show "session expired" on the login page if the user actually HAD a session
+        // (avoids confusing first-time visitors with an expiry notice)
+        const hadSession = typeof window !== "undefined" && sessionStorage.getItem("mrb_had_session") === "1";
+        if (hadSession) {
+          sessionStorage.removeItem("mrb_had_session");
+          router.push("/admin/login?reason=expired");
+        } else {
+          router.push("/admin/login");
+        }
         return;
       }
       const data = (await res.json()) as any;
       setAdminUser(data.admin);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("mrb_had_session", "1");
+      }
       loadSettings();
     } catch {
       router.push("/admin/login");
@@ -208,6 +221,9 @@ export default function AdminDashboardPage() {
   const handleLogout = async () => {
     try {
       await fetch("/api/admin/logout", { method: "POST" });
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("mrb_had_session");
+      }
       router.push("/admin/login");
     } catch {
       router.push("/admin/login");
@@ -232,10 +248,22 @@ export default function AdminDashboardPage() {
         }),
       });
 
-      const data = (await res.json()) as any;
+      // Parse body defensively — the server may return non-JSON on some failures
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
 
       if (!res.ok) {
-        alert(data.error || "เกิดข้อผิดพลาดในการปรับสถานะ");
+        await dialog.alert({
+          title: "ไม่สามารถปรับสถานะได้",
+          message: `${data?.error || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์"} (รหัส ${res.status})`,
+          tone: "danger",
+          confirmLabel: "รับทราบ",
+          cancelLabel: "",
+        });
         return;
       }
 
@@ -244,7 +272,13 @@ export default function AdminDashboardPage() {
       setRejectReason("");
       await loadBookings();
     } catch {
-      alert("ไม่สามารถติดต่อเซิร์ฟเวอร์ได้");
+      await dialog.alert({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
+        tone: "danger",
+        confirmLabel: "รับทราบ",
+        cancelLabel: "",
+      });
     } finally {
       setIsProcessingAction(false);
     }
@@ -270,7 +304,8 @@ export default function AdminDashboardPage() {
   return (
     <div className="w-full space-y-6 pb-12">
       {/* Top Admin Header */}
-      <div className="bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-5 sm:p-7 shadow-[0_16px_48px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Admin Header — relative z-50 keeps the notification dropdown above later backdrop-blur cards */}
+      <div className="relative z-50 bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-5 sm:p-7 shadow-[0_16px_48px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-[#582c83] to-[#48236b] text-white flex items-center justify-center font-bold shadow-[0_4px_16px_rgba(88,44,131,0.25)] border border-white/20">
             <ShieldCheck className="w-6 h-6" />
@@ -581,8 +616,14 @@ export default function AdminDashboardPage() {
                         </button>
                         <button
                           disabled={isProcessingAction}
-                          onClick={() => {
-                            if (confirm("ยืนยันการยกเลิกคำขอนี้หรือไม่?")) {
+                          onClick={async () => {
+                            const ok = await dialog.confirm({
+                              title: "ยืนยันการยกเลิกคำขอจอง",
+                              message: "คำขอนี้จะถูกเปลี่ยนเป็นสถานะยกเลิก และไม่สามารถเปลี่ยนกลับได้",
+                              tone: "danger",
+                              confirmLabel: "ยืนยันยกเลิก",
+                            });
+                            if (ok) {
                               handleUpdateStatus(b.id, "pending", "cancelled", "ยกเลิกคำขอ");
                             }
                           }}
@@ -596,8 +637,14 @@ export default function AdminDashboardPage() {
                     {b.status === "approved" && (
                       <button
                         disabled={isProcessingAction}
-                        onClick={() => {
-                          if (confirm("ยืนยันการยกเลิกรายการที่อนุมัติแล้วหรือไม่? ช่วงเวลาจะถูกคืนสู่ระบบ")) {
+                        onClick={async () => {
+                          const ok = await dialog.confirm({
+                            title: "ยืนยันการยกเลิกรายการที่อนุมัติแล้ว",
+                            message: "ช่วงเวลาจะถูกคืนสู่ระบบและผู้จองจะเห็นสถานะเปลี่ยนเป็นยกเลิก",
+                            tone: "danger",
+                            confirmLabel: "ยืนยันยกเลิก",
+                          });
+                          if (ok) {
                             handleUpdateStatus(b.id, "approved", "cancelled", "ผู้ดูแลยกเลิกหลังการอนุมัติ");
                           }
                         }}
@@ -788,6 +835,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       )}
+      {dialog.element}
     </div>
   );
 }

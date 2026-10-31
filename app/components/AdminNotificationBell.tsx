@@ -10,7 +10,11 @@ import {
   CheckCheck,
   Loader2,
   Calendar,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
+
+const SOUND_PREF_KEY = "notif-sound-enabled";
 
 interface NotificationItem {
   id: string;
@@ -46,7 +50,45 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const newestSeenIdRef = useRef<string | null>(null);
+  const firstLoadDoneRef = useRef(false);
+
+  // Load sound preference once on mount
+  useEffect(() => {
+    try {
+      const pref = localStorage.getItem(SOUND_PREF_KEY);
+      if (pref === "off") setSoundEnabled(false);
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+
+  const toggleSound = () => {
+    setSoundEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SOUND_PREF_KEY, next ? "on" : "off");
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    });
+  };
+
+  const playNotifySound = () => {
+    if (!soundEnabled) return;
+    try {
+      const audio = new Audio("/sounds/notify.wav");
+      audio.volume = 0.6;
+      audio.play().catch(() => {
+        /* autoplay blocked until first user gesture — ignore */
+      });
+    } catch {
+      /* audio unsupported */
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -54,8 +96,22 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
       if (!res.ok) return;
       const data = (await res.json()) as any;
       if (data.success) {
-        setNotifications(data.notifications || []);
-        setUnreadCount(data.unread_count || 0);
+        const items: NotificationItem[] = data.notifications || [];
+        const newest = items[0]?.id ?? null;
+        const unread = data.unread_count || 0;
+        // Play sound when genuinely new notifications arrive (skip the very first load)
+        if (
+          firstLoadDoneRef.current &&
+          newest &&
+          newest !== newestSeenIdRef.current &&
+          unread > 0
+        ) {
+          playNotifySound();
+        }
+        newestSeenIdRef.current = newest;
+        firstLoadDoneRef.current = true;
+        setNotifications(items);
+        setUnreadCount(unread);
       }
     } catch (err) {
       console.error("Failed to load notifications:", err);
@@ -173,16 +229,30 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
                 </span>
               )}
             </div>
-            {unreadCount > 0 && (
+            <div className="flex items-center gap-1">
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={(e) => handleMarkAsRead("all", e)}
+                  className="inline-flex items-center gap-1 text-xs text-[#582c83] hover:text-[#432066] font-medium py-1 px-2 rounded-lg hover:bg-white transition-colors"
+                >
+                  <CheckCheck className="w-3.5 h-3.5" />
+                  อ่านทั้งหมด
+                </button>
+              )}
               <button
                 type="button"
-                onClick={(e) => handleMarkAsRead("all", e)}
-                className="inline-flex items-center gap-1 text-xs text-[#582c83] hover:text-[#432066] font-medium py-1 px-2 rounded-lg hover:bg-white transition-colors"
+                onClick={toggleSound}
+                aria-pressed={soundEnabled}
+                aria-label={soundEnabled ? "ปิดเสียงแจ้งเตือน" : "เปิดเสียงแจ้งเตือน"}
+                title={soundEnabled ? "ปิดเสียงแจ้งเตือน" : "เปิดเสียงแจ้งเตือน"}
+                className={`inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+                  soundEnabled ? "text-[#582c83] hover:bg-white" : "text-[#b9b4c4] hover:bg-white"
+                }`}
               >
-                <CheckCheck className="w-3.5 h-3.5" />
-                อ่านทั้งหมด
+                {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
               </button>
-            )}
+            </div>
           </div>
 
           {/* List items */}
