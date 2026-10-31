@@ -222,12 +222,12 @@ export default function AdminDashboardPage() {
   ) => {
     setIsProcessingAction(true);
     try {
-      const res = await fetch(`/api/admin/bookings/${bookingId}/status`, {
+      const res = await fetch(`/api/bookings/${bookingId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          expected_current_status: expectedCurrentStatus,
-          new_status: newStatus,
+          from_status: expectedCurrentStatus,
+          to_status: newStatus,
           reason,
         }),
       });
