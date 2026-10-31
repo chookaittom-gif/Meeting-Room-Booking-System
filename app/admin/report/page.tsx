@@ -92,7 +92,7 @@ export default async function MonthlyReportPage({ searchParams }: Props) {
             ประจำเดือน {thaiMonthYearFull(monthKey)}
           </p>
           <p style={{ fontSize: "14pt", marginTop: "4px" }}>
-            ข้อมูล ณ วันที่ {printedAt} | หน่วยงานที่รับผิดชอบข้อมูล: งานอาคารสถานที่และกายภาพ ศูนย์การศึกษาลำปาง
+            ข้อมูล ณ วันที่ {printedAt} | หน่วยงานที่รับผิดชอบข้อมูล: งานอาคารสถานที่ ศูนย์การศึกษาลำปาง
           </p>
         </header>
 
