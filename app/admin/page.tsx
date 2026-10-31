@@ -417,7 +417,7 @@ export default function AdminDashboardPage() {
             aria-checked={lineSettings.enabled}
             onClick={handleToggleLine}
             disabled={isTogglingLine}
-            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#582c83] before:absolute before:-inset-2 before:rounded-full before:content-[''] ${
+            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#582c83] before:absolute before:-inset-2.5 before:rounded-full before:content-[''] ${
               lineSettings.enabled ? 'bg-[#059669]' : 'bg-gray-300'
             }`}
           >
