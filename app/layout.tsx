@@ -3,7 +3,7 @@ import "./globals.css";
 import { Footer } from "./components/Footer";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, ShieldCheck, BarChart3 } from "lucide-react";
+import { CalendarDays, LogIn, BarChart3 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "ระบบจองห้องประชุม | มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
@@ -59,14 +59,6 @@ export default function RootLayout({
 
             <nav className="flex items-center gap-1.5 sm:gap-3 shrink-0" aria-label="เมนูหลัก">
               <Link
-                href="/stats"
-                aria-label="สถิติการจอง"
-                className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
-              >
-                <BarChart3 className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">สถิติ</span>
-              </Link>
-              <Link
                 href="/book"
                 className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-white bg-[#582c83] hover:bg-[#48236b] shadow-[0_2px_8px_rgba(88,44,131,0.22)] hover:shadow-[0_4px_14px_rgba(88,44,131,0.3)] transition-colors touch-target whitespace-nowrap"
               >
@@ -75,12 +67,20 @@ export default function RootLayout({
                 <span className="min-[420px]:hidden">จองห้อง</span>
               </Link>
               <Link
-                href="/admin"
-                aria-label="ผู้ดูแลระบบ"
+                href="/stats"
+                aria-label="สถิติการจอง"
                 className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
               >
-                <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">ผู้ดูแลระบบ</span>
+                <BarChart3 className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden sm:inline">สถิติ</span>
+              </Link>
+              <Link
+                href="/admin"
+                aria-label="เข้าสู่ระบบผู้ดูแล"
+                className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
+              >
+                <LogIn className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden sm:inline">เข้าสู่ระบบ</span>
               </Link>
             </nav>
           </div>
