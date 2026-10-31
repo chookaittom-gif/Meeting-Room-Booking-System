@@ -86,26 +86,24 @@ export function MonthlyTrendChart({ monthly, mode }: MonthlyTrendProps) {
             { v: m.counts.cancelled, fill: GRAY },
           ];
           let acc = 0;
+          const bands = segs
+            .filter((s) => s.v > 0)
+            .map((s) => {
+              const band = {
+                key: s.fill,
+                fill: s.fill,
+                y: yOf(acc + s.v),
+                h: Math.max((s.v / yMax) * plotH, 2),
+              };
+              acc += s.v;
+              return band;
+            });
           return (
             <g key={m.month} onMouseEnter={() => setHoverIdx(i)} onMouseLeave={() => setHoverIdx(null)}>
-              {segs.map(
-                (s, si) =>
-                  s.v > 0 && (
-                    <rect
-                      key={si}
-                      x={x}
-                      y={yOf(acc + s.v)}
-                      width={barW}
-                      height={Math.max((s.v / yMax) * plotH, 2)}
-                      rx={si === 0 ? 4 : 2}
-                      fill={s.fill}
-                      opacity={isHover ? 1 : 0.9}
-                    />
-                  )
-              )}
-              {acc === 0 && segs.every((s) => s.v === 0) && (
-                <circle cx={cx} cy={PAD_T + plotH - 2} r="2.5" fill="#d4cfe0" />
-              )}
+              {bands.map((b) => (
+                <rect key={b.key} x={x} y={b.y} width={barW} height={b.h} rx="2" fill={b.fill} opacity={isHover ? 1 : 0.9} />
+              ))}
+              {bands.length === 0 && <circle cx={cx} cy={PAD_T + plotH - 2} r="2.5" fill="#d4cfe0" />}
               <MonthLabel cx={cx} y={H - 8} month={m.label_th} idx={i} total={monthly.length} />
             </g>
           );
