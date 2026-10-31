@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBookingStore, toEpochSeconds } from "@/lib/booking-store";
 import { formatThaiDateString } from "@/lib/date-utils";
+import { ThaiDatePicker } from "@/app/components/ThaiDatePicker";
 import { FOOD_CATALOG, FoodItemCatalog, TableLayout, MeetingType } from "@/lib/types";
 import { Calendar, Users, Utensils, Coffee, CheckCircle, ChevronRight, ChevronLeft, AlertCircle, Loader2, Sparkles, Clock, ShieldCheck } from "lucide-react";
 
@@ -412,27 +413,10 @@ export default function BookingWizardPage() {
                 <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
                   วันที่ต้องการจอง <span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
-                  <div className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] flex items-center justify-between text-sm touch-target shadow-2xs pointer-events-none">
-                    <span className={formData.booking_date ? "font-semibold text-[#1e1e24]" : "text-[#a1a1aa]"}>
-                      {formData.booking_date ? formatThaiDateString(formData.booking_date) : "เลือกวันที่ต้องการจอง"}
-                    </span>
-                    <Calendar className="w-4 h-4 text-[#582c83] shrink-0" />
-                  </div>
-                  <input
-                    type="date"
-                    value={formData.booking_date}
-                    onChange={(e) => updateFormData({ booking_date: e.target.value })}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    aria-label="วันที่ต้องการจอง"
-                  />
-                </div>
-                {formData.booking_date && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5f0fa] border border-[#582c83]/20 text-[#582c83] text-xs font-semibold">
-                    <Calendar className="w-3.5 h-3.5 shrink-0" />
-                    <span>วันที่เลือก: {formatThaiDateString(formData.booking_date)}</span>
-                  </div>
-                )}
+                <ThaiDatePicker
+                  value={formData.booking_date}
+                  onChange={(dateStr) => updateFormData({ booking_date: dateStr })}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:col-span-2">
