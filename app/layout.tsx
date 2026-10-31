@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { Footer } from "./components/Footer";
+import { verifySessionToken } from "../lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, LogIn, BarChart3 } from "lucide-react";
@@ -16,11 +18,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Hide the login button when an admin session cookie is already valid
+  const sessionCookie = (await cookies()).get("admin_session")?.value;
+  const isLoggedIn = sessionCookie
+    ? (await verifySessionToken(sessionCookie)) !== null
+    : false;
+
   return (
     <html lang="th" className="h-full">
       <body
@@ -74,14 +82,16 @@ export default function RootLayout({
                 <BarChart3 className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">สถิติ</span>
               </Link>
-              <Link
-                href="/admin"
-                aria-label="เข้าสู่ระบบผู้ดูแล"
-                className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
-              >
-                <LogIn className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">เข้าสู่ระบบ</span>
-              </Link>
+              {!isLoggedIn && (
+                <Link
+                  href="/admin"
+                  aria-label="เข้าสู่ระบบผู้ดูแล"
+                  className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
+                >
+                  <LogIn className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">เข้าสู่ระบบ</span>
+                </Link>
+              )}
             </nav>
           </div>
         </header>
