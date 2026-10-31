@@ -36,6 +36,7 @@ export function PublicCalendar() {
   const [roomFilter, setRoomFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedEvent, setSelectedEvent] = useState<PublicCalendarEvent | null>(null);
+  const [dayModalData, setDayModalData] = useState<{ dateStr: string; events: PublicCalendarEvent[] } | null>(null);
 
   // Current calendar month view state (Bangkok time)
   const [currentDate, setCurrentDate] = useState(() => {
@@ -263,8 +264,8 @@ export function PublicCalendar() {
                   </div>
 
                   {/* Day Events Badges */}
-                  <div className="space-y-1 flex-1 overflow-y-auto max-h-[85px]">
-                    {dayEvents.map((ev) => {
+                  <div className="space-y-1 flex-1 overflow-hidden">
+                    {dayEvents.slice(0, 2).map((ev) => {
                       const cfg = STATUS_CONFIG[ev.status];
                       return (
                         <button
@@ -278,6 +279,22 @@ export function PublicCalendar() {
                         </button>
                       );
                     })}
+
+                    {dayEvents.length > 2 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDayModalData({
+                            dateStr: `${dayNum} ${thaiMonths[month]} ${year + 543}`,
+                            events: dayEvents,
+                          });
+                        }}
+                        className="w-full text-left px-1.5 py-0.5 rounded text-[11px] font-bold text-[#582c83] bg-[#f5f0fa] hover:bg-[#ede6f5] border border-[#582c83]/20 transition-colors block truncate"
+                        title={`ดูรายการทั้งหมดของวันที่ ${dayNum} (${dayEvents.length} รายการ)`}
+                      >
+                        + อีก {dayEvents.length - 2} รายการ
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -332,6 +349,82 @@ export function PublicCalendar() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* =================== DAY EVENTS LIST MODAL =================== */}
+      {dayModalData && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="day-modal-title"
+        >
+          <div className="bg-white rounded-2xl max-w-lg w-full border border-[#e4e2ea] shadow-[0_25px_60px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-5 border-b border-[#e4e2ea] flex items-center justify-between bg-[#faf8fd] shrink-0">
+              <div>
+                <h3 id="day-modal-title" className="font-extrabold text-base text-[#18181b]">
+                  รายการจองวันที่ {dayModalData.dateStr}
+                </h3>
+                <p className="text-xs text-[#52525b] mt-0.5 font-medium">
+                  ทั้งหมด {dayModalData.events.length} รายการ
+                </p>
+              </div>
+              <button
+                onClick={() => setDayModalData(null)}
+                aria-label="ปิด"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[#52525b] hover:text-[#18181b] hover:bg-white touch-target transition-colors"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto space-y-2.5 flex-1 divide-y divide-[#f0edf5]">
+              {dayModalData.events.map((ev) => {
+                const cfg = STATUS_CONFIG[ev.status];
+                return (
+                  <div
+                    key={ev.id}
+                    onClick={() => setSelectedEvent(ev)}
+                    className="pt-2.5 first:pt-0 p-3 rounded-xl hover:bg-[#faf8fd] border border-transparent hover:border-[#e4e2ea] transition-colors cursor-pointer space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                          {cfg.label}
+                        </span>
+                        <span className="text-[11px] font-bold text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-2 py-0.5 rounded-md">
+                          {ev.room_name}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-mono text-[#52525b]">{ev.booking_code}</span>
+                    </div>
+
+                    <h4 className="font-bold text-sm text-[#18181b]">{ev.activity_name}</h4>
+
+                    <div className="flex items-center justify-between pt-0.5">
+                      <p className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-[#582c83] shrink-0" aria-hidden="true" />
+                        {formatThaiTime(ev.starts_at)} – {formatThaiTime(ev.ends_at)}
+                      </p>
+                      <span className="text-xs font-bold text-[#582c83] hover:underline">
+                        ดูรายละเอียด &rarr;
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="p-4 bg-[#f8f8fc] border-t border-[#e4e2ea] flex justify-end shrink-0">
+              <button
+                onClick={() => setDayModalData(null)}
+                className="px-5 py-2 rounded-xl bg-white border border-[#e4e2ea] hover:bg-[#f5f0fa] font-bold text-xs text-[#18181b] touch-target transition-colors"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
