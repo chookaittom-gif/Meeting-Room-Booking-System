@@ -5,6 +5,7 @@ import {
   BookingConflictError,
   ValidationError,
 } from "@/lib/booking-service";
+import { sendLinePendingNotification } from "@/lib/line-service";
 import { CreateBookingPayload } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
@@ -20,6 +21,15 @@ export async function POST(req: NextRequest) {
     }
 
     const { booking, isExisting } = await createBookingAtomic(db, body);
+
+    // Non-blocking LINE notification for new pending booking
+    if (!isExisting) {
+      try {
+        await sendLinePendingNotification(db, booking.id);
+      } catch (lineErr) {
+        console.error("Non-blocking LINE pending notification failed:", lineErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,

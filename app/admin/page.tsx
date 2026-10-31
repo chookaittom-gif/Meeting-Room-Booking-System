@@ -61,6 +61,72 @@ export default function AdminDashboardPage() {
   const [isProcessingAction, setIsProcessingAction] = useState(false);
   const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
 
+  // LINE Notification settings state
+  const [lineSettings, setLineSettings] = useState<{ enabled: boolean; groupId: string | null; configured: boolean }>({
+    enabled: true,
+    groupId: null,
+    configured: false,
+  });
+  const [isTogglingLine, setIsTogglingLine] = useState(false);
+  const [isTestingPing, setIsTestingPing] = useState(false);
+  const [pingFeedback, setPingFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const loadSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      if (res.ok) {
+        const data = (await res.json()) as any;
+        if (data.success && data.settings) {
+          setLineSettings({
+            enabled: data.settings.line_notify_enabled,
+            groupId: data.settings.group_id,
+            configured: data.settings.configured,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load settings:', err);
+    }
+  };
+
+  const handleToggleLine = async () => {
+    setIsTogglingLine(true);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ line_notify_enabled: !lineSettings.enabled }),
+      });
+      const data = (await res.json()) as any;
+      if (data.success) {
+        setLineSettings((prev) => ({ ...prev, enabled: data.line_notify_enabled }));
+      }
+    } catch (err) {
+      console.error('Toggle error:', err);
+    } finally {
+      setIsTogglingLine(false);
+    }
+  };
+
+  const handleTestPing = async () => {
+    setIsTestingPing(true);
+    setPingFeedback(null);
+    try {
+      const res = await fetch('/api/admin/settings', { method: 'POST' });
+      const data = (await res.json()) as any;
+      if (data.success) {
+        setPingFeedback({ type: 'success', text: data.message });
+      } else {
+        setPingFeedback({ type: 'error', text: data.error || 'เกิดข้อผิดพลาดในการส่งข้อความทดสอบ' });
+      }
+    } catch (err: any) {
+      setPingFeedback({ type: 'error', text: err?.message || 'เกิดข้อผิดพลาดในการส่งข้อความ' });
+    } finally {
+      setIsTestingPing(false);
+      setTimeout(() => setPingFeedback(null), 6000);
+    }
+  };
+
   // Check auth
   useEffect(() => {
     async function checkAuth() {
@@ -72,6 +138,7 @@ export default function AdminDashboardPage() {
         }
         const data = (await res.json()) as any;
         setAdminUser(data.admin);
+        loadSettings();
       } catch {
         router.push("/admin/login");
       }
@@ -211,6 +278,76 @@ export default function AdminDashboardPage() {
           >
             <LogOut className="w-3.5 h-3.5" />
             ออกจากระบบ
+          </button>
+        </div>
+      </div>
+
+      {/* LINE Notification Console */}
+      <div className="card p-4 sm:p-5 bg-white border border-[#e4e2ea] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+            lineSettings.enabled
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-gray-100 text-gray-500 border-gray-200'
+          }`}>
+            <MessageSquare className="w-5 h-5" aria-hidden="true" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-extrabold text-sm text-[#18181b]">การแจ้งเตือน LINE Messaging API</h3>
+              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                lineSettings.enabled
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-gray-100 text-gray-600 border border-gray-200'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${lineSettings.enabled ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                {lineSettings.enabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+              </span>
+            </div>
+            <p className="text-xs text-[#52525b] mt-0.5">
+              แจ้งเตือนเข้ากลุ่ม {lineSettings.groupId ? `(${lineSettings.groupId})` : ''} เมื่อมีคำขอจองใหม่ และเมื่ออนุมัติห้อง
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 self-end md:self-auto flex-wrap">
+          {pingFeedback && (
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${
+              pingFeedback.type === 'success'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : 'bg-rose-50 text-rose-800 border-rose-200'
+            }`}>
+              {pingFeedback.text}
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={handleTestPing}
+            disabled={isTestingPing || !lineSettings.enabled}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#e4e2ea] bg-white hover:bg-[#f8f8fc] text-xs font-bold text-[#18181b] touch-target disabled:opacity-40 transition-colors shadow-2xs"
+          >
+            {isTestingPing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-500" />}
+            ทดสอบส่ง (Ping)
+          </button>
+
+          {/* Toggle Switch */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={lineSettings.enabled}
+            onClick={handleToggleLine}
+            disabled={isTogglingLine}
+            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#582c83] ${
+              lineSettings.enabled ? 'bg-[#059669]' : 'bg-gray-300'
+            }`}
+          >
+            <span className="sr-only">เปิดปิดการแจ้งเตือน LINE</span>
+            <span
+              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                lineSettings.enabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
           </button>
         </div>
       </div>
