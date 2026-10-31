@@ -15,6 +15,7 @@ import {
   Clock3,
   DoorOpen,
   PieChart,
+  FileText,
 } from "lucide-react";
 import type { BookingStats } from "@/lib/stats";
 import { MonthlyTrendChart, StatusDonut, RoomBars, SlotBars, TopItemsBars } from "../components/StatsCharts";
@@ -61,13 +62,22 @@ export default function StatsPage() {
             <p className="text-xs sm:text-sm text-[#595963]">ข้อมูลรวม 12 เดือนล่าสุด (ไม่แสดงข้อมูลส่วนบุคคล)</p>
           </div>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-[#582c83] bg-white border border-[#e6e2ea] hover:bg-[#faf8fd] transition-colors touch-target"
-        >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          หน้าหลัก
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/report"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-white bg-[#582c83] hover:bg-[#48236b] shadow-[0_2px_8px_rgba(88,44,131,0.22)] transition-colors touch-target"
+          >
+            <FileText className="w-4 h-4" aria-hidden="true" />
+            รายงานประจำเดือน
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-[#582c83] bg-white border border-[#e6e2ea] hover:bg-[#faf8fd] transition-colors touch-target"
+          >
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            หน้าหลัก
+          </Link>
+        </div>
       </div>
 
       {loading && <StatsSkeleton />}
