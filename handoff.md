@@ -22,6 +22,7 @@
 
 - ลบคำว่า "และสิ่งอำนวยความสะดวก" ออกจากหัวรายงาน — เหลือ "รายงานสรุปการใช้บริการห้องประชุม" (`app/admin/report/page.tsx:89`)
 - ตรวจแล้วว่า build output ไม่มีชื่อเก่าค้าง; tests 69/69 + typecheck + build:worker ผ่าน; deploy `813dc22c-2191-416b-8af6-b4b5cc41ec71`
+- `03d2b69` — แก้ชื่อหน่วยงานผู้รับผิดชอบข้อมูลเป็น "งานอาคารสถานที่ ศูนย์การศึกษาลำปาง" (ตัด "และกายภาพ" ออก); deploy `e7a3d194-3cad-4383-aa05-937c535755f5`
 
 ### 1. ตรวจ Responsive ครบทุกหน้า (Desktop + Mobile) และแก้จุดที่พัง
 
@@ -84,7 +85,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `813dc22c-2191-416b-8af6-b4b5cc41ec71` (Commit: `e613183`)
+- **Latest Deployed Version**: `e7a3d194-3cad-4383-aa05-937c535755f5` (Commit: `03d2b69`)
 
 ---
 
