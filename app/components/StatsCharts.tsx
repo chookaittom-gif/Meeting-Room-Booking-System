@@ -6,6 +6,8 @@ import type { MonthlyStat, RoomStat, TopItemStat } from "@/lib/stats";
 const PURPLE = "#582c83";
 const PURPLE_LIGHT = "#9a6fc0";
 const AMBER = "#f59e0b";
+const EMERALD = "#10b981";
+const EMERALD_LIGHT = "#34d399";
 const ROSE = "#e11d48";
 const GRAY = "#9ca3af";
 
@@ -70,9 +72,9 @@ export function MonthlyTrendChart({ monthly, mode }: MonthlyTrendProps) {
             const h = PAD_T + plotH - y;
             return (
               <g key={m.month} onMouseEnter={() => setHoverIdx(i)} onMouseLeave={() => setHoverIdx(null)}>
-                <rect x={x} y={y} width={barW} height={Math.max(h, v > 0 ? 3 : 0)} rx="5" fill={PURPLE} opacity={isHover ? 1 : 0.88} />
+                <rect x={x} y={y} width={barW} height={Math.max(h, v > 0 ? 3 : 0)} rx="5" fill={EMERALD} opacity={isHover ? 1 : 0.88} />
                 {!isHover && v > 0 && (
-                  <rect x={x} y={y} width={barW} height={Math.min(10, Math.max(h, 0))} rx="5" fill={PURPLE_LIGHT} opacity="0.55" />
+                  <rect x={x} y={y} width={barW} height={Math.min(10, Math.max(h, 0))} rx="5" fill={EMERALD_LIGHT} opacity="0.55" />
                 )}
                 <MonthLabel cx={cx} y={H - 8} month={m.label_th} idx={i} total={monthly.length} />
               </g>
@@ -80,7 +82,7 @@ export function MonthlyTrendChart({ monthly, mode }: MonthlyTrendProps) {
           }
           // stacked: approved (bottom), pending, rejected, cancelled (top)
           const segs = [
-            { v: m.counts.approved, fill: PURPLE },
+            { v: m.counts.approved, fill: EMERALD },
             { v: m.counts.pending, fill: AMBER },
             { v: m.counts.rejected, fill: ROSE },
             { v: m.counts.cancelled, fill: GRAY },
@@ -123,7 +125,7 @@ export function MonthlyTrendChart({ monthly, mode }: MonthlyTrendProps) {
             <p>ใช้งาน {hovered.hours_approved.toLocaleString("th-TH")} ชม. (อนุมัติ)</p>
           ) : (
             <div className="space-y-0.5">
-              <p className="text-purple-300">อนุมัติ {hovered.counts.approved}</p>
+              <p className="text-emerald-300">อนุมัติ {hovered.counts.approved}</p>
               <p className="text-amber-300">รออนุมัติ {hovered.counts.pending}</p>
               <p className="text-rose-300">ไม่อนุมัติ {hovered.counts.rejected}</p>
               <p className="text-gray-300">ยกเลิก {hovered.counts.cancelled}</p>
@@ -136,7 +138,7 @@ export function MonthlyTrendChart({ monthly, mode }: MonthlyTrendProps) {
       {/* legend */}
       {mode === "bookings" ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 justify-center mt-1 text-[11px] text-[#595963]">
-          <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: PURPLE }} />อนุมัติ</span>
+          <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: EMERALD }} />อนุมัติ</span>
           <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: AMBER }} />รออนุมัติ</span>
           <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: ROSE }} />ไม่อนุมัติ</span>
           <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: GRAY }} />ยกเลิก</span>
@@ -169,7 +171,7 @@ export function StatusDonut({ summary }: DonutProps) {
   const R = 54;
   const C = 2 * Math.PI * R;
   const segs = [
-    { label: "อนุมัติ", v: summary.approved, color: PURPLE },
+    { label: "อนุมัติ", v: summary.approved, color: EMERALD },
     { label: "รออนุมัติ", v: summary.pending, color: AMBER },
     { label: "ไม่อนุมัติ", v: summary.rejected, color: ROSE },
     { label: "ยกเลิก", v: summary.cancelled, color: GRAY },

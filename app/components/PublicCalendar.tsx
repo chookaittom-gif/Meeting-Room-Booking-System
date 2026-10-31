@@ -162,21 +162,24 @@ export function PublicCalendar() {
 
           <span className="font-bold text-[#18181b] ml-2">สถานะ:</span>
           {[
-            { id: "all", label: "ทุกสถานะ" },
-            { id: "pending", label: "รอการอนุมัติ" },
-            { id: "approved", label: "อนุมัติแล้ว" },
-            { id: "rejected", label: "ไม่อนุมัติ" },
-            { id: "cancelled", label: "ยกเลิก" },
+            { id: "all", label: "ทุกสถานะ", active: "", dot: "" },
+            { id: "pending", label: "รอการอนุมัติ", active: "bg-amber-500", dot: "bg-amber-500" },
+            { id: "approved", label: "อนุมัติแล้ว", active: "bg-emerald-600", dot: "bg-emerald-500" },
+            { id: "rejected", label: "ไม่อนุมัติ", active: "bg-rose-600", dot: "bg-rose-500" },
+            { id: "cancelled", label: "ยกเลิก", active: "bg-gray-500", dot: "bg-gray-400" },
           ].map((sf) => (
             <button
               key={sf.id}
               onClick={() => setStatusFilter(sf.id)}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition-colors touch-target ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition-colors touch-target ${
                 statusFilter === sf.id
-                  ? "bg-[#582c83] text-white"
+                  ? sf.id === "all"
+                    ? "bg-[#582c83] text-white"
+                    : `${sf.active} text-white shadow-xs`
                   : "bg-[#f5f0fa] text-[#52525b] hover:bg-[#ede6f5]"
               }`}
             >
+              {sf.dot && <span className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === sf.id ? "bg-white" : sf.dot}`} aria-hidden="true" />}
               {sf.label}
             </button>
           ))}
