@@ -18,7 +18,15 @@
 
 ## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
 
-### 0. รายงานประจำเดือน: จุดเข้าเดียวที่ /stats (`7fca84c`)
+### 0. ปุ่มจองห้อง × 2 บนหน้าแรก: คงไว้ทั้งคู่ + room prefill (`4f7d4aa`)
+
+- **ตัดสินใจ (ผู้ใช้เลือกทาง 1)**: ปุ่ม header "จองห้องประชุม" (ทุกหน้า, `app/layout.tsx:69`) และ sidebar CTA "เริ่มจองห้องประชุมนี้" (หน้าแรก, `app/page.tsx:248`) **คงไว้ทั้งสอง** — แต่เดิมทั้งคู่ชี้ `/book` เฉยๆ ไม่ส่ง context ห้อง ทำให้คำว่า "ห้องนี้" เป็นเท็จ
+- **แก้แล้ว**: CTA หน้าแรกส่งห้องที่เลือก (แท็บชั้น 7/ชั้น 2) ไปเป็น `/book?room=floor7|floor2`; `/book` อ่าน `?room=` ตอน mount แล้ว prefill `room_id` (รับเฉพาะค่าที่ valid) (`app/book/page.tsx:26`)
+- ปุ่ม header ยังชี้ `/book` ธรรมดา (global entry — ไม่มี context ห้องให้ส่ง)
+- ตรวจ prod แล้ว: `/book?room=floor2` เลือก "หอประชุมชั้น 2" ✓, `/book?room=floor7` เลือก "ห้องประชุมชั้น 7" ✓, ลิงก์ CTA บน `/` = `/book?room=floor7` ✓; tests 69/69 + typecheck + build:worker ผ่าน; deploy `d980343f-9aa7-4054-b5a0-1ca03d5042e8`
+- หมายเหตุ: ห้อง "พระเกี้ยวกลางแจ้ง" บนหน้าแรกไม่อยู่ใน `/book` (ฟอร์มรับเฉพาะ floor2/floor7) — prefill จึงครอบคลุมเฉพาะ 2 ห้องนั้น
+
+### 0.1 รายงานประจำเดือน: จุดเข้าเดียวที่ /stats (`7fca84c`)
 
 - **ตัดสินใจสุดท้ายของผู้ใช้**: ปุ่ม "รายงานประจำเดือน" มีจุดเดียวพอ — อยู่บนหน้า /stats (public) — และ**ลบปุ่มในแดชบอร์ดผู้ดูแลออก**
 - **ลบ `/admin/report` route ทิ้ง** (orphaned หลังลบปุ่ม) — เหลือเพียง `/report` (public, no login) เป็น single source of truth; `ReportToolbar` มี props `basePath`/`backHref` ไว้ reuse
@@ -94,7 +102,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `c768c653-99bf-473e-aa80-90d96bd898dd` (Commit: `7fca84c`)
+- **Latest Deployed Version**: `d980343f-9aa7-4054-b5a0-1ca03d5042e8` (Commit: `4f7d4aa`)
 
 ---
 
