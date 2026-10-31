@@ -86,7 +86,7 @@ export default async function MonthlyReportPage({ searchParams }: Props) {
         <header className="text-center mb-5">
           <p style={{ fontSize: "15pt" }}>มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง</p>
           <h1 className="font-bold" style={{ fontSize: "20pt", margin: "2px 0" }}>
-            รายงานสรุปการใช้บริการห้องประชุมและสิ่งอำนวยความสะดวก
+            รายงานสรุปการใช้บริการห้องประชุม
           </h1>
           <p className="font-bold" style={{ fontSize: "18pt" }}>
             ประจำเดือน {thaiMonthYearFull(monthKey)}
