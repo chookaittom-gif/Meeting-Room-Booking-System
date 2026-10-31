@@ -18,12 +18,14 @@
 
 ## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
 
-### 0. เปิดรายงานประจำเดือนให้ผู้ใช้ทั่วไป (`eea4ba7`)
+### 0. รายงานประจำเดือน: จุดเข้าเดียวที่ /stats (`7fca84c`)
 
-- **URL public ใหม่**: `/report` — อ่านได้โดยไม่ต้อง login (เทียบเท่า /stats), ปุ่มพิมพ์/บันทึก PDF ตัวเดิม, `robots: noindex` (เอกสารราชการไม่ทำ SEO), ลิงก์เข้าจากปุ่ม "รายงานประจำเดือน" บนหน้า /stats
-- **โครงสร้าง**: extract เอกสารเป็น `app/components/MonthlyReportSheet.tsx` (ใช้ร่วมกัน), `ReportToolbar` เพิ่ม props `basePath`/`backHref`; `/admin/report` คงเดิม (auth ครบ, ยืนยัน prod แล้วว่า 307 → login เมื่อไม่ login)
+- **ตัดสินใจสุดท้ายของผู้ใช้**: ปุ่ม "รายงานประจำเดือน" มีจุดเดียวพอ — อยู่บนหน้า /stats (public) — และ**ลบปุ่มในแดชบอร์ดผู้ดูแลออก**
+- **ลบ `/admin/report` route ทิ้ง** (orphaned หลังลบปุ่ม) — เหลือเพียง `/report` (public, no login) เป็น single source of truth; `ReportToolbar` มี props `basePath`/`backHref` ไว้ reuse
+- **PDF: ไม่สร้าง** — ปุ่มพิมพ์ print dialog save เป็น PDF ได้อยู่แล้ว (A4 + TH Sarabun ตรงเทมเพลต); การสร้าง PDF ฝั่ง server บน Workers ต้องพึ่ง service ใหม่ ไม่คุ้ม
 - **LINE ปฏิเสธ/ยกเลิก ไม่แจ้ง = ถูกต้องตาม design** (push immutable, โควตา LINE, staff ดูสถานะใน dashboard) — ถ้าอนาคตต้องการ แนะนำ text สั้น ไม่ใช่ flex card
-- ตรวจ prod แล้ว: `GET /report` = 200 พร้อมเนื้อรายงานเต็ม, `/admin/report` ไม่ login = 307 → `/admin/login`; tests 69/69 + typecheck + build:worker ผ่าน; deploy `253e8a12-1c1e-4535-bb9e-972ecb8443c2`
+- ตรวจ prod แล้ว: `/report` = 200, `/admin/report` = 404 (ลบแล้ว), ปุ่มบน /stats แสดง; tests 69/69 + typecheck + build:worker ผ่าน; deploy `c768c653-99bf-473e-aa80-90d96bd898dd`
+- ประวัติการตัดสินใจ: `eea4ba7` เปิด `/report` public + ปุ่มทั้ง /stats และแดชบอร์ด → ผู้ใช้สั่ง "จุดเดียวพอ ลบในผู้ดูแลออก" → `7fca84c`
 
 ### 0.1 แก้ชื่อรายงานประจำเดือน (`e613183`)
 
@@ -92,7 +94,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `253e8a12-1c1e-4535-bb9e-972ecb8443c2` (Commit: `eea4ba7`)
+- **Latest Deployed Version**: `c768c653-99bf-473e-aa80-90d96bd898dd` (Commit: `7fca84c`)
 
 ---
 
