@@ -39,3 +39,9 @@ re-read whole files.
 After big code changes, refresh the graph with `graft build` (deterministic,
 no API key, $0).
 <!-- graft:end -->
+
+## Project Workflow: Test-Pass -> Auto-Commit & Deploy
+Whenever task implementation or bug fix is verified and all project checks pass (`npm test`, `npm run typecheck`, and worker build):
+1. **Commit**: Immediately stage files and create a clean conventional commit following Sentry conventions (`feat:`, `fix:`, etc.).
+2. **Push & Deploy**: Push to `origin main` and deploy to Cloudflare Workers via `npm run deploy` without requiring an extra prompt.
+3. **Report**: Report the commit hash, deployed version, and live URL to the user with evidence.

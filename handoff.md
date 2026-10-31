@@ -45,6 +45,7 @@
 - **Runtime & Deployment**: Cloudflare Workers via `@opennextjs/cloudflare`
 - **Styling**: Tailwind CSS v4 + Lucide-React
 - **Database**: Cloudflare D1 (SQLite-based serverless DB)
+- **Workflow Automation**: Auto-commit & auto-deploy pipeline triggered upon test passing (persisted in `AGENTS.md`, `GEMINI.md`, `.github/copilot-instructions.md`)
 
 ---
 
