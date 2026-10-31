@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import "./globals.css";
 import { Footer } from "./components/Footer";
 import { verifySessionToken } from "../lib/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, LogIn, LogOut, BarChart3, ShieldCheck } from "lucide-react";
+import { CalendarDays, LogIn, BarChart3, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "ระบบจองห้องประชุม | มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
@@ -29,12 +28,6 @@ export default async function RootLayout({
   const isLoggedIn = sessionCookie
     ? (await verifySessionToken(sessionCookie)) !== null
     : false;
-
-  async function handleLogout() {
-    "use server";
-    (await cookies()).delete("admin_session");
-    redirect("/");
-  }
 
   return (
     <html lang="th" className="h-full">
@@ -99,26 +92,14 @@ export default async function RootLayout({
                   <span className="hidden sm:inline">เข้าสู่ระบบ</span>
                 </Link>
               ) : (
-                <>
-                  <Link
-                    href="/admin"
-                    aria-label="ไปยังหน้าผู้ดูแลระบบ"
-                    className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
-                  >
-                    <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-                    <span className="hidden sm:inline">ผู้ดูแล</span>
-                  </Link>
-                  <form action={handleLogout}>
-                    <button
-                      type="submit"
-                      aria-label="ออกจากระบบ"
-                      className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#be123c] bg-white hover:bg-red-50 border border-[#e4e2ea] hover:border-[#be123c]/40 transition-colors touch-target whitespace-nowrap cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4" aria-hidden="true" />
-                      <span className="hidden sm:inline">ออกจากระบบ</span>
-                    </button>
-                  </form>
-                </>
+                <Link
+                  href="/admin"
+                  aria-label="ไปยังหน้าผู้ดูแลระบบ"
+                  className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
+                >
+                  <ShieldCheck className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">ผู้ดูแล</span>
+                </Link>
               )}
             </nav>
           </div>
