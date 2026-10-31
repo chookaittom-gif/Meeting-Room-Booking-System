@@ -16,7 +16,29 @@
 
 ---
 
-## 🎨 สรุปการปรับปรุง UI/UX ล่าสุด (Modern Tech Bento Grid Redesign)
+## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
+
+### 1. ตรวจ Responsive ครบทุกหน้า (Desktop + Mobile) และแก้จุดที่พัง
+
+- ตรวจด้วย Chrome DevTools (device emulation) ครบทุกหน้า: `/`, `/book` (ขั้นตอน 1–5), `/book/success`, `/stats`, `/admin/login`, `/admin` — ที่ viewport 320/360/375/1280px
+- ผลตรวจ: ไม่มี horizontal overflow ทุกหน้า, touch targets ≥ 44px, console error = 0
+- **Fix ที่ทำ**:
+  - `bcbe9c2` / `694347b` — nav ล้นขอบขวาบนจอแคบ: ลด gap โลโก้ + เพิ่ม tier ปุ่ม "จอง" (เต็ม ≥420px / "จองห้อง" ≥375px / "จอง" ต่ำกว่านั้น) + brand truncate (`app/layout.tsx`)
+  - `554300d` — toggle แจ้งเตือน LINE ขยาย hit area เป็น 64×44px ด้วย pseudo-element `before:-inset-2.5` (ภาพเดิม) (`app/admin/page.tsx`)
+  - `31a1453` — หลัง login nav เคยค้าง "เข้าสู่ระบบ" จนกว่า reload: เปลี่ยน `router.push` เป็น `window.location.assign("/admin")` ให้ server layout อ่าน session สด (`app/admin/login/page.tsx`)
+
+### 2. หน้ารายงานสรุปการใช้ห้องประชุมประจำเดือน (`acdfeb9`)
+
+- **เส้นทางใหม่**: `/admin/report` (เฉพาะผู้ดูแล — ตรวจ `admin_session` cookie ฝั่ง server) + ปุ่ม "รายงานประจำเดือน" บน dashboard
+- **ฟอร์มตามเทมเพลตราชการ**: พิมพ์ A4 แนวตั้ง 1 หน้าพอดี (`@page A4 15mm`) ฟอนต์ TH Sarabun New 16pt (มี webfont Sarabun สำรอง) — พิมพ์/บันทึก PDF ผ่าน print dialog ของเบราว์เซอร์ ไม่ใช้ PDF library
+- **โครงสร้างรายงาน** (ตามเทมเพลต RTF ของผู้ใช้): ① สรุปภาพรวม ② ตารางรายห้อง (ครั้ง/ชม./%/โครงการหลัก) ③ จำแนกตามประเภทการใช้งาน ④ การยกเลิก ⑤ ยืนยันจากระบบ
+- **การตัดสินใจออกแบบ (จากข้อจำกัดข้อมูล)**: หน่วยงานหลักใช้ `project_name`, วัตถุประสงค์ map จาก `meeting_type` (seminar→อบรม/สัมมนา, small_group→ประชุม, wedding→พิธีมงคล), **ตัดหัวข้อ No-Show ออก** (ระบบไม่เก็บข้อมูล), utilization = ชม.ใช้ ÷ (วันทำการ × 8 ชม. × จำนวนห้อง)
+- **ไฟล์ใหม่**: `lib/monthly-report.ts` (aggregate, reuse ICT helper จาก lib/stats.ts), `app/admin/report/page.tsx`, `app/components/ReportToolbar.tsx` (เลือกย้อนหลัง 12 เดือน + ปุ่มพิมพ์)
+- **ยังไม่ได้ตรวจ**: การพิมพ์ PDF จริงจากเบราว์เซอร์ (headless เปิด print dialog ไม่ได้) — ควรลอง Ctrl+P จริง 1 ครั้ง
+
+---
+
+## 🎨 สรุปการปรับปรุง UI/UX (Modern Tech Bento Grid Redesign)
 
 1. **แก้ปัญหาภาพโดนตัด (Aspect Ratio Fix)**:
    - ปรับอัตราส่วนภาพเป็น `aspectRatio: "16 / 7"` เต็มความกว้าง ป้องกัน `object-cover` ตัดด้านข้างบนหน้าจอทุกขนาด
@@ -57,7 +79,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `fd1526dc-b9dd-4f77-a888-4cf26b430622` (Commit: `6c6a517`)
+- **Latest Deployed Version**: `a5c28f59-52ff-400e-a214-7b4dfb129873` (Commit: `acdfeb9`)
 
 ---
 
