@@ -52,6 +52,12 @@
 - **Styling**: Tailwind CSS v4 + Lucide-React
 - **Database**: Cloudflare D1 (SQLite-based serverless DB)
 - **Workflow Automation**: Auto-commit & auto-deploy pipeline triggered upon test passing (persisted in `AGENTS.md`, `GEMINI.md`, `.github/copilot-instructions.md`)
+- **Admin Display Names & Roles**:
+  - `chookait`: ชูเกียรติ กุศลสถิตย์ (Role: `superadmin`)
+  - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
+  - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
+- **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
+- **Latest Deployed Version**: `fd1526dc-b9dd-4f77-a888-4cf26b430622` (Commit: `6c6a517`)
 
 ---
 
