@@ -116,6 +116,10 @@ export async function getLineCredentials(): Promise<{ token?: string; groupId?: 
     }
   }
 
+  // Clean any accidental quotes or whitespace
+  token = token?.replace(/^["']|["']$/g, "").trim();
+  groupId = groupId?.replace(/^["']|["']$/g, "").trim();
+
   return { token, groupId };
 }
 
