@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBookingStore, toEpochSeconds } from "@/lib/booking-store";
+import { formatThaiDateString } from "@/lib/date-utils";
 import { FOOD_CATALOG, FoodItemCatalog, TableLayout, MeetingType } from "@/lib/types";
 import { Calendar, Users, Utensils, Coffee, CheckCircle, ChevronRight, ChevronLeft, AlertCircle, Loader2, Sparkles, Clock, ShieldCheck } from "lucide-react";
 
@@ -411,12 +412,27 @@ export default function BookingWizardPage() {
                 <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
                   วันที่ต้องการจอง <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="date"
-                  value={formData.booking_date}
-                  onChange={(e) => updateFormData({ booking_date: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
-                />
+                <div className="relative">
+                  <div className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] flex items-center justify-between text-sm touch-target shadow-2xs pointer-events-none">
+                    <span className={formData.booking_date ? "font-semibold text-[#1e1e24]" : "text-[#a1a1aa]"}>
+                      {formData.booking_date ? formatThaiDateString(formData.booking_date) : "เลือกวันที่ต้องการจอง"}
+                    </span>
+                    <Calendar className="w-4 h-4 text-[#582c83] shrink-0" />
+                  </div>
+                  <input
+                    type="date"
+                    value={formData.booking_date}
+                    onChange={(e) => updateFormData({ booking_date: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    aria-label="วันที่ต้องการจอง"
+                  />
+                </div>
+                {formData.booking_date && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5f0fa] border border-[#582c83]/20 text-[#582c83] text-xs font-semibold">
+                    <Calendar className="w-3.5 h-3.5 shrink-0" />
+                    <span>วันที่เลือก: {formatThaiDateString(formData.booking_date)}</span>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:col-span-2">
@@ -779,7 +795,7 @@ export default function BookingWizardPage() {
               <div className="p-5 rounded-2xl bg-[#faf7fd] border border-[#e6e2ea] space-y-2">
                 <span className="text-xs font-bold text-[#582c83]">ห้องและช่วงเวลา</span>
                 <p className="text-sm font-bold text-[#1e1e24]">{roomName}</p>
-                <p className="text-xs text-[#595963]">วันที่: {formData.booking_date}</p>
+                <p className="text-xs text-[#595963]">วันที่: <span className="font-semibold text-[#1e1e24]">{formatThaiDateString(formData.booking_date)}</span></p>
                 <p className="text-xs text-[#595963]">เวลา: {formData.start_time} – {formData.end_time} น.</p>
                 <p className="text-xs text-[#595963]">ผู้เข้าร่วม: {formData.attendees_count} คน (เจ้าหน้าที่ {formData.staff_count} คน)</p>
                 <p className="text-xs text-[#595963]">ผังโต๊ะ: {formData.table_layout} | VVIP: {formData.vvip_seats} | VIP: {formData.vip_seats}</p>

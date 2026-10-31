@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Calendar, ArrowRight, Home } from "lucide-react";
+import { formatThaiEpochDate, formatThaiEpochTime } from "@/lib/date-utils";
 
 export default function BookingSuccessPage() {
   const [booking, setBooking] = useState<any>(null);
@@ -46,6 +47,9 @@ export default function BookingSuccessPage() {
           <div className="text-xs text-[#595963] space-y-1.5 font-medium">
             <p><strong className="text-[#1e1e24]">กิจกรรม:</strong> {booking.activity_name}</p>
             <p><strong className="text-[#1e1e24]">ห้อง:</strong> {booking.room_id === "floor7" ? "ห้องประชุมชั้น 7" : "หอประชุมชั้น 2"}</p>
+            {booking.starts_at && (
+              <p><strong className="text-[#1e1e24]">วัน-เวลา:</strong> <span className="text-[#582c83] font-semibold">{formatThaiEpochDate(booking.starts_at)} ({formatThaiEpochTime(booking.starts_at)} – {formatThaiEpochTime(booking.ends_at)})</span></p>
+            )}
             <p><strong className="text-[#1e1e24]">ยอดรวมทั้งสิ้น (รวม VAT):</strong> <span className="text-[#582c83] font-black">{booking.total_price_thb?.toLocaleString()} บาท</span></p>
           </div>
         </div>
