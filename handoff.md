@@ -18,7 +18,14 @@
 
 ## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
 
-### 0. แก้ชื่อรายงานประจำเดือน (`e613183`)
+### 0. เปิดรายงานประจำเดือนให้ผู้ใช้ทั่วไป (`eea4ba7`)
+
+- **URL public ใหม่**: `/report` — อ่านได้โดยไม่ต้อง login (เทียบเท่า /stats), ปุ่มพิมพ์/บันทึก PDF ตัวเดิม, `robots: noindex` (เอกสารราชการไม่ทำ SEO), ลิงก์เข้าจากปุ่ม "รายงานประจำเดือน" บนหน้า /stats
+- **โครงสร้าง**: extract เอกสารเป็น `app/components/MonthlyReportSheet.tsx` (ใช้ร่วมกัน), `ReportToolbar` เพิ่ม props `basePath`/`backHref`; `/admin/report` คงเดิม (auth ครบ, ยืนยัน prod แล้วว่า 307 → login เมื่อไม่ login)
+- **LINE ปฏิเสธ/ยกเลิก ไม่แจ้ง = ถูกต้องตาม design** (push immutable, โควตา LINE, staff ดูสถานะใน dashboard) — ถ้าอนาคตต้องการ แนะนำ text สั้น ไม่ใช่ flex card
+- ตรวจ prod แล้ว: `GET /report` = 200 พร้อมเนื้อรายงานเต็ม, `/admin/report` ไม่ login = 307 → `/admin/login`; tests 69/69 + typecheck + build:worker ผ่าน; deploy `253e8a12-1c1e-4535-bb9e-972ecb8443c2`
+
+### 0.1 แก้ชื่อรายงานประจำเดือน (`e613183`)
 
 - ลบคำว่า "และสิ่งอำนวยความสะดวก" ออกจากหัวรายงาน — เหลือ "รายงานสรุปการใช้บริการห้องประชุม" (`app/admin/report/page.tsx:89`)
 - ตรวจแล้วว่า build output ไม่มีชื่อเก่าค้าง; tests 69/69 + typecheck + build:worker ผ่าน; deploy `813dc22c-2191-416b-8af6-b4b5cc41ec71`
@@ -85,7 +92,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `e7a3d194-3cad-4383-aa05-937c535755f5` (Commit: `03d2b69`)
+- **Latest Deployed Version**: `253e8a12-1c1e-4535-bb9e-972ecb8443c2` (Commit: `eea4ba7`)
 
 ---
 
