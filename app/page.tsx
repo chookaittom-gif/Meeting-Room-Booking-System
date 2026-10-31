@@ -246,10 +246,10 @@ export default function HomePage() {
             {/* Quick Action Button */}
             <div className="pt-2">
               <Link
-                href="/book"
+                href={`/book?room=${activeRoom}`}
                 className="w-full btn-primary touch-target text-sm font-bold shadow-md hover:shadow-lg transition-all"
               >
-                <span>เริ่มจองห้องประชุมทันที</span>
+                <span>เริ่มจองห้องประชุมนี้</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
               <p className="text-[11px] text-center text-[#71717a] mt-2">

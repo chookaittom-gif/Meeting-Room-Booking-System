@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBookingStore, toEpochSeconds } from "@/lib/booking-store";
 import { formatThaiDateString } from "@/lib/date-utils";
@@ -22,6 +22,13 @@ export default function BookingWizardPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Prefill room from ?room= query (e.g. /book?room=floor7 from homepage CTA)
+  useEffect(() => {
+    const room = new URLSearchParams(window.location.search).get("room");
+    if (room === "floor2" || room === "floor7") updateFormData({ room_id: room });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isLoaded) {
     return (
