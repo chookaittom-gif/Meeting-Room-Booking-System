@@ -123,7 +123,7 @@ export function MonthlyTrendChart({ monthly, mode }: MonthlyTrendProps) {
             <p>ใช้งาน {hovered.hours_approved.toLocaleString("th-TH")} ชม. (อนุมัติ)</p>
           ) : (
             <div className="space-y-0.5">
-              <p className="text-emerald-300">อนุมัติ {hovered.counts.approved}</p>
+              <p className="text-purple-300">อนุมัติ {hovered.counts.approved}</p>
               <p className="text-amber-300">รออนุมัติ {hovered.counts.pending}</p>
               <p className="text-rose-300">ไม่อนุมัติ {hovered.counts.rejected}</p>
               <p className="text-gray-300">ยกเลิก {hovered.counts.cancelled}</p>
