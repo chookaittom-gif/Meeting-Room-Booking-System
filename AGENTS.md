@@ -63,3 +63,4 @@ Whenever task implementation or bug fix is verified and all project checks pass 
 1. **Commit**: Immediately stage files and create a clean conventional commit following Sentry conventions (`feat:`, `fix:`, etc.).
 2. **Push & Deploy**: Push to `origin main` and deploy to Cloudflare Workers via `npm run deploy` without requiring an extra prompt.
 3. **Report**: Report the commit hash, deployed version, and live URL to the user with evidence.
+4. **Handoff**: Immediately after a successful deploy, update `handoff.md` — refresh the latest-work section and the **Latest Deployed Version** line (deploy version id + commit hash) — and commit the doc update as its own `docs:` commit. Handoff docs that cite production state are part of the pipeline, not a remembered chore.
