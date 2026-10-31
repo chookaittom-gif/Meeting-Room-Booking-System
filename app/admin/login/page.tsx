@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Lock, User, AlertCircle, Loader2, Eye, EyeOff, ShieldCheck, Clock } from "lucide-react";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,8 +46,8 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Success
-      router.push("/admin");
+      // Success — full page load so the server layout picks up the new session cookie
+      window.location.assign("/admin");
     } catch {
       setErrorMsg("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
       setIsLoading(false);
