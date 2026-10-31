@@ -3,9 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createMemoryD1Database } from './sqlite-d1-adapter';
 import { setTestDatabase } from '../lib/db';
-import { createSessionToken, verifyPassword } from '../lib/auth';
+import { createSessionToken, verifyPassword, verifySessionToken } from '../lib/auth';
 import { GET as usersGET, POST as usersPOST } from '../app/api/admin/users/route';
-import { DELETE as userDELETE } from '../app/api/admin/users/[id]/route';
+import { DELETE as userDELETE, PATCH as userPATCH } from '../app/api/admin/users/[id]/route';
 import { POST as resetPasswordPOST } from '../app/api/admin/users/[id]/reset-password/route';
 import { POST as loginPOST } from '../app/api/admin/login/route';
 import { NextRequest } from 'next/server';
@@ -14,11 +14,13 @@ describe('Phase 7: User Management & Superadmin Role Control', () => {
   let db: D1Database;
   const initialSchema = fs.readFileSync(path.join(process.cwd(), 'migrations', '0001_initial_schema.sql'), 'utf8');
   const roleSchema = fs.readFileSync(path.join(process.cwd(), 'migrations', '0003_admin_roles.sql'), 'utf8');
+  const namesSchema = fs.readFileSync(path.join(process.cwd(), 'migrations', '0004_update_admin_names.sql'), 'utf8');
 
   beforeEach(async () => {
     db = createMemoryD1Database();
     await db.exec(initialSchema);
     await db.exec(roleSchema);
+    await db.exec(namesSchema);
     setTestDatabase(db);
   });
 
@@ -195,5 +197,74 @@ describe('Phase 7: User Management & Superadmin Role Control', () => {
     expect(delSelfRes.status).toBe(400);
     const delSelfData: any = await delSelfRes.json();
     expect(delSelfData.error).toContain('ไม่สามารถลบบัญชีตนเองได้');
+  });
+
+  it('7.6 should verify updated admin names and allow superadmin to edit admin display name', async () => {
+    const superadminToken = await createSessionToken({
+      adminId: 'admin_chookait',
+      username: 'chookait',
+      displayName: 'ชูเกียรติ กุศลสถิตย์',
+      role: 'superadmin',
+    });
+
+    // 1. Verify 0004 migration names in listing
+    const listReq = await makeRequest('http://localhost:3000/api/admin/users', { token: superadminToken });
+    const listRes = await usersGET(listReq);
+    const listData: any = await listRes.json();
+    const pathaithep = listData.users.find((u: any) => u.username === 'pathaithep');
+    const nathlada = listData.users.find((u: any) => u.username === 'nathlada');
+    expect(pathaithep.displayName).toBe('ไผทเทพ ตุทานนท์');
+    expect(nathlada.displayName).toBe('นาถลดา ศรียะพันธ์');
+
+    // 2. Superadmin updates display name of pathaithep
+    const patchReq = await makeRequest('http://localhost:3000/api/admin/users/admin_pathaithep', {
+      method: 'PATCH',
+      body: { display_name: 'ไผทเทพ ตุทานนท์ (หัวหน้า)' },
+      token: superadminToken,
+    });
+    const patchRes = await userPATCH(patchReq, { params: Promise.resolve({ id: 'admin_pathaithep' }) });
+    expect(patchRes.status).toBe(200);
+    const patchData: any = await patchRes.json();
+    expect(patchData.admin.displayName).toBe('ไผทเทพ ตุทานนท์ (หัวหน้า)');
+
+    // 3. Regular admin cannot patch display name (403)
+    const normalAdminToken = await createSessionToken({
+      adminId: 'admin_pathaithep',
+      username: 'pathaithep',
+      displayName: 'ไผทเทพ ตุทานนท์',
+      role: 'admin',
+    });
+    const regularPatchReq = await makeRequest('http://localhost:3000/api/admin/users/admin_nathlada', {
+      method: 'PATCH',
+      body: { display_name: 'New Name' },
+      token: normalAdminToken,
+    });
+    const regularPatchRes = await userPATCH(regularPatchReq, { params: Promise.resolve({ id: 'admin_nathlada' }) });
+    expect(regularPatchRes.status).toBe(403);
+  });
+
+  it('7.7 should reject session tokens that have exceeded the 8-hour expiry', async () => {
+    // Generate an expired token (exp in past)
+    const payload = {
+      adminId: 'admin_chookait',
+      username: 'chookait',
+      displayName: 'ชูเกียรติ กุศลสถิตย์',
+      role: 'superadmin',
+      exp: Math.floor(Date.now() / 1000) - 10, // 10 seconds ago
+    };
+    const payloadBase64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      enc.encode('suan-dusit-lampang-meeting-room-default-secret-key-2026'),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign', 'verify']
+    );
+    const sig = await crypto.subtle.sign('HMAC', key, enc.encode(payloadBase64));
+    const expiredToken = `${payloadBase64}.${Buffer.from(sig).toString('base64url')}`;
+
+    const verified = await verifySessionToken(expiredToken);
+    expect(verified).toBeNull();
   });
 });

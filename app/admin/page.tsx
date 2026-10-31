@@ -73,6 +73,7 @@ export default function AdminDashboardPage() {
   const [isTestingPing, setIsTestingPing] = useState(false);
   const [pingFeedback, setPingFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [isSessionExpiredModalOpen, setIsSessionExpiredModalOpen] = useState(false);
 
   const loadSettings = async () => {
     try {
@@ -131,23 +132,40 @@ export default function AdminDashboardPage() {
   };
 
   // Check auth
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) {
-          router.push("/admin/login");
-          return;
-        }
-        const data = (await res.json()) as any;
-        setAdminUser(data.admin);
-        loadSettings();
-      } catch {
-        router.push("/admin/login");
+  const checkAuth = async () => {
+    try {
+      const res = await fetch("/api/admin/me");
+      if (!res.ok) {
+        router.push("/admin/login?reason=expired");
+        return;
       }
+      const data = (await res.json()) as any;
+      setAdminUser(data.admin);
+      loadSettings();
+    } catch {
+      router.push("/admin/login");
     }
+  };
+
+  useEffect(() => {
     checkAuth();
-  }, [router]);
+  }, []);
+
+  // Background 8-hour session expiry monitor
+  useEffect(() => {
+    if (!adminUser?.expiresAt) return;
+
+    const verifySession = () => {
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (nowSec >= adminUser.expiresAt) {
+        setIsSessionExpiredModalOpen(true);
+      }
+    };
+
+    verifySession();
+    const timer = setInterval(verifySession, 30000); // Check every 30 seconds
+    return () => clearInterval(timer);
+  }, [adminUser?.expiresAt]);
 
   // Load bookings
   const loadBookings = async () => {
@@ -161,7 +179,7 @@ export default function AdminDashboardPage() {
       const res = await fetch(`/api/admin/bookings?${params.toString()}`);
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/admin/login");
+          router.push("/admin/login?reason=expired");
           return;
         }
         throw new Error("Failed to load");
@@ -741,7 +759,34 @@ export default function AdminDashboardPage() {
           isOpen={isUserManagementOpen}
           onClose={() => setIsUserManagementOpen(false)}
           currentAdmin={adminUser}
+          onUserUpdated={checkAuth}
         />
+      )}
+
+      {/* ── 8-Hour Session Expired Alert Modal ──────────────────────────────── */}
+      {isSessionExpiredModalOpen && (
+        <div className="fixed inset-0 z-70 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-sm w-full border border-white/80 shadow-[0_25px_60px_rgba(88,44,131,0.3)] p-6 space-y-4 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
+              <Clock className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-black text-lg text-[#1e1e24]">เซสชันหมดอายุ</h3>
+              <p className="text-xs text-[#595963] leading-relaxed">
+                ระยะเวลาการเข้าสู่ระบบของคุณครบกำหนด <strong>8 ชั่วโมง</strong> แล้ว เพื่อความปลอดภัยของข้อมูล กรุณาเข้าสู่ระบบใหม่อีกครั้ง
+              </p>
+            </div>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => router.push("/admin/login?reason=expired")}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs transition-all active:scale-95"
+              >
+                เข้าสู่ระบบใหม่
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

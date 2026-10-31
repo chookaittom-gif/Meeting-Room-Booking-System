@@ -15,6 +15,7 @@ import {
   Eye,
   EyeOff,
   UserCheck,
+  Pencil,
 } from "lucide-react";
 import { AdminRole, AdminUser } from "@/lib/types";
 
@@ -22,12 +23,14 @@ interface AdminUserManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentAdmin: { id: string; username: string; displayName: string; role: AdminRole };
+  onUserUpdated?: () => void;
 }
 
 export function AdminUserManagementModal({
   isOpen,
   onClose,
   currentAdmin,
+  onUserUpdated,
 }: AdminUserManagementModalProps) {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +53,11 @@ export function AdminUserManagementModal({
 
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Edit Name state
+  const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [isSavingName, setIsSavingName] = useState(false);
 
   const loadUsers = async () => {
     setIsLoading(true);
@@ -110,6 +118,45 @@ export function AdminUserManagementModal({
       setFeedback({ type: "error", text: err.message || "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน" });
     } finally {
       setIsResetting(false);
+    }
+  };
+
+  // Handle Edit Name
+  const handleEditName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget) return;
+
+    const trimmedName = editDisplayName.trim();
+    if (trimmedName.length < 2) {
+      setFeedback({ type: "error", text: "ชื่อ-นามสกุลต้องมีความยาวอย่างน้อย 2 ตัวอักษร" });
+      return;
+    }
+
+    setIsSavingName(true);
+    setFeedback(null);
+    try {
+      const res = await fetch(`/api/admin/users/${editTarget.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ display_name: trimmedName }),
+      });
+      const data = (await res.json()) as any;
+      if (!res.ok) {
+        throw new Error(data.error || "เกิดข้อผิดพลาดในการแก้ไขชื่อ");
+      }
+
+      setFeedback({ type: "success", text: data.message });
+      setUsers((prev) =>
+        prev.map((u) => (u.id === editTarget.id ? { ...u, displayName: trimmedName } : u))
+      );
+      setEditTarget(null);
+      if (editTarget.id === currentAdmin.id && onUserUpdated) {
+        onUserUpdated();
+      }
+    } catch (err: any) {
+      setFeedback({ type: "error", text: err.message || "เกิดข้อผิดพลาดในการแก้ไขชื่อ" });
+    } finally {
+      setIsSavingName(false);
     }
   };
 
@@ -322,6 +369,20 @@ export function AdminUserManagementModal({
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 self-end sm:self-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditTarget(u);
+                          setEditDisplayName(u.displayName || "");
+                          setFeedback(null);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold touch-target transition-all active:scale-95 shadow-2xs"
+                        title="แก้ไขชื่อ-นามสกุล"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-slate-500" />
+                        <span>แก้ไขชื่อ</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => {
@@ -564,6 +625,68 @@ export function AdminUserManagementModal({
                 >
                   {isAdding && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{isAdding ? "กำลังบันทึก..." : "เพิ่มผู้ดูแลระบบ"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Sub-modal: Edit Name ────────────────────────────────── */}
+      {editTarget && (
+        <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-sm w-full border border-white/80 shadow-[0_25px_60px_rgba(88,44,131,0.25)] p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#e6e2ea]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-50 text-[#582c83] border border-[#582c83]/20 flex items-center justify-center font-bold">
+                  <Pencil className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm text-[#1e1e24]">แก้ไขชื่อผู้ดูแลระบบ</h3>
+                  <p className="text-[11px] text-[#595963] font-mono">@{editTarget.username}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditTarget(null)}
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 touch-target"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditName} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#1e1e24] mb-1">
+                  ชื่อ-นามสกุล (Display Name)
+                </label>
+                <input
+                  type="text"
+                  value={editDisplayName}
+                  onChange={(e) => setEditDisplayName(e.target.value)}
+                  required
+                  minLength={2}
+                  placeholder="กรอกชื่อ-นามสกุล..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e6e2ea]">
+                <button
+                  type="button"
+                  onClick={() => setEditTarget(null)}
+                  className="px-4 py-2.5 rounded-xl bg-white border border-[#e6e2ea] text-xs font-bold text-gray-700 hover:bg-gray-50 touch-target"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingName || !editDisplayName.trim()}
+                  className="px-5 py-2.5 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-all"
+                >
+                  {isSavingName && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{isSavingName ? "กำลังบันทึก..." : "บันทึกชื่อ"}</span>
                 </button>
               </div>
             </form>
