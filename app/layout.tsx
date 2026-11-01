@@ -56,7 +56,7 @@ export default async function RootLayout({
                 />
               </div>
               <div className="flex flex-col leading-tight min-w-0">
-                <span className="font-extrabold text-[13px] sm:text-lg text-[#582c83] tracking-tight whitespace-nowrap truncate">
+                <span className="font-extrabold text-xs min-[400px]:text-sm sm:text-lg text-[#582c83] tracking-tight whitespace-nowrap truncate">
                   ระบบจองห้องประชุม
                 </span>
                 <span className="hidden sm:block text-[11px] text-[#52525b] font-medium whitespace-nowrap">
