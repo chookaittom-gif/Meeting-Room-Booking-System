@@ -123,7 +123,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setActiveRoom("floor7")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors touch-target ${
                     activeRoom === "floor7"
                       ? "bg-white text-[#18181b] shadow-sm"
                       : "text-white/80 hover:text-white"
@@ -134,7 +134,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setActiveRoom("floor2")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors touch-target ${
                     activeRoom === "floor2"
                       ? "bg-white text-[#18181b] shadow-sm"
                       : "text-white/80 hover:text-white"
@@ -206,7 +206,7 @@ export default function HomePage() {
         <div className="lg:col-span-4 flex flex-col gap-5 justify-between">
           {/* Live Status Card */}
           <div className="card p-5 sm:p-6 bg-white space-y-4 flex-1 flex flex-col justify-between">
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3 flex-1">
               <div className="flex items-center justify-between pb-3 border-b border-[#e4e2ea]">
                 <span className="text-xs font-bold text-[#71717a] flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-[#582c83]" aria-hidden="true" />
@@ -231,7 +231,7 @@ export default function HomePage() {
               </div>
 
               {/* Service Highlights Box */}
-              <div className="bg-[#faf9fd] border border-[#582c83]/10 rounded-xl p-3.5 space-y-2">
+              <div className="bg-[#faf9fd] border border-[#582c83]/10 rounded-xl p-3.5 flex flex-col justify-center gap-2 flex-1">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#582c83]">
                   <Building className="w-4 h-4 shrink-0" aria-hidden="true" />
                   <span>2 ห้องประชุมมาตรฐานพร้อมใช้งาน</span>

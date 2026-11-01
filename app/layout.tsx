@@ -41,7 +41,7 @@ export default async function RootLayout({
         {/* Header Navigation */}
         <header className="w-full bg-white border-b border-[#e4e2ea] sticky top-0 z-40 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
           <div className="max-w-5xl mx-auto px-4 py-0 flex items-center justify-between" style={{ minHeight: "64px" }}>
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0" aria-label="หน้าหลัก ระบบจองห้องประชุม">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 touch-target" aria-label="หน้าหลัก ระบบจองห้องประชุม">
               <div
                 className="relative w-10 h-10 shrink-0 rounded-[10px] bg-[#f5f0fa] border border-[#582c83]/20 flex items-center justify-center overflow-hidden"
                 aria-hidden="true"
@@ -56,7 +56,7 @@ export default async function RootLayout({
                 />
               </div>
               <div className="flex flex-col leading-tight min-w-0">
-                <span className="font-extrabold text-sm sm:text-lg text-[#582c83] tracking-tight whitespace-nowrap truncate">
+                <span className="font-extrabold text-[13px] sm:text-lg text-[#582c83] tracking-tight whitespace-nowrap truncate">
                   ระบบจองห้องประชุม
                 </span>
                 <span className="hidden sm:block text-[11px] text-[#52525b] font-medium whitespace-nowrap">
