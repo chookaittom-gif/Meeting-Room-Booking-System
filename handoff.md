@@ -18,6 +18,13 @@
 
 ## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
 
+### 0.0 ปรับ UI ตามผลตรวจ responsive บน production (`037cea1`, `1746781`)
+
+- ตรวจ production ด้วย playwright-cli ที่ 375/768/1280px (หน้า `/`, `/book`, `/stats`) และ `/admin` ผ่าน Chrome ที่ผู้ใช้ล็อกอิน: ไม่มี horizontal overflow
+- **แก้**: ปุ่มสลับห้องบนภาพหน้าแรก (`app/page.tsx`) และลิงก์โลโก้ header (`app/layout.tsx`) เติม `touch-target` ให้สูง ≥ 44px; ชื่อระบบบนมือถือลดเป็น `text-xs` ต่ำกว่า 400px จึงไม่ถูกตัดที่ 375px; กล่อง "2 ห้องประชุมมาตรฐาน" ในการ์ดสถานะ (คอม) ขยายเต็มพื้นที่แทนช่องว่างเหนือปุ่ม CTA
+- ตรวจ prod หลัง deploy: ที่ 375 และ 1280px ไม่มี element ต่ำกว่า 44px, ชื่อระบบไม่ถูกตัด; tests 70/70 + typecheck + build:worker ผ่าน; deploy `88e286df-f072-4ade-8db7-d5fc7a56fffd`
+- ยังตรวจไม่ได้: Modal รายละเอียดใบจอง (production ยังไม่มีรายการจอง)
+
 ### 0. ปรับความจุห้องประชุม + ระบบเลือกอุปกรณ์และหมายเหตุเพิ่มเติม (`801b1ce`)
 
 - **การตัดสินใจผ่าน `/grill-me`**:
@@ -87,7 +94,7 @@
    - ปลด Ambient Aurora Blobs มืดทึบ และ Gradient พื้นหลังออก
    - ใช้โทนสีหลักพื้นหลังสะอาด `#f8f8fc` ตัดกับสีม่วงอัตลักษณ์ของมหาวิทยาลัย `#582c83` และสีทองอำพัน `#b8860b`
 3. **Bento Grid Hero Section & Tech Showcase**:
-   - **Interactive Tab Switcher**: สลับดูข้อมูลระหว่าง *ห้องประชุมชั้น 7 (300 คน)* และ *หอประชุมชั้น 2 (100 คน)* ได้ทันที
+   - **Interactive Tab Switcher**: สลับดูข้อมูลระหว่าง *ห้องประชุมชั้น 7 (450 คน)* และ *หอประชุมชั้น 2 (250 คน)* ได้ทันที
    - **Live Availability Console**: แสดงเวลาทำการ 08:30 – 16:30 น. วันที่ไทย พ.ศ. และสถานะระบบเปิดรับจองปกติ พร้อมปุ่มเริ่มจองทันที
    - **Feature & Amenity Cards**: แสดงไอคอน Wi-Fi ความเร็วสูง, จอแสดงผล LED & โสตทัศนูปกรณ์, บริการจัดเลี้ยงอาหาร และปฏิทินตรวจสอบคิวว่างโปร่งใส
 4. **LINE Messaging API Console & Notification Control**:
@@ -120,7 +127,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `73ae92ee-fefd-4c53-b5b3-b5ea79229911` (Commit: `801b1ce`)
+- **Latest Deployed Version**: `88e286df-f072-4ade-8db7-d5fc7a56fffd` (Commit: `1746781`)
 
 ---
 
