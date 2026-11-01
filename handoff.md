@@ -18,6 +18,16 @@
 
 ## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
 
+### 0.000 แจ้งเตือน Telegram + หน้าตั้งค่า token/chat id (`f56128c`)
+
+- **การตัดสินใจผ่าน `/grill-me`**: ใช้ควบคู่กับ LINE (สวิตช์แยก); กรอก token + chat id ในหน้าแอดมินเอง (การ์ด "การแจ้งเตือน Telegram Bot" ใต้การ์ด LINE); Superadmin เท่านั้นบันทึก/เปลี่ยน/ลบ, ผู้ดูแลอื่นกดสวิตช์และทดสอบส่งได้; ตรวจ token (`getMe`) + ส่งข้อความทดสอบก่อนบันทึก; ไม่มี rate limit/ประวัติแก้ไข
+- **ความปลอดภัย**: token เข้ารหัส AES-GCM (กุญแจ = Cloudflare secret `TELEGRAM_ENCRYPTION_KEY`) เก็บใน `system_settings` (`telegram_token_enc`, `telegram_token_last4`, `telegram_chat_id`, `telegram_bot_username`, `telegram_notify_enabled`) ไม่มี migration; token เขียนอย่างเดียว ไม่ถูกส่งกลับหรือ log (ไม่ log `err.message` เพราะ URL ของ Telegram มี token); ไม่มีกุญแจ = ปิด (fail closed); mutation ต้องส่ง `Content-Type: application/json`
+- **API ใหม่** `/api/admin/telegram`: `GET` สถานะ, `PUT` บันทึก (superadmin), `PATCH` สวิตช์, `POST` ทดสอบส่ง, `DELETE` ลบ (superadmin)
+- **ข้อความ** (ตัวอักษรธรรมดา, `lib/telegram-service.ts`): pending มีอุปกรณ์/หมายเหตุ + ลิงก์ `/admin`; approved มีสรุปอาหาร/เครื่องดื่ม ไม่มีอุปกรณ์; ส่งต่อจาก LINE ใน `app/api/bookings/route.ts` และ `app/api/bookings/[id]/status/route.ts` ไม่บล็อกการจอง
+- ไฟล์ใหม่: `lib/telegram-service.ts`, `app/api/admin/telegram/route.ts`, `app/components/TelegramSettingsCard.tsx`, `tests/phase10-telegram.test.ts`; `line-service.ts` export ชื่อห้อง/ผัง/ประเภทเพิ่ม
+- ตรวจ: tests 85/85 (+9), typecheck, build:worker ผ่าน; prod: `/api/admin/telegram` ไม่มี session = 401, `/admin` = 200; deploy `c4439204-f132-486e-8b5d-fc0bcc5f86c7`; rollback = revert commit (ลบค่าที่เก็บ: `DELETE FROM system_settings WHERE key LIKE 'telegram_%'`)
+- **ค้างให้ผู้ใช้ทำ**: (1) ตั้งกุญแจ `openssl rand -base64 32 | npx wrangler secret put TELEGRAM_ENCRYPTION_KEY` (2) เปิด /admin ล็อกอิน chookait กด "ตั้งค่า" กรอก token + chat id (3) ยังไม่ได้ตรวจภาพการ์ดบน prod (Chrome extension ไม่เชื่อมต่อ ณ ตอน deploy)
+
 ### 0.00 แจ้งเตือนจองซ้อน: แสดงวันเวลาที่ชน + ช่วงว่างให้เลือก (`d591d51`)
 
 - **การตัดสินใจผ่าน `/grill-me`**: เช็กตั้งแต่ขั้น 1 ตอนกด "ถัดไป" (บล็อกถ้าชน) และเช็กซ้ำตอนส่ง; ข้อความระบุ "วันที่ + ช่วงเวลา + สถานะ" ไม่เปิดเผยชื่อกิจกรรม/ผู้ประสานงาน (PDPA); pending ยังบล็อก (บอกว่าอาจว่างหากถูกปฏิเสธ); ไม่เพิ่มช่วงเว้น (จองต่อกันพอดีได้); ถ้า API เช็กความว่างล่ม ปล่อยผ่านให้ server ตัดสิน (fail-open)
@@ -137,7 +147,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `7f601428-88af-4915-8a9d-4ca371f17681` (Commit: `d591d51`)
+- **Latest Deployed Version**: `c4439204-f132-486e-8b5d-fc0bcc5f86c7` (Commit: `f56128c`)
 
 ---
 
