@@ -18,6 +18,16 @@
 
 ## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
 
+### 0.00 แจ้งเตือนจองซ้อน: แสดงวันเวลาที่ชน + ช่วงว่างให้เลือก (`d591d51`)
+
+- **การตัดสินใจผ่าน `/grill-me`**: เช็กตั้งแต่ขั้น 1 ตอนกด "ถัดไป" (บล็อกถ้าชน) และเช็กซ้ำตอนส่ง; ข้อความระบุ "วันที่ + ช่วงเวลา + สถานะ" ไม่เปิดเผยชื่อกิจกรรม/ผู้ประสานงาน (PDPA); pending ยังบล็อก (บอกว่าอาจว่างหากถูกปฏิเสธ); ไม่เพิ่มช่วงเว้น (จองต่อกันพอดีได้); ถ้า API เช็กความว่างล่ม ปล่อยผ่านให้ server ตัดสิน (fail-open)
+- **API ใหม่**: `GET /api/availability?room=&date=YYYY-MM-DD` (อ่านอย่างเดียว) คืน `{ success, busy: [{starts_at, ends_at, status}] }` เฉพาะ pending/approved ใน 08:30–16:30 ตรวจพารามิเตอร์ที่ server (400 `VALIDATION_ERROR`)
+- **เปลี่ยน contract (เพิ่มฟิลด์เท่านั้น)**: 409 ของ `POST /api/bookings` มี `conflicts: [{starts_at, ends_at, status}]` เพิ่ม (`BookingConflictError.conflicts` อ่านหลัง insert ล้มเหลว; เงื่อนไขตัดสินว่าชนใน `createBookingAtomic` ไม่เปลี่ยน)
+- **UI** (`app/book/page.tsx`): แผงเหลืองค้างในหน้า (`role="alert"`) แสดงสูงสุด 3 ช่วงที่ชน + "และอีก N ช่วง", ปุ่มช่วงว่างใกล้เคียงยาวเท่าเดิม ≤ 3 ช่วง และปุ่ม "เวลาเดิมในอีกห้อง" ถ้าว่างและความจุพอ; 409 หลังกดส่งพากลับขั้น 1 เก็บข้อมูลเดิม; ปุ่ม "ถัดไป" disabled ขณะเช็ก
+- ไฟล์ใหม่: `lib/availability.ts` (ฟังก์ชันบริสุทธิ์ใช้ทั้งสองฝั่ง), `app/api/availability/route.ts`, `tests/phase9-availability.test.ts`
+- ตรวจ: tests 76/76 (+6), typecheck, build:worker ผ่าน; prod: `/api/availability` = 200, พารามิเตอร์ผิด = 400, `/book` = 200; deploy `7f601428-88af-4915-8a9d-4ca371f17681`; ไม่มี migration (rollback = revert commit)
+- **ยังไม่ได้ตรวจบน prod**: ภาพแผงแจ้งเตือนจริง เพราะ production ไม่มีรายการจองให้ชน และไม่ส่งใบจองจริงเพื่อทดสอบ ควรลองจองซ้อนเวลาเดียวกันด้วยตัวเอง 1 ครั้ง (แล้วยกเลิกใบทดสอบ)
+
 ### 0.0 ปรับ UI ตามผลตรวจ responsive บน production (`037cea1`, `1746781`)
 
 - ตรวจ production ด้วย playwright-cli ที่ 375/768/1280px (หน้า `/`, `/book`, `/stats`) และ `/admin` ผ่าน Chrome ที่ผู้ใช้ล็อกอิน: ไม่มี horizontal overflow
@@ -127,7 +137,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `88e286df-f072-4ade-8db7-d5fc7a56fffd` (Commit: `1746781`)
+- **Latest Deployed Version**: `7f601428-88af-4915-8a9d-4ca371f17681` (Commit: `d591d51`)
 
 ---
 
