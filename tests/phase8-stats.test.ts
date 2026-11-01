@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createMemoryD1Database } from './sqlite-d1-adapter';
+import { createMemoryD1Database, applyAllMigrations } from './sqlite-d1-adapter';
 import { setTestDatabase } from '../lib/db';
 import { GET as statsGET } from '../app/api/stats/route';
 import { getBookingStats, currentIctMonthKey, monthsAgo } from '../lib/stats';
@@ -69,7 +69,7 @@ describe('Phase 8: Public Booking Statistics (aggregate, no auth, no PII)', () =
 
   beforeEach(async () => {
     db = createMemoryD1Database();
-    await db.exec(migrationSql);
+    applyAllMigrations(db);
     setTestDatabase(db);
 
     // A: this month, approved, floor2, 3h (09:00–12:00 ICT → morning), 40 attendees

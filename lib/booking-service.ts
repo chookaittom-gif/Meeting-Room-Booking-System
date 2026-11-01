@@ -172,9 +172,10 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
       id, request_key, booking_code, room_id,
       activity_name, project_name, coordinator_name, coordinator_phone, coordinator_line_id,
       meeting_type, attendees_count, staff_count, table_layout, vvip_seats, vip_seats,
+      equipment_needed,
       starts_at, ends_at, status, total_price_thb, created_at, updated_at
     )
-    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?
+    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?
     WHERE NOT EXISTS (
       SELECT 1 FROM bookings
       WHERE room_id = ?
@@ -201,6 +202,7 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
     payload.table_layout,
     payload.vvip_seats || 0,
     payload.vip_seats || 0,
+    payload.equipment_needed || null,
     payload.starts_at,
     payload.ends_at,
     total,

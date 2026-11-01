@@ -13,6 +13,7 @@ export interface BookingWithDetails {
   table_layout: string;
   vvip_seats: number;
   vip_seats: number;
+  equipment_needed?: string | null;
   starts_at: number;
   ends_at: number;
   status: string;
@@ -133,6 +134,21 @@ export function buildLinePendingFlexMessage(booking: BookingWithDetails): object
   const { dateStr, timeStr } = formatThaiDateTimeRange(booking.starts_at, booking.ends_at);
   const formattedPhone = booking.coordinator_phone.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3");
 
+  let equipmentText = "ไม่ได้ระบุ";
+  let equipmentNotesText = "";
+  if (booking.equipment_needed) {
+    try {
+      const parsed = typeof booking.equipment_needed === "string" ? JSON.parse(booking.equipment_needed) : booking.equipment_needed;
+      const items = Array.isArray(parsed.items) && parsed.items.length > 0 ? parsed.items.join(", ") : "";
+      const other = parsed.other ? `อื่นๆ: ${parsed.other}` : "";
+      const combined = [items, other].filter(Boolean).join(" | ");
+      if (combined) equipmentText = combined;
+      if (parsed.notes) equipmentNotesText = parsed.notes;
+    } catch {
+      equipmentText = String(booking.equipment_needed);
+    }
+  }
+
   return {
     type: "flex",
     altText: `[คำขอใหม่] การจองห้องประชุม: ${booking.activity_name} (${booking.booking_code})`,
@@ -247,6 +263,24 @@ export function buildLinePendingFlexMessage(booking: BookingWithDetails): object
                   { type: "text", text: `${booking.coordinator_name} (โทร. ${formattedPhone})`, size: "xs", color: "#1e1e24", flex: 5, weight: "bold" },
                 ],
               },
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "อุปกรณ์ที่ขอ:", size: "xs", color: "#8e8e99", flex: 3 },
+                  { type: "text", text: equipmentText, size: "xs", color: "#1e1e24", flex: 5, wrap: true },
+                ],
+              },
+              ...(equipmentNotesText ? [
+                {
+                  type: "box",
+                  layout: "horizontal",
+                  contents: [
+                    { type: "text", text: "หมายเหตุ:", size: "xs", color: "#8e8e99", flex: 3 },
+                    { type: "text", text: equipmentNotesText, size: "xs", color: "#b45309", flex: 5, wrap: true },
+                  ],
+                }
+              ] : []),
             ],
           },
         ],

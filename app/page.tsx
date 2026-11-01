@@ -37,7 +37,7 @@ const ROOM_DATA: Record<"floor2" | "floor7", RoomDetail> = {
     id: "floor2",
     floorLabel: "ชั้น 2",
     title: "หอประชุมชั้น 2",
-    capacity: "ความจุสูงสุด 100 คน",
+    capacity: "ความจุสูงสุด 250 คน",
     badgeColor: "bg-[#f5f0fa] text-[#582c83] border-[#582c83]/20",
     tagColor: "text-[#582c83]",
     description: "พื้นที่หอประชุมอเนกประสงค์ ปรับเปลี่ยนรูปแบบได้ตามความต้องการ รองรับงานประชุม สัมมนา และกิจกรรมพิธีการ",
@@ -47,13 +47,13 @@ const ROOM_DATA: Record<"floor2" | "floor7", RoomDetail> = {
       "ระบบปรับอากาศควบคุมอุณหภูมิแยกส่วน",
       "บริการจุดลงทะเบียนและรับรองหน้าห้อง",
     ],
-    layouts: ["Theater (100)", "Classroom (60)", "U-Shape (40)", "Cluster (50)"],
+    layouts: ["Theater (250)", "Classroom (150)", "U-Shape (50)", "Cluster (80)"],
   },
   floor7: {
     id: "floor7",
     floorLabel: "ชั้น 7",
     title: "ห้องประชุมชั้น 7",
-    capacity: "ความจุสูงสุด 300 คน",
+    capacity: "ความจุสูงสุด 450 คน",
     badgeColor: "bg-amber-50 text-amber-900 border-amber-300",
     tagColor: "text-amber-800",
     description: "ห้องประชุมขนาดใหญ่ระดับหอประชุมหลัก เพียบพร้อมด้วยระบบเทคโนโลยีโสตทัศนูปกรณ์ จอแสดงผล LED ทันสมัย สำหรับงานวิชาการและงานประชุมระดับประเทศ",
@@ -63,7 +63,7 @@ const ROOM_DATA: Record<"floor2" | "floor7", RoomDetail> = {
       "ระบบไฟเวทีและไฟส่องสว่างปรับตามโหมดใช้งาน",
       "โถงพักคอยขนาดใหญ่และห้องรับรองผู้บริหาร",
     ],
-    layouts: ["Theater (300)", "Classroom (180)", "U-Shape (70)", "Cluster (120)", "Boardroom (40)"],
+    layouts: ["Theater (450)", "Classroom (250)", "U-Shape (80)", "Cluster (150)", "Boardroom (50)"],
   },
 };
 
@@ -129,7 +129,7 @@ export default function HomePage() {
                       : "text-white/80 hover:text-white"
                   }`}
                 >
-                  ห้องประชุมชั้น 7 (300 คน)
+                  ห้องประชุมชั้น 7 (450 คน)
                 </button>
                 <button
                   type="button"
@@ -140,7 +140,7 @@ export default function HomePage() {
                       : "text-white/80 hover:text-white"
                   }`}
                 >
-                  หอประชุมชั้น 2 (100 คน)
+                  หอประชุมชั้น 2 (250 คน)
                 </button>
               </div>
             </div>
@@ -237,8 +237,8 @@ export default function HomePage() {
                   <span>2 ห้องประชุมมาตรฐานพร้อมใช้งาน</span>
                 </div>
                 <ul className="text-xs text-[#52525b] space-y-1 pl-1">
-                  <li>• ชั้น 2: สัมมนา อบรม กิจกรรมพิธีการ</li>
-                  <li>• ชั้น 7: ประชุมวิชาการขนาดใหญ่ 300 ท่าน</li>
+                  <li>• ชั้น 2: สัมมนา อบรม กิจกรรมพิธีการ 250 ท่าน</li>
+                  <li>• ชั้น 7: ประชุมวิชาการขนาดใหญ่ 450 ท่าน</li>
                 </ul>
               </div>
             </div>

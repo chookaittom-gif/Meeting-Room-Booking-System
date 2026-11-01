@@ -38,8 +38,8 @@ export default function BookingWizardPage() {
     );
   }
 
-  // Room capacities: floor2 = 100, floor7 = 300
-  const maxCapacity = formData.room_id === "floor7" ? 300 : 100;
+  // Room capacities: floor2 = 250, floor7 = 450
+  const maxCapacity = formData.room_id === "floor7" ? 450 : 250;
   const roomName = formData.room_id === "floor7" ? "ห้องประชุมชั้น 7" : "หอประชุมชั้น 2";
 
   // Validate current step before advancing
@@ -193,6 +193,11 @@ export default function BookingWizardPage() {
       table_layout: formData.table_layout,
       vvip_seats: Number(formData.vvip_seats || 0),
       vip_seats: Number(formData.vip_seats || 0),
+      equipment_needed: JSON.stringify({
+        items: formData.equipment_items || [],
+        other: (formData.equipment_other || "").trim(),
+        notes: (formData.equipment_notes || "").trim(),
+      }),
       starts_at: startsAt,
       ends_at: endsAt,
       items: itemsPayload,
@@ -384,8 +389,8 @@ export default function BookingWizardPage() {
                   onChange={(e) => updateFormData({ room_id: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target font-medium shadow-2xs"
                 >
-                  <option value="floor2">หอประชุมชั้น 2 (ความจุสูงสุด 100 คน)</option>
-                  <option value="floor7">ห้องประชุมชั้น 7 (ความจุสูงสุด 300 คน)</option>
+                  <option value="floor2">หอประชุมชั้น 2 (ความจุสูงสุด 250 คน)</option>
+                  <option value="floor7">ห้องประชุมชั้น 7 (ความจุสูงสุด 450 คน)</option>
                 </select>
               </div>
 
@@ -536,6 +541,83 @@ export default function BookingWizardPage() {
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
                 />
                 <p className="text-xs text-[#595963]">แถวถัดมาสำหรับผู้บริหารหรือวิทยากร</p>
+              </div>
+            </div>
+
+            {/* Equipment and Extra Notes */}
+            <div className="pt-5 border-t border-[#e6e2ea] space-y-4">
+              <div>
+                <label className="text-xs sm:text-sm font-bold text-[#1e1e24] block">
+                  อุปกรณ์และสิ่งอำนวยความสะดวกที่ต้องการใช้งาน
+                </label>
+                <p className="text-xs text-[#595963] mt-0.5">
+                  เลือกอุปกรณ์พื้นฐานที่ต้องการให้เจ้าหน้าที่จัดเตรียมไว้ล่วงหน้า (เลือกได้มากกว่า 1 รายการ)
+                </p>
+              </div>
+
+              {/* Checkbox 2 Columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  { id: "projector", label: "โปรเจ็คเตอร์ (Projector)" },
+                  { id: "microphone", label: "ไมโครโฟน (Microphone)" },
+                  { id: "sound_system", label: "เครื่องเสียง (Sound System)" },
+                  { id: "computer", label: "คอมพิวเตอร์ (Computer)" },
+                  { id: "wifi", label: "Wi-Fi อินเทอร์เน็ต" },
+                ].map((item) => {
+                  const checked = (formData.equipment_items || []).includes(item.label);
+                  return (
+                    <label
+                      key={item.id}
+                      className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all touch-target ${
+                        checked
+                          ? "border-[#582c83] bg-[#f5f0fa] text-[#582c83] font-semibold"
+                          : "border-[#e6e2ea] bg-white text-[#1e1e24] hover:bg-[#faf7fd]"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          const current = formData.equipment_items || [];
+                          const updated = e.target.checked
+                            ? [...current, item.label]
+                            : current.filter((x) => x !== item.label);
+                          updateFormData({ equipment_items: updated });
+                        }}
+                        className="w-4 h-4 rounded text-[#582c83] focus:ring-[#582c83] border-[#e6e2ea]"
+                      />
+                      <span className="text-sm">{item.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+
+              {/* Other Equipment */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
+                  ระบุอุปกรณ์อื่นๆ เพิ่มเติม (ถ้ามี)
+                </label>
+                <input
+                  type="text"
+                  placeholder="เช่น สายต่อ HDMI, พอยเตอร์เลเซอร์, ขาตั้งไมค์เพิ่มเติม"
+                  value={formData.equipment_other || ""}
+                  onChange={(e) => updateFormData({ equipment_other: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
+                />
+              </div>
+
+              {/* Additional Notes */}
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
+                  หมายเหตุเพิ่มเติม (ถ้ามี)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="ระบุข้อความหรือคำขอพิเศษเพิ่มเติมสำหรับการจัดเตรียมสถานที่"
+                  value={formData.equipment_notes || ""}
+                  onChange={(e) => updateFormData({ equipment_notes: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
+                />
               </div>
             </div>
           </div>
@@ -790,6 +872,20 @@ export default function BookingWizardPage() {
                 <p className="text-xs text-[#595963]">เวลา: {formData.start_time} – {formData.end_time} น.</p>
                 <p className="text-xs text-[#595963]">ผู้เข้าร่วม: {formData.attendees_count} คน (เจ้าหน้าที่ {formData.staff_count} คน)</p>
                 <p className="text-xs text-[#595963]">ผังโต๊ะ: {formData.table_layout} | VVIP: {formData.vvip_seats} | VIP: {formData.vip_seats}</p>
+                {((formData.equipment_items && formData.equipment_items.length > 0) || formData.equipment_other || formData.equipment_notes) && (
+                  <div className="pt-2 border-t border-[#e6e2ea]/60 space-y-1">
+                    <span className="text-[11px] font-bold text-[#582c83]">อุปกรณ์และหมายเหตุ:</span>
+                    {formData.equipment_items && formData.equipment_items.length > 0 && (
+                      <p className="text-xs text-[#1e1e24]">• {formData.equipment_items.join(", ")}</p>
+                    )}
+                    {formData.equipment_other && (
+                      <p className="text-xs text-[#595963]">อื่นๆ: {formData.equipment_other}</p>
+                    )}
+                    {formData.equipment_notes && (
+                      <p className="text-xs text-[#595963]">หมายเหตุ: {formData.equipment_notes}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

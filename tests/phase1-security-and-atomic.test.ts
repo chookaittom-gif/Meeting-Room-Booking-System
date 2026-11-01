@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createMemoryD1Database } from './sqlite-d1-adapter';
+import { createMemoryD1Database, applyAllMigrations } from './sqlite-d1-adapter';
 import {
   createBookingAtomic,
   updateBookingStatus,
@@ -20,7 +20,7 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
 
   beforeEach(async () => {
     db = createMemoryD1Database();
-    await db.exec(migrationSql);
+    applyAllMigrations(db);
   });
 
   // -------------------------------------------------------------
@@ -30,9 +30,9 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
     const rooms = await db.prepare('SELECT * FROM rooms ORDER BY id ASC').all();
     expect(rooms.results).toHaveLength(2);
     expect(rooms.results[0].id).toBe('floor2');
-    expect(rooms.results[0].capacity_max).toBe(100);
+    expect(rooms.results[0].capacity_max).toBe(250);
     expect(rooms.results[1].id).toBe('floor7');
-    expect(rooms.results[1].capacity_max).toBe(300);
+    expect(rooms.results[1].capacity_max).toBe(450);
 
     const admins = await db.prepare('SELECT username, display_name FROM admins ORDER BY username ASC').all();
     expect(admins.results).toHaveLength(3);
@@ -254,24 +254,24 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
   });
 
   it('4.6 should enforce capacity validation excluding staff count', async () => {
-    // Floor 2 max capacity is 100
-    // Case 1: 101 attendees -> throws ValidationError
+    // Floor 2 max capacity is 250
+    // Case 1: 251 attendees -> throws ValidationError
     const invalidPayload = makeValidPayload({
       room_id: 'floor2',
-      attendees_count: 101,
+      attendees_count: 251,
       staff_count: 0,
     });
     await expect(createBookingAtomic(db, invalidPayload)).rejects.toThrow(ValidationError);
 
-    // Case 2: 100 attendees + 30 staff -> SUCCEEDS (staff excluded from capacity check)
+    // Case 2: 250 attendees + 30 staff -> SUCCEEDS (staff excluded from capacity check)
     const validWithStaff = makeValidPayload({
       request_key: 'staff-ok-req',
       room_id: 'floor2',
-      attendees_count: 100,
+      attendees_count: 250,
       staff_count: 30,
     });
     const result = await createBookingAtomic(db, validWithStaff);
-    expect(result.booking.attendees_count).toBe(100);
+    expect(result.booking.attendees_count).toBe(250);
     expect(result.booking.staff_count).toBe(30);
   });
 

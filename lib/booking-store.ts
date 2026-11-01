@@ -23,6 +23,9 @@ export interface BookingFormData {
   table_layout: TableLayout;
   vvip_seats: number;
   vip_seats: number;
+  equipment_items: string[];
+  equipment_other: string;
+  equipment_notes: string;
 
   // Step 3 (Lunch)
   wants_lunch: boolean;
@@ -61,6 +64,9 @@ export function getDefaultFormData(): BookingFormData {
     table_layout: "theater",
     vvip_seats: 0,
     vip_seats: 0,
+    equipment_items: [],
+    equipment_other: "",
+    equipment_notes: "",
     wants_lunch: false,
     lunch_items: {},
     wants_snacks: false,

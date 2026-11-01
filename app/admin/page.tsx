@@ -771,6 +771,57 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
+            {/* Equipment & Notes */}
+            {(() => {
+              let eqItems: string[] = [];
+              let eqOther = "";
+              let eqNotes = "";
+              if (selectedBookingDetails.equipment_needed) {
+                try {
+                  const parsed = typeof selectedBookingDetails.equipment_needed === "string"
+                    ? JSON.parse(selectedBookingDetails.equipment_needed)
+                    : selectedBookingDetails.equipment_needed;
+                  if (Array.isArray(parsed.items)) eqItems = parsed.items;
+                  if (parsed.other) eqOther = parsed.other;
+                  if (parsed.notes) eqNotes = parsed.notes;
+                } catch {
+                  eqOther = String(selectedBookingDetails.equipment_needed);
+                }
+              }
+              const hasEq = eqItems.length > 0 || eqOther || eqNotes;
+              return (
+                <div className="space-y-2 pt-2 border-t border-[#e6e2ea]">
+                  <h4 className="font-bold text-xs text-[#582c83]">อุปกรณ์และหมายเหตุที่ต้องการ</h4>
+                  {!hasEq ? (
+                    <p className="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                      ไม่ได้ระบุอุปกรณ์หรือหมายเหตุเพิ่มเติม
+                    </p>
+                  ) : (
+                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 text-xs space-y-1.5">
+                      {eqItems.length > 0 && (
+                        <div>
+                          <span className="font-bold text-[#1e1e24]">อุปกรณ์: </span>
+                          <span className="text-[#582c83] font-semibold">{eqItems.join(", ")}</span>
+                        </div>
+                      )}
+                      {eqOther && (
+                        <div>
+                          <span className="font-bold text-[#1e1e24]">อุปกรณ์อื่นๆ: </span>
+                          <span className="text-gray-700">{eqOther}</span>
+                        </div>
+                      )}
+                      {eqNotes && (
+                        <div>
+                          <span className="font-bold text-[#1e1e24]">หมายเหตุเพิ่มเติม: </span>
+                          <span className="text-gray-700">{eqNotes}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* Status History */}
             <div className="space-y-2 pt-2 border-t border-[#e6e2ea]">
               <h4 className="font-bold text-xs text-[#582c83]">ประวัติการเปลี่ยนสถานะ</h4>

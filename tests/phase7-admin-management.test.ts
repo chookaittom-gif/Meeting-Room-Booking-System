@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createMemoryD1Database } from './sqlite-d1-adapter';
+import { createMemoryD1Database, applyAllMigrations } from './sqlite-d1-adapter';
 import { setTestDatabase } from '../lib/db';
 import { createSessionToken, verifyPassword, verifySessionToken } from '../lib/auth';
 import { GET as usersGET, POST as usersPOST } from '../app/api/admin/users/route';
@@ -12,15 +12,10 @@ import { NextRequest } from 'next/server';
 
 describe('Phase 7: User Management & Superadmin Role Control', () => {
   let db: D1Database;
-  const initialSchema = fs.readFileSync(path.join(process.cwd(), 'migrations', '0001_initial_schema.sql'), 'utf8');
-  const roleSchema = fs.readFileSync(path.join(process.cwd(), 'migrations', '0003_admin_roles.sql'), 'utf8');
-  const namesSchema = fs.readFileSync(path.join(process.cwd(), 'migrations', '0004_update_admin_names.sql'), 'utf8');
 
   beforeEach(async () => {
     db = createMemoryD1Database();
-    await db.exec(initialSchema);
-    await db.exec(roleSchema);
-    await db.exec(namesSchema);
+    applyAllMigrations(db);
     setTestDatabase(db);
   });
 

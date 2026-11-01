@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createMemoryD1Database } from './sqlite-d1-adapter';
+import { createMemoryD1Database, applyAllMigrations } from './sqlite-d1-adapter';
 import { setTestDatabase } from '../lib/db';
 import { createSessionToken } from '../lib/auth';
 import { createBookingAtomic } from '../lib/booking-service';
@@ -14,8 +14,6 @@ import { NextRequest } from 'next/server';
 
 describe('Phase 4: Admin Authentication, Authorization, & Cancellation Flow', () => {
   let db: D1Database;
-  const migrationSql = fs.readFileSync(path.join(process.cwd(), 'migrations', '0001_initial_schema.sql'), 'utf8');
-  const roleMigrationSql = fs.readFileSync(path.join(process.cwd(), 'migrations', '0003_admin_roles.sql'), 'utf8');
 
   const tomorrow = new Date();
   tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
@@ -25,8 +23,7 @@ describe('Phase 4: Admin Authentication, Authorization, & Cancellation Flow', ()
 
   beforeEach(async () => {
     db = createMemoryD1Database();
-    await db.exec(migrationSql);
-    await db.exec(roleMigrationSql);
+    applyAllMigrations(db);
     setTestDatabase(db);
   });
 
