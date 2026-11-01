@@ -21,12 +21,12 @@ export interface BookingWithDetails {
   items?: { item_code: string; item_name: string; quantity: number; subtotal: number }[];
 }
 
-const ROOM_NAMES: Record<string, string> = {
+export const ROOM_NAMES: Record<string, string> = {
   floor2: "หอประชุมชั้น 2 (อาคารศูนย์วิทยาศาสตร์ฯ)",
   floor7: "ห้องประชุมชั้น 7 (อาคารเฉลิมพระเกียรติฯ)",
 };
 
-const TABLE_LAYOUT_NAMES: Record<string, string> = {
+export const TABLE_LAYOUT_NAMES: Record<string, string> = {
   theater: "แบบเธียเตอร์ (Theater)",
   classroom: "แบบชั้นเรียน (Classroom)",
   cluster: "แบบกลุ่ม/จัดเลี้ยง (Cluster/Banquet)",
@@ -34,7 +34,7 @@ const TABLE_LAYOUT_NAMES: Record<string, string> = {
   boardroom: "แบบห้องประชุมผู้บริหาร (Boardroom)",
 };
 
-const MEETING_TYPE_NAMES: Record<string, string> = {
+export const MEETING_TYPE_NAMES: Record<string, string> = {
   seminar: "การอบรม/สัมมนาวิชาการ",
   small_group: "การประชุมกลุ่มย่อย",
   wedding: "งานพิธีการ/มงคลสมรส",

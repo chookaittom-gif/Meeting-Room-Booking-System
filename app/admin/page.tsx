@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookingStatus, TableLayout, MeetingType } from "@/lib/types";
 import { AdminNotificationBell } from "@/app/components/AdminNotificationBell";
+import { TelegramSettingsCard } from "@/app/components/TelegramSettingsCard";
 import { AdminUserManagementModal } from "@/app/components/AdminUserManagementModal";
 import { useAlertDialog } from "@/app/components/AlertDialog";
 import {
@@ -430,6 +431,8 @@ export default function AdminDashboardPage() {
           </button>
         </div>
       </div>
+
+      <TelegramSettingsCard />
 
       {/* Stats Counter Bar (Aurora Telemetry HUD) */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">

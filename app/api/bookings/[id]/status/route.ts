@@ -3,6 +3,7 @@ import { getD1Database } from "@/lib/db";
 import { verifySessionToken } from "@/lib/auth";
 import { updateBookingStatus, StatusTransitionError, ValidationError } from "@/lib/booking-service";
 import { sendLineApprovedNotification } from "@/lib/line-service";
+import { sendTelegramApprovedNotification } from "@/lib/telegram-service";
 
 export async function PATCH(
   req: NextRequest,
@@ -48,6 +49,7 @@ export async function PATCH(
       } catch (lineErr) {
         console.error("Non-blocking LINE notification failed:", lineErr);
       }
+      await sendTelegramApprovedNotification(db, bookingId); // never throws
     }
 
     return NextResponse.json({
