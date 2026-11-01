@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     if (err instanceof BookingConflictError) {
       return NextResponse.json(
-        { error: err.message, code: "CONFLICT" },
+        { error: err.message, code: "CONFLICT", conflicts: err.conflicts },
         { status: 409 }
       );
     }

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBookingStore, toEpochSeconds } from "@/lib/booking-store";
 import { formatThaiDateString } from "@/lib/date-utils";
+import { findConflicts, suggestSlots, formatRange, statusLabel, toBangkokTime, BusyRange, FreeSlot } from "@/lib/availability";
 import { ThaiDatePicker } from "@/app/components/ThaiDatePicker";
 import { FOOD_CATALOG, FoodItemCatalog, TableLayout, MeetingType } from "@/lib/types";
 import { Calendar, Users, Utensils, Coffee, CheckCircle, ChevronRight, ChevronLeft, AlertCircle, Loader2, Sparkles, Clock, ShieldCheck } from "lucide-react";
@@ -22,6 +23,8 @@ export default function BookingWizardPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [clash, setClash] = useState<{ conflicts: BusyRange[]; slots: FreeSlot[]; otherRoomId: string | null } | null>(null);
 
   // Prefill room from ?room= query (e.g. /book?room=floor7 from homepage CTA)
   useEffect(() => {
@@ -124,11 +127,53 @@ export default function BookingWizardPage() {
     return true;
   };
 
-  const handleNext = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 5));
-      window.scrollTo({ top: 0, behavior: "smooth" });
+  const fetchBusy = async (room: string, date: string): Promise<BusyRange[] | null> => {
+    try {
+      const res = await fetch(`/api/availability?room=${room}&date=${date}`);
+      if (!res.ok) return null;
+      return ((await res.json()) as any).busy ?? null;
+    } catch {
+      return null;
     }
+  };
+
+  // Shows the clash panel and returns true when the chosen slot is taken.
+  // `known` = conflicts already reported by the server (409). Without it the
+  // availability API decides; if that API fails we stay open and let the server decide on submit.
+  const explainClash = async (known?: BusyRange[]): Promise<boolean> => {
+    const start = toEpochSeconds(formData.booking_date, formData.start_time);
+    const end = toEpochSeconds(formData.booking_date, formData.end_time);
+    const otherId = formData.room_id === "floor7" ? "floor2" : "floor7";
+    const [busy, otherBusy] = await Promise.all([
+      fetchBusy(formData.room_id, formData.booking_date),
+      fetchBusy(otherId, formData.booking_date),
+    ]);
+    const conflicts = known ?? (busy ? findConflicts(busy, start, end) : []);
+    if (conflicts.length === 0) return false;
+    const otherCapacity = otherId === "floor7" ? 450 : 250;
+    const otherFree = !!otherBusy && findConflicts(otherBusy, start, end).length === 0 && formData.attendees_count <= otherCapacity;
+    setClash({
+      conflicts,
+      slots: busy ? suggestSlots(busy, start, end, formData.booking_date) : [],
+      otherRoomId: otherFree ? otherId : null,
+    });
+    return true;
+  };
+
+  const handleNext = async () => {
+    if (!validateStep(currentStep)) return;
+    if (currentStep === 1) {
+      setIsChecking(true);
+      const clashed = await explainClash();
+      setIsChecking(false);
+      if (clashed) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      setClash(null);
+    }
+    setCurrentStep((prev) => Math.min(prev + 1, 5));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleBack = () => {
@@ -214,7 +259,13 @@ export default function BookingWizardPage() {
 
       if (!res.ok) {
         if (res.status === 409) {
-          setErrorMsg(data.error || "ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล");
+          const known = Array.isArray(data.conflicts) && data.conflicts.length > 0 ? data.conflicts : undefined;
+          if (await explainClash(known)) {
+            setCurrentStep(1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            setErrorMsg(data.error || "ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล");
+          }
         } else {
           setErrorMsg(data.error || "เกิดข้อผิดพลาดในการส่งคำขอ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง");
         }
@@ -280,6 +331,59 @@ export default function BookingWizardPage() {
         >
           <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
           <div className="flex-1 font-medium">{errorMsg}</div>
+        </div>
+      )}
+
+      {/* Booking clash: which slots are taken + free alternatives (times only, no personal data) */}
+      {clash && currentStep === 1 && (
+        <div role="alert" className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 text-amber-900 text-sm space-y-3">
+          <div className="flex items-start gap-3 font-bold">
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <span>ช่วงเวลานี้มีการจองแล้ว กรุณาเลือกวันหรือเวลาอื่น</span>
+          </div>
+          <ul className="list-disc pl-12 space-y-1">
+            {clash.conflicts.slice(0, 3).map((c, i) => (
+              <li key={i}>
+                {formatRange(c.starts_at, c.ends_at)} ({statusLabel(c.status)})
+              </li>
+            ))}
+          </ul>
+          {clash.conflicts.length > 3 && <p className="pl-8">และอีก {clash.conflicts.length - 3} ช่วง</p>}
+          {clash.conflicts.some((c) => c.status === "pending") && (
+            <p className="pl-8 text-xs">ช่วงที่รออนุมัติอาจว่างหากคำขอถูกปฏิเสธ</p>
+          )}
+          {(clash.slots.length > 0 || clash.otherRoomId) && (
+            <div className="pl-8 space-y-2">
+              <p className="font-bold">ตัวเลือกที่ว่าง (กดเพื่อเติมในฟอร์ม):</p>
+              <div className="flex flex-wrap gap-2">
+                {clash.slots.map((s) => (
+                  <button
+                    key={s.starts_at}
+                    type="button"
+                    onClick={() => {
+                      updateFormData({ start_time: toBangkokTime(s.starts_at), end_time: toBangkokTime(s.ends_at) });
+                      setClash(null);
+                    }}
+                    className="inline-flex items-center px-4 py-2 rounded-xl border border-amber-300 bg-white hover:bg-amber-100 font-bold text-xs touch-target transition-colors"
+                  >
+                    {toBangkokTime(s.starts_at)} – {toBangkokTime(s.ends_at)} น.
+                  </button>
+                ))}
+                {clash.otherRoomId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateFormData({ room_id: clash.otherRoomId! });
+                      setClash(null);
+                    }}
+                    className="inline-flex items-center px-4 py-2 rounded-xl border border-amber-300 bg-white hover:bg-amber-100 font-bold text-xs touch-target transition-colors"
+                  >
+                    เวลาเดิมใน{clash.otherRoomId === "floor7" ? "ห้องประชุมชั้น 7" : "หอประชุมชั้น 2"}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -950,10 +1054,20 @@ export default function BookingWizardPage() {
             <button
               type="button"
               onClick={handleNext}
-              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target shadow-xs border border-white/20 transition-all ml-auto active:scale-95"
+              disabled={isChecking}
+              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target shadow-xs border border-white/20 transition-all ml-auto active:scale-95 disabled:opacity-50"
             >
-              ถัดไป
-              <ChevronRight className="w-4 h-4" />
+              {isChecking ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  กำลังตรวจสอบ...
+                </>
+              ) : (
+                <>
+                  ถัดไป
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           ) : (
             <button

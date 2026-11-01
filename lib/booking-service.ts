@@ -1,7 +1,11 @@
 import { FOOD_CATALOG, CreateBookingPayload, BookingRecord, BookingStatus } from './types';
+import type { BusyRange } from './availability';
 
 export class BookingConflictError extends Error {
-  constructor(message = 'ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล') {
+  constructor(
+    message = 'ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล',
+    public conflicts: BusyRange[] = []
+  ) {
     super(message);
     this.name = 'BookingConflictError';
   }
@@ -223,8 +227,13 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
     if (collided) {
       return { booking: collided, isExisting: true };
     }
-    // Otherwise it was a room time collision!
-    throw new BookingConflictError();
+    // Otherwise it was a room time collision! Read the clashing ranges (times + status only) for the message.
+    const { results } = await db.prepare(`
+      SELECT starts_at, ends_at, status FROM bookings
+      WHERE room_id = ? AND status IN ('pending', 'approved') AND starts_at < ? AND ends_at > ?
+      ORDER BY starts_at
+    `).bind(payload.room_id, payload.ends_at, payload.starts_at).all<BusyRange>();
+    throw new BookingConflictError(undefined, results ?? []);
   }
 
   // 6. Insert items & initial history & notification in batch
