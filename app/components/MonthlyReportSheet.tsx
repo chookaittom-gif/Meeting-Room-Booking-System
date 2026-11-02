@@ -84,7 +84,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
           <h2 className="font-bold" style={{ fontSize: "17pt" }}>
             2. ตารางสถิติการใช้งานห้องประชุม
           </h2>
-          <table
+          <div className="overflow-x-auto"><table
             className="w-full"
             style={{ borderCollapse: "collapse", fontSize: "15pt", marginTop: "4px" }}
           >
@@ -115,7 +115,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
                 <td style={tdStyle}>–</td>
               </tr>
             </tbody>
-          </table>
+          </table></div>
         </section>
 
         {/* 3. จำแนกตามประเภทการใช้งาน */}

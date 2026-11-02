@@ -333,12 +333,12 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {adminUser.role === "superadmin" && (
             <button
               type="button"
               onClick={() => setIsUserManagementOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#582c83]/20 bg-[#f5f0fa] hover:bg-[#ede5f7] text-[#582c83] text-xs font-bold touch-target transition-[transform,background-color] duration-150 shadow-2xs active:scale-95"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap px-3.5 py-2.5 rounded-xl border border-[#582c83]/20 bg-[#f5f0fa] hover:bg-[#ede5f7] text-[#582c83] text-xs font-bold touch-target transition-[transform,background-color] duration-150 shadow-2xs active:scale-95"
               title="จัดการผู้ดูแลระบบและรหัสผ่าน"
             >
               <Users className="w-3.5 h-3.5" />
@@ -354,7 +354,7 @@ export default function AdminDashboardPage() {
           />
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 text-xs font-bold touch-target transition-[transform,background-color] duration-150 shadow-2xs active:scale-95"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 text-xs font-bold touch-target transition-[transform,background-color] duration-150 shadow-2xs active:scale-95"
           >
             <LogOut className="w-3.5 h-3.5" />
             ออกจากระบบ
@@ -373,9 +373,9 @@ export default function AdminDashboardPage() {
             <MessageSquare className="w-5 h-5" aria-hidden="true" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-extrabold text-sm text-[#18181b]">การแจ้งเตือน LINE Messaging API</h3>
-              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+              <span className={`inline-flex items-center gap-1 whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-bold ${
                 lineSettings.enabled
                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                   : 'bg-gray-100 text-gray-600 border border-gray-200'

@@ -32,7 +32,7 @@ export default function BookingSuccessPage() {
         <span className="inline-block px-3.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300">
           สถานะ: รอการอนุมัติ (Pending)
         </span>
-        <h1 className="text-2xl sm:text-3xl font-black text-[#1e1e24] tracking-tight">ส่งคำขอจองห้องประชุมเรียบร้อยแล้ว</h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-balance text-[#1e1e24] tracking-tight">ส่งคำขอจองห้องประชุมเรียบร้อยแล้ว</h1>
         <p className="text-sm text-[#595963] max-w-md mx-auto leading-relaxed">
           ระบบได้บันทึกคำขอจองห้องประชุมของท่านแล้ว และช่วงเวลาดังกล่าวจะถูกกันไว้ในระบบ เจ้าหน้าที่จะตรวจสอบและดำเนินการอนุมัติต่อไป
         </p>
