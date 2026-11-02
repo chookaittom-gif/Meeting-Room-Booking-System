@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createMemoryD1Database } from './sqlite-d1-adapter';
+import { createMemoryD1Database, applyAllMigrations } from './sqlite-d1-adapter';
 import { setTestDatabase } from '../lib/db';
 import { POST } from '../app/api/bookings/route';
 import { NextRequest } from 'next/server';
@@ -9,7 +9,6 @@ import { CreateBookingPayload } from '../lib/types';
 
 describe('Phase 2: Multi-step Booking Form & API Verification', () => {
   let db: D1Database;
-  const migrationSql = fs.readFileSync(path.join(process.cwd(), 'migrations', '0001_initial_schema.sql'), 'utf8');
 
   // Tomorrow at 09:00 - 12:00 Bangkok time (02:00 - 05:00 UTC)
   const tomorrow = new Date();
@@ -20,7 +19,7 @@ describe('Phase 2: Multi-step Booking Form & API Verification', () => {
 
   beforeEach(async () => {
     db = createMemoryD1Database();
-    await db.exec(migrationSql);
+    applyAllMigrations(db);
     setTestDatabase(db);
   });
 
@@ -124,18 +123,18 @@ describe('Phase 2: Multi-step Booking Form & API Verification', () => {
   });
 
   it('2.5 should reject bookings where attendees exceed room capacity (while staff count is excluded)', async () => {
-    // Floor 2 capacity is 100
-    // Attendees 101 -> 400 Bad Request
-    const resOver = await POST(createRequest(makePayload({ room_id: 'floor2', attendees_count: 101 })));
+    // Floor 2 capacity is 250
+    // Attendees 251 -> 400 Bad Request
+    const resOver = await POST(createRequest(makePayload({ room_id: 'floor2', attendees_count: 251 })));
     expect(resOver.status).toBe(400);
     const dataOver: any = await resOver.json();
     expect(dataOver.error).toContain('เกินความจุสูงสุด');
 
-    // Attendees 100 + Staff 25 -> 200 OK
+    // Attendees 250 + Staff 25 -> 200 OK
     const resOk = await POST(createRequest(makePayload({
       request_key: 'capacity-staff-ok',
       room_id: 'floor2',
-      attendees_count: 100,
+      attendees_count: 250,
       staff_count: 25,
     })));
     expect(resOk.status).toBe(200);
@@ -175,5 +174,22 @@ describe('Phase 2: Multi-step Booking Form & API Verification', () => {
     });
     const resNegative = await POST(createRequest(payloadNegativeQty));
     expect(resNegative.status).toBe(400);
+  });
+
+  it('2.9 should persist equipment_needed when provided in booking payload', async () => {
+    const equipmentData = JSON.stringify({
+      items: ['โปรเจ็คเตอร์', 'ไมโครโฟน'],
+      other: 'สาย HDMI',
+      notes: 'ขอเปิดเครื่องปรับอากาศก่อนเวลา 30 นาที',
+    });
+    const payloadWithEq = makePayload({
+      request_key: 'equipment-req-key-1',
+      equipment_needed: equipmentData,
+    });
+    const res = await POST(createRequest(payloadWithEq));
+    expect(res.status).toBe(200);
+
+    const saved = await db.prepare('SELECT equipment_needed FROM bookings WHERE request_key = ?').bind('equipment-req-key-1').first<any>();
+    expect(saved?.equipment_needed).toBe(equipmentData);
   });
 });

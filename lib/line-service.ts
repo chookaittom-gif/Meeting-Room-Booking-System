@@ -13,6 +13,7 @@ export interface BookingWithDetails {
   table_layout: string;
   vvip_seats: number;
   vip_seats: number;
+  equipment_needed?: string | null;
   starts_at: number;
   ends_at: number;
   status: string;
@@ -20,12 +21,12 @@ export interface BookingWithDetails {
   items?: { item_code: string; item_name: string; quantity: number; subtotal: number }[];
 }
 
-const ROOM_NAMES: Record<string, string> = {
+export const ROOM_NAMES: Record<string, string> = {
   floor2: "หอประชุมชั้น 2 (อาคารศูนย์วิทยาศาสตร์ฯ)",
   floor7: "ห้องประชุมชั้น 7 (อาคารเฉลิมพระเกียรติฯ)",
 };
 
-const TABLE_LAYOUT_NAMES: Record<string, string> = {
+export const TABLE_LAYOUT_NAMES: Record<string, string> = {
   theater: "แบบเธียเตอร์ (Theater)",
   classroom: "แบบชั้นเรียน (Classroom)",
   cluster: "แบบกลุ่ม/จัดเลี้ยง (Cluster/Banquet)",
@@ -33,7 +34,7 @@ const TABLE_LAYOUT_NAMES: Record<string, string> = {
   boardroom: "แบบห้องประชุมผู้บริหาร (Boardroom)",
 };
 
-const MEETING_TYPE_NAMES: Record<string, string> = {
+export const MEETING_TYPE_NAMES: Record<string, string> = {
   seminar: "การอบรม/สัมมนาวิชาการ",
   small_group: "การประชุมกลุ่มย่อย",
   wedding: "งานพิธีการ/มงคลสมรส",
@@ -66,6 +67,242 @@ export function formatThaiDateTimeRange(startsAtEpoch: number, endsAtEpoch: numb
   const timeStr = `${startH}:${startM} - ${endH}:${endM} น. (${durationHours} ชม.)`;
 
   return { dateStr, timeStr };
+}
+
+/**
+ * Checks if LINE notifications are enabled in system_settings table.
+ */
+export async function isLineNotifyEnabled(db: D1Database): Promise<boolean> {
+  try {
+    const row = await db
+      .prepare("SELECT value FROM system_settings WHERE key = 'line_notify_enabled'")
+      .first<{ value: string }>();
+    if (!row) return true; // Default enabled
+    return row.value === "1";
+  } catch {
+    return true; // Fallback if table doesn't exist
+  }
+}
+
+/**
+ * Updates LINE notification toggle in system_settings table.
+ */
+export async function setLineNotifyEnabled(db: D1Database, enabled: boolean): Promise<void> {
+  const now = Math.floor(Date.now() / 1000);
+  await db
+    .prepare(
+      `INSERT INTO system_settings (key, value, updated_at)
+       VALUES ('line_notify_enabled', ?, ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
+    )
+    .bind(enabled ? "1" : "0", now)
+    .run();
+}
+
+/**
+ * Retrieves LINE credentials from environment secrets, falling back to Cloudflare Context.
+ */
+export async function getLineCredentials(): Promise<{ token?: string; groupId?: string }> {
+  let token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  let groupId = process.env.LINE_GROUP_ID;
+
+  if (!token || !groupId) {
+    try {
+      const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+      const { env } = await getCloudflareContext();
+      token = token || (env as any)?.LINE_CHANNEL_ACCESS_TOKEN;
+      groupId = groupId || (env as any)?.LINE_GROUP_ID;
+    } catch {
+      // Local development or unit test environment
+    }
+  }
+
+  // Clean any accidental quotes or whitespace
+  token = token?.replace(/^["']|["']$/g, "").trim();
+  groupId = groupId?.replace(/^["']|["']$/g, "").trim();
+
+  return { token, groupId };
+}
+
+/**
+ * Builds a valid LINE Flex Message for a newly created booking (Pending approval).
+ */
+export function buildLinePendingFlexMessage(booking: BookingWithDetails): object {
+  const roomName = ROOM_NAMES[booking.room_id] || booking.room_id;
+  const layoutName = TABLE_LAYOUT_NAMES[booking.table_layout] || booking.table_layout;
+  const typeName = MEETING_TYPE_NAMES[booking.meeting_type] || booking.meeting_type;
+  const { dateStr, timeStr } = formatThaiDateTimeRange(booking.starts_at, booking.ends_at);
+  const formattedPhone = booking.coordinator_phone.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3");
+
+  let equipmentText = "ไม่ได้ระบุ";
+  let equipmentNotesText = "";
+  if (booking.equipment_needed) {
+    try {
+      const parsed = typeof booking.equipment_needed === "string" ? JSON.parse(booking.equipment_needed) : booking.equipment_needed;
+      const items = Array.isArray(parsed.items) && parsed.items.length > 0 ? parsed.items.join(", ") : "";
+      const other = parsed.other ? `อื่นๆ: ${parsed.other}` : "";
+      const combined = [items, other].filter(Boolean).join(" | ");
+      if (combined) equipmentText = combined;
+      if (parsed.notes) equipmentNotesText = parsed.notes;
+    } catch {
+      equipmentText = String(booking.equipment_needed);
+    }
+  }
+
+  return {
+    type: "flex",
+    altText: `[คำขอใหม่] การจองห้องประชุม: ${booking.activity_name} (${booking.booking_code})`,
+    contents: {
+      type: "bubble",
+      size: "giga",
+      header: {
+        type: "box",
+        layout: "vertical",
+        backgroundColor: "#b45309", // Warm Amber
+        paddingAll: "20px",
+        contents: [
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              {
+                type: "text",
+                text: "มีคำขอจองห้องประชุมใหม่",
+                color: "#fef3c7",
+                weight: "bold",
+                size: "sm",
+                flex: 1,
+              },
+              {
+                type: "text",
+                text: "PENDING",
+                color: "#ffffff",
+                size: "xxs",
+                align: "end",
+                weight: "bold",
+              },
+            ],
+          },
+          {
+            type: "text",
+            text: booking.activity_name,
+            weight: "bold",
+            color: "#ffffff",
+            size: "xl",
+            margin: "md",
+            wrap: true,
+          },
+          {
+            type: "text",
+            text: `รหัสการจอง: ${booking.booking_code}`,
+            color: "#fef3c7",
+            size: "xs",
+            margin: "xs",
+          },
+        ],
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        paddingAll: "20px",
+        contents: [
+          {
+            type: "box",
+            layout: "vertical",
+            contents: [
+              { type: "text", text: "สถานที่ / ห้องประชุม", size: "xs", color: "#8e8e99", weight: "bold" },
+              { type: "text", text: roomName, size: "sm", color: "#1e1e24", weight: "bold", wrap: true, margin: "xs" },
+            ],
+          },
+          { type: "separator", color: "#f0edf3" },
+          {
+            type: "box",
+            layout: "vertical",
+            contents: [
+              { type: "text", text: "วันและเวลาที่ขอใช้งาน", size: "xs", color: "#8e8e99", weight: "bold" },
+              { type: "text", text: dateStr, size: "sm", color: "#b45309", weight: "bold", margin: "xs" },
+              { type: "text", text: timeStr, size: "sm", color: "#1e1e24", margin: "xs" },
+            ],
+          },
+          { type: "separator", color: "#f0edf3" },
+          {
+            type: "box",
+            layout: "vertical",
+            spacing: "xs",
+            contents: [
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "ประเภทงาน:", size: "xs", color: "#8e8e99", flex: 3 },
+                  { type: "text", text: typeName, size: "xs", color: "#1e1e24", flex: 5, weight: "bold" },
+                ],
+              },
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "รูปแบบโต๊ะ:", size: "xs", color: "#8e8e99", flex: 3 },
+                  { type: "text", text: layoutName, size: "xs", color: "#1e1e24", flex: 5 },
+                ],
+              },
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "จำนวนผู้เข้าร่วม:", size: "xs", color: "#8e8e99", flex: 3 },
+                  { type: "text", text: `${booking.attendees_count} คน (เจ้าหน้าที่ ${booking.staff_count} คน)`, size: "xs", color: "#1e1e24", flex: 5, weight: "bold" },
+                ],
+              },
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "ผู้ประสานงาน:", size: "xs", color: "#8e8e99", flex: 3 },
+                  { type: "text", text: `${booking.coordinator_name} (โทร. ${formattedPhone})`, size: "xs", color: "#1e1e24", flex: 5, weight: "bold" },
+                ],
+              },
+              {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  { type: "text", text: "อุปกรณ์ที่ขอ:", size: "xs", color: "#8e8e99", flex: 3 },
+                  { type: "text", text: equipmentText, size: "xs", color: "#1e1e24", flex: 5, wrap: true },
+                ],
+              },
+              ...(equipmentNotesText ? [
+                {
+                  type: "box",
+                  layout: "horizontal",
+                  contents: [
+                    { type: "text", text: "หมายเหตุ:", size: "xs", color: "#8e8e99", flex: 3 },
+                    { type: "text", text: equipmentNotesText, size: "xs", color: "#b45309", flex: 5, wrap: true },
+                  ],
+                }
+              ] : []),
+            ],
+          },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        backgroundColor: "#fffbeb",
+        paddingAll: "16px",
+        contents: [
+          {
+            type: "text",
+            text: "กรุณาเข้าสู่ระบบผู้ดูแลเพื่อตรวจสอบและอนุมัติการจอง",
+            size: "xs",
+            color: "#92400e",
+            align: "center",
+            weight: "bold",
+          },
+        ],
+      },
+    },
+  };
 }
 
 /**
@@ -350,14 +587,18 @@ export function buildLineFlexMessage(booking: BookingWithDetails): object {
 
 /**
  * Sends a push message via LINE Messaging API for an approved booking.
- * Reads credentials strictly from server environment secrets.
- * Ensures idempotency and updates line_notifications queue.
  */
 export async function sendLineApprovedNotification(
   db: D1Database,
   bookingId: string
 ): Promise<{ success: boolean; skipped?: boolean; error?: string }> {
   try {
+    // Check if LINE notification is enabled
+    const enabled = await isLineNotifyEnabled(db);
+    if (!enabled) {
+      return { success: true, skipped: true, error: "LINE notifications are disabled in system settings" };
+    }
+
     // 1. Check queue record
     const queueRecord = await db
       .prepare(
@@ -371,7 +612,6 @@ export async function sendLineApprovedNotification(
     }
 
     if (queueRecord.status === "sent") {
-      // Already sent - idempotent noop
       return { success: true, skipped: true };
     }
 
@@ -385,7 +625,6 @@ export async function sendLineApprovedNotification(
       return { success: false, error: `Booking not found: ${bookingId}` };
     }
 
-    // Double check status is 'approved'
     if (booking.status !== "approved") {
       return {
         success: false,
@@ -393,7 +632,6 @@ export async function sendLineApprovedNotification(
       };
     }
 
-    // Fetch items
     const items = await db
       .prepare("SELECT item_code, item_name, quantity, subtotal FROM booking_items WHERE booking_id = ?")
       .bind(bookingId)
@@ -402,8 +640,7 @@ export async function sendLineApprovedNotification(
     booking.items = items.results || [];
 
     // 3. Get secrets
-    const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-    const groupId = process.env.LINE_GROUP_ID;
+    const { token, groupId } = await getLineCredentials();
 
     if (!token || !groupId) {
       const now = Math.floor(Date.now() / 1000);
@@ -454,6 +691,159 @@ export async function sendLineApprovedNotification(
     }
   } catch (err: any) {
     console.error("sendLineApprovedNotification error:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Sends a push message via LINE Messaging API when a new booking request is created (Pending).
+ */
+export async function sendLinePendingNotification(
+  db: D1Database,
+  bookingId: string
+): Promise<{ success: boolean; skipped?: boolean; error?: string }> {
+  try {
+    const enabled = await isLineNotifyEnabled(db);
+    if (!enabled) {
+      return { success: true, skipped: true, error: "LINE notifications are disabled in system settings" };
+    }
+
+    const booking = await db
+      .prepare("SELECT * FROM bookings WHERE id = ?")
+      .bind(bookingId)
+      .first<BookingWithDetails>();
+
+    if (!booking) {
+      return { success: false, error: `Booking not found: ${bookingId}` };
+    }
+
+    const { token, groupId } = await getLineCredentials();
+    if (!token || !groupId) {
+      return { success: false, error: "LINE credentials missing in server environment" };
+    }
+
+    const flexMessage = buildLinePendingFlexMessage(booking);
+    const retryKey = crypto.randomUUID();
+
+    const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "X-Line-Retry-Key": retryKey,
+      },
+      body: JSON.stringify({
+        to: groupId,
+        messages: [flexMessage],
+      }),
+    });
+
+    if (lineResponse.ok) {
+      return { success: true };
+    } else {
+      const errorText = await lineResponse.text();
+      return { success: false, error: errorText };
+    }
+  } catch (err: any) {
+    console.error("sendLinePendingNotification error:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Sends a test ping message into the configured LINE group to verify connectivity.
+ */
+export async function sendLineTestPing(
+  testByAdmin: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { token, groupId } = await getLineCredentials();
+    if (!token || !groupId) {
+      return { success: false, error: "ไม่พบการตั้งค่า LINE Token หรือ Group ID ในระบบ" };
+    }
+
+    const now = new Date();
+    const bkkNow = new Date(now.getTime() + 7 * 3600 * 1000);
+    const timeStr = `${String(bkkNow.getUTCHours()).padStart(2, "0")}:${String(bkkNow.getUTCMinutes()).padStart(2, "0")}:${String(bkkNow.getUTCSeconds()).padStart(2, "0")} น.`;
+
+    const testPayload = {
+      type: "flex",
+      altText: "[ทดสอบระบบ] ทดสอบการเชื่อมต่อ LINE Messaging API สำเร็จ",
+      contents: {
+        type: "bubble",
+        size: "kilo",
+        header: {
+          type: "box",
+          layout: "vertical",
+          backgroundColor: "#059669", // Emerald
+          paddingAll: "16px",
+          contents: [
+            {
+              type: "text",
+              text: "ทดสอบการเชื่อมต่อ LINE สำเร็จ ✅",
+              weight: "bold",
+              color: "#ffffff",
+              size: "md",
+            },
+          ],
+        },
+        body: {
+          type: "box",
+          layout: "vertical",
+          spacing: "sm",
+          paddingAll: "16px",
+          contents: [
+            {
+              type: "text",
+              text: "ระบบจองห้องประชุม ม.สวนดุสิต ลำปาง",
+              weight: "bold",
+              size: "sm",
+              color: "#1e1e24",
+            },
+            {
+              type: "text",
+              text: `เวลาที่ทดสอบ: ${timeStr}`,
+              size: "xs",
+              color: "#52525b",
+            },
+            {
+              type: "text",
+              text: `ทดสอบโดย: ${testByAdmin}`,
+              size: "xs",
+              color: "#52525b",
+            },
+            {
+              type: "text",
+              text: "บอทสามารถส่งข้อความเข้ากลุ่มและพร้อมรับการแจ้งเตือนจริงแล้ว",
+              size: "xs",
+              color: "#059669",
+              margin: "sm",
+              wrap: true,
+            },
+          ],
+        },
+      },
+    };
+
+    const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        to: groupId,
+        messages: [testPayload],
+      }),
+    });
+
+    if (lineResponse.ok) {
+      return { success: true };
+    } else {
+      const errorText = await lineResponse.text();
+      return { success: false, error: errorText };
+    }
+  } catch (err: any) {
     return { success: false, error: err.message };
   }
 }

@@ -18,6 +18,8 @@ export async function GET(req: NextRequest) {
       id: session.adminId,
       username: session.username,
       displayName: session.displayName,
+      role: session.role || (session.username === "chookait" ? "superadmin" : "admin"),
+      expiresAt: session.exp,
     },
   });
 }

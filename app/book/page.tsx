@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBookingStore, toEpochSeconds } from "@/lib/booking-store";
+import { formatThaiDateString } from "@/lib/date-utils";
+import { findConflicts, suggestSlots, formatRange, statusLabel, toBangkokTime, BusyRange, FreeSlot } from "@/lib/availability";
+import { ThaiDatePicker } from "@/app/components/ThaiDatePicker";
 import { FOOD_CATALOG, FoodItemCatalog, TableLayout, MeetingType } from "@/lib/types";
 import { Calendar, Users, Utensils, Coffee, CheckCircle, ChevronRight, ChevronLeft, AlertCircle, Loader2, Sparkles, Clock, ShieldCheck } from "lucide-react";
 
@@ -20,6 +23,15 @@ export default function BookingWizardPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [clash, setClash] = useState<{ conflicts: BusyRange[]; slots: FreeSlot[]; otherRoomId: string | null } | null>(null);
+
+  // Prefill room from ?room= query (e.g. /book?room=floor7 from homepage CTA)
+  useEffect(() => {
+    const room = new URLSearchParams(window.location.search).get("room");
+    if (room === "floor2" || room === "floor7") updateFormData({ room_id: room });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isLoaded) {
     return (
@@ -29,8 +41,8 @@ export default function BookingWizardPage() {
     );
   }
 
-  // Room capacities: floor2 = 100, floor7 = 300
-  const maxCapacity = formData.room_id === "floor7" ? 300 : 100;
+  // Room capacities: floor2 = 250, floor7 = 450
+  const maxCapacity = formData.room_id === "floor7" ? 450 : 250;
   const roomName = formData.room_id === "floor7" ? "ห้องประชุมชั้น 7" : "หอประชุมชั้น 2";
 
   // Validate current step before advancing
@@ -115,11 +127,53 @@ export default function BookingWizardPage() {
     return true;
   };
 
-  const handleNext = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 5));
-      window.scrollTo({ top: 0, behavior: "smooth" });
+  const fetchBusy = async (room: string, date: string): Promise<BusyRange[] | null> => {
+    try {
+      const res = await fetch(`/api/availability?room=${room}&date=${date}`);
+      if (!res.ok) return null;
+      return ((await res.json()) as any).busy ?? null;
+    } catch {
+      return null;
     }
+  };
+
+  // Shows the clash panel and returns true when the chosen slot is taken.
+  // `known` = conflicts already reported by the server (409). Without it the
+  // availability API decides; if that API fails we stay open and let the server decide on submit.
+  const explainClash = async (known?: BusyRange[]): Promise<boolean> => {
+    const start = toEpochSeconds(formData.booking_date, formData.start_time);
+    const end = toEpochSeconds(formData.booking_date, formData.end_time);
+    const otherId = formData.room_id === "floor7" ? "floor2" : "floor7";
+    const [busy, otherBusy] = await Promise.all([
+      fetchBusy(formData.room_id, formData.booking_date),
+      fetchBusy(otherId, formData.booking_date),
+    ]);
+    const conflicts = known ?? (busy ? findConflicts(busy, start, end) : []);
+    if (conflicts.length === 0) return false;
+    const otherCapacity = otherId === "floor7" ? 450 : 250;
+    const otherFree = !!otherBusy && findConflicts(otherBusy, start, end).length === 0 && formData.attendees_count <= otherCapacity;
+    setClash({
+      conflicts,
+      slots: busy ? suggestSlots(busy, start, end, formData.booking_date) : [],
+      otherRoomId: otherFree ? otherId : null,
+    });
+    return true;
+  };
+
+  const handleNext = async () => {
+    if (!validateStep(currentStep)) return;
+    if (currentStep === 1) {
+      setIsChecking(true);
+      const clashed = await explainClash();
+      setIsChecking(false);
+      if (clashed) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      setClash(null);
+    }
+    setCurrentStep((prev) => Math.min(prev + 1, 5));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleBack = () => {
@@ -184,6 +238,11 @@ export default function BookingWizardPage() {
       table_layout: formData.table_layout,
       vvip_seats: Number(formData.vvip_seats || 0),
       vip_seats: Number(formData.vip_seats || 0),
+      equipment_needed: JSON.stringify({
+        items: formData.equipment_items || [],
+        other: (formData.equipment_other || "").trim(),
+        notes: (formData.equipment_notes || "").trim(),
+      }),
       starts_at: startsAt,
       ends_at: endsAt,
       items: itemsPayload,
@@ -200,7 +259,13 @@ export default function BookingWizardPage() {
 
       if (!res.ok) {
         if (res.status === 409) {
-          setErrorMsg(data.error || "ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล");
+          const known = Array.isArray(data.conflicts) && data.conflicts.length > 0 ? data.conflicts : undefined;
+          if (await explainClash(known)) {
+            setCurrentStep(1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            setErrorMsg(data.error || "ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล");
+          }
         } else {
           setErrorMsg(data.error || "เกิดข้อผิดพลาดในการส่งคำขอ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง");
         }
@@ -266,6 +331,59 @@ export default function BookingWizardPage() {
         >
           <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
           <div className="flex-1 font-medium">{errorMsg}</div>
+        </div>
+      )}
+
+      {/* Booking clash: which slots are taken + free alternatives (times only, no personal data) */}
+      {clash && currentStep === 1 && (
+        <div role="alert" className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 text-amber-900 text-sm space-y-3">
+          <div className="flex items-start gap-3 font-bold">
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <span>ช่วงเวลานี้มีการจองแล้ว กรุณาเลือกวันหรือเวลาอื่น</span>
+          </div>
+          <ul className="list-disc pl-12 space-y-1">
+            {clash.conflicts.slice(0, 3).map((c, i) => (
+              <li key={i}>
+                {formatRange(c.starts_at, c.ends_at)} ({statusLabel(c.status)})
+              </li>
+            ))}
+          </ul>
+          {clash.conflicts.length > 3 && <p className="pl-8">และอีก {clash.conflicts.length - 3} ช่วง</p>}
+          {clash.conflicts.some((c) => c.status === "pending") && (
+            <p className="pl-8 text-xs">ช่วงที่รออนุมัติอาจว่างหากคำขอถูกปฏิเสธ</p>
+          )}
+          {(clash.slots.length > 0 || clash.otherRoomId) && (
+            <div className="pl-8 space-y-2">
+              <p className="font-bold">ตัวเลือกที่ว่าง (กดเพื่อเติมในฟอร์ม):</p>
+              <div className="flex flex-wrap gap-2">
+                {clash.slots.map((s) => (
+                  <button
+                    key={s.starts_at}
+                    type="button"
+                    onClick={() => {
+                      updateFormData({ start_time: toBangkokTime(s.starts_at), end_time: toBangkokTime(s.ends_at) });
+                      setClash(null);
+                    }}
+                    className="inline-flex items-center px-4 py-2 rounded-xl border border-amber-300 bg-white hover:bg-amber-100 font-bold text-xs touch-target transition-colors"
+                  >
+                    {toBangkokTime(s.starts_at)} – {toBangkokTime(s.ends_at)} น.
+                  </button>
+                ))}
+                {clash.otherRoomId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateFormData({ room_id: clash.otherRoomId! });
+                      setClash(null);
+                    }}
+                    className="inline-flex items-center px-4 py-2 rounded-xl border border-amber-300 bg-white hover:bg-amber-100 font-bold text-xs touch-target transition-colors"
+                  >
+                    เวลาเดิมใน{clash.otherRoomId === "floor7" ? "ห้องประชุมชั้น 7" : "หอประชุมชั้น 2"}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -375,8 +493,8 @@ export default function BookingWizardPage() {
                   onChange={(e) => updateFormData({ room_id: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target font-medium shadow-2xs"
                 >
-                  <option value="floor2">หอประชุมชั้น 2 (ความจุสูงสุด 100 คน)</option>
-                  <option value="floor7">ห้องประชุมชั้น 7 (ความจุสูงสุด 300 คน)</option>
+                  <option value="floor2">หอประชุมชั้น 2 (ความจุสูงสุด 250 คน)</option>
+                  <option value="floor7">ห้องประชุมชั้น 7 (ความจุสูงสุด 450 คน)</option>
                 </select>
               </div>
 
@@ -411,11 +529,9 @@ export default function BookingWizardPage() {
                 <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
                   วันที่ต้องการจอง <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="date"
+                <ThaiDatePicker
                   value={formData.booking_date}
-                  onChange={(e) => updateFormData({ booking_date: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
+                  onChange={(dateStr) => updateFormData({ booking_date: dateStr })}
                 />
               </div>
 
@@ -529,6 +645,83 @@ export default function BookingWizardPage() {
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
                 />
                 <p className="text-xs text-[#595963]">แถวถัดมาสำหรับผู้บริหารหรือวิทยากร</p>
+              </div>
+            </div>
+
+            {/* Equipment and Extra Notes */}
+            <div className="pt-5 border-t border-[#e6e2ea] space-y-4">
+              <div>
+                <label className="text-xs sm:text-sm font-bold text-[#1e1e24] block">
+                  อุปกรณ์และสิ่งอำนวยความสะดวกที่ต้องการใช้งาน
+                </label>
+                <p className="text-xs text-[#595963] mt-0.5">
+                  เลือกอุปกรณ์พื้นฐานที่ต้องการให้เจ้าหน้าที่จัดเตรียมไว้ล่วงหน้า (เลือกได้มากกว่า 1 รายการ)
+                </p>
+              </div>
+
+              {/* Checkbox 2 Columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  { id: "projector", label: "โปรเจ็คเตอร์ (Projector)" },
+                  { id: "microphone", label: "ไมโครโฟน (Microphone)" },
+                  { id: "sound_system", label: "เครื่องเสียง (Sound System)" },
+                  { id: "computer", label: "คอมพิวเตอร์ (Computer)" },
+                  { id: "wifi", label: "Wi-Fi อินเทอร์เน็ต" },
+                ].map((item) => {
+                  const checked = (formData.equipment_items || []).includes(item.label);
+                  return (
+                    <label
+                      key={item.id}
+                      className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all touch-target ${
+                        checked
+                          ? "border-[#582c83] bg-[#f5f0fa] text-[#582c83] font-semibold"
+                          : "border-[#e6e2ea] bg-white text-[#1e1e24] hover:bg-[#faf7fd]"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          const current = formData.equipment_items || [];
+                          const updated = e.target.checked
+                            ? [...current, item.label]
+                            : current.filter((x) => x !== item.label);
+                          updateFormData({ equipment_items: updated });
+                        }}
+                        className="w-4 h-4 rounded text-[#582c83] focus:ring-[#582c83] border-[#e6e2ea]"
+                      />
+                      <span className="text-sm">{item.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+
+              {/* Other Equipment */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
+                  ระบุอุปกรณ์อื่นๆ เพิ่มเติม (ถ้ามี)
+                </label>
+                <input
+                  type="text"
+                  placeholder="เช่น สายต่อ HDMI, พอยเตอร์เลเซอร์, ขาตั้งไมค์เพิ่มเติม"
+                  value={formData.equipment_other || ""}
+                  onChange={(e) => updateFormData({ equipment_other: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
+                />
+              </div>
+
+              {/* Additional Notes */}
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
+                  หมายเหตุเพิ่มเติม (ถ้ามี)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="ระบุข้อความหรือคำขอพิเศษเพิ่มเติมสำหรับการจัดเตรียมสถานที่"
+                  value={formData.equipment_notes || ""}
+                  onChange={(e) => updateFormData({ equipment_notes: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
+                />
               </div>
             </div>
           </div>
@@ -779,10 +972,24 @@ export default function BookingWizardPage() {
               <div className="p-5 rounded-2xl bg-[#faf7fd] border border-[#e6e2ea] space-y-2">
                 <span className="text-xs font-bold text-[#582c83]">ห้องและช่วงเวลา</span>
                 <p className="text-sm font-bold text-[#1e1e24]">{roomName}</p>
-                <p className="text-xs text-[#595963]">วันที่: {formData.booking_date}</p>
+                <p className="text-xs text-[#595963]">วันที่: <span className="font-semibold text-[#1e1e24]">{formatThaiDateString(formData.booking_date)}</span></p>
                 <p className="text-xs text-[#595963]">เวลา: {formData.start_time} – {formData.end_time} น.</p>
                 <p className="text-xs text-[#595963]">ผู้เข้าร่วม: {formData.attendees_count} คน (เจ้าหน้าที่ {formData.staff_count} คน)</p>
                 <p className="text-xs text-[#595963]">ผังโต๊ะ: {formData.table_layout} | VVIP: {formData.vvip_seats} | VIP: {formData.vip_seats}</p>
+                {((formData.equipment_items && formData.equipment_items.length > 0) || formData.equipment_other || formData.equipment_notes) && (
+                  <div className="pt-2 border-t border-[#e6e2ea]/60 space-y-1">
+                    <span className="text-[11px] font-bold text-[#582c83]">อุปกรณ์และหมายเหตุ:</span>
+                    {formData.equipment_items && formData.equipment_items.length > 0 && (
+                      <p className="text-xs text-[#1e1e24]">• {formData.equipment_items.join(", ")}</p>
+                    )}
+                    {formData.equipment_other && (
+                      <p className="text-xs text-[#595963]">อื่นๆ: {formData.equipment_other}</p>
+                    )}
+                    {formData.equipment_notes && (
+                      <p className="text-xs text-[#595963]">หมายเหตุ: {formData.equipment_notes}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -847,10 +1054,20 @@ export default function BookingWizardPage() {
             <button
               type="button"
               onClick={handleNext}
-              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target shadow-xs border border-white/20 transition-all ml-auto active:scale-95"
+              disabled={isChecking}
+              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target shadow-xs border border-white/20 transition-all ml-auto active:scale-95 disabled:opacity-50"
             >
-              ถัดไป
-              <ChevronRight className="w-4 h-4" />
+              {isChecking ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  กำลังตรวจสอบ...
+                </>
+              ) : (
+                <>
+                  ถัดไป
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           ) : (
             <button

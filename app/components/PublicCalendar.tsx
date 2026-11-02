@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { PublicCalendarEvent, BookingStatus } from "@/lib/types";
-import { Calendar as CalendarIcon, List, Filter, ChevronLeft, ChevronRight, X, Clock, MapPin, Tag, Loader2, Sparkles } from "lucide-react";
+import { Calendar as CalendarIcon, List, Filter, ChevronLeft, ChevronRight, X, Clock, MapPin, Tag, Loader2 } from "lucide-react";
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string; dot: string }> = {
   pending: { label: "รอการอนุมัติ", bg: "bg-amber-50", text: "text-amber-900", border: "border-amber-300", dot: "bg-amber-500" },
@@ -36,6 +36,7 @@ export function PublicCalendar() {
   const [roomFilter, setRoomFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedEvent, setSelectedEvent] = useState<PublicCalendarEvent | null>(null);
+  const [dayModalData, setDayModalData] = useState<{ dateStr: string; events: PublicCalendarEvent[] } | null>(null);
 
   // Current calendar month view state (Bangkok time)
   const [currentDate, setCurrentDate] = useState(() => {
@@ -97,49 +98,49 @@ export function PublicCalendar() {
   return (
     <div className="w-full space-y-6">
       {/* Header Controls */}
-      <div className="bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-5 sm:p-7 shadow-[0_16px_48px_rgba(88,44,131,0.06)] space-y-5">
+      <div className="card p-5 sm:p-7 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#1e1e24] flex items-center gap-2.5 tracking-tight">
-              <CalendarIcon className="w-5 h-5 text-[#582c83]" />
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[#18181b] flex items-center gap-2.5 tracking-tight overflow-wrap-break-word min-w-0">
+              <CalendarIcon className="w-5 h-5 text-[#582c83] shrink-0" aria-hidden="true" />
               ตารางการใช้ห้องประชุม
             </h2>
-            <p className="text-xs sm:text-sm text-[#595963] mt-0.5 font-medium">
+            <p className="text-xs sm:text-sm text-[#52525b] mt-1 font-medium">
               ตรวจสอบช่วงเวลาว่างและการจัดกิจกรรม (ไม่แสดงข้อมูลส่วนบุคคลของผู้ประสานงาน)
             </p>
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1 bg-[#582c83]/8 p-1 rounded-2xl self-start sm:self-auto border border-[#582c83]/12">
+          <div className="flex items-center gap-1 bg-[#f5f0fa] p-1 rounded-xl self-start sm:self-auto border border-[#e4e2ea]">
             <button
               onClick={() => setViewMode("month")}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all touch-target ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors touch-target ${
                 viewMode === "month"
-                  ? "bg-gradient-to-r from-violet-600 to-[#582c83] text-white shadow-xs border border-white/20"
-                  : "text-[#582c83] hover:bg-white/80"
+                  ? "bg-[#582c83] text-white shadow-sm"
+                  : "text-[#582c83] hover:bg-white"
               }`}
             >
-              <CalendarIcon className="w-4 h-4" />
+              <CalendarIcon className="w-4 h-4" aria-hidden="true" />
               ปฏิทินรายเดือน
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all touch-target ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors touch-target ${
                 viewMode === "list"
-                  ? "bg-gradient-to-r from-violet-600 to-[#582c83] text-white shadow-xs border border-white/20"
-                  : "text-[#582c83] hover:bg-white/80"
+                  ? "bg-[#582c83] text-white shadow-sm"
+                  : "text-[#582c83] hover:bg-white"
               }`}
             >
-              <List className="w-4 h-4" />
+              <List className="w-4 h-4" aria-hidden="true" />
               รายการจอง
             </button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[#582c83]/10 text-xs">
-          <span className="font-bold text-[#1e1e24] flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5 text-[#582c83]" />
+        <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-[#e4e2ea] text-xs">
+          <span className="font-bold text-[#18181b] flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5 text-[#582c83]" aria-hidden="true" />
             กรองตามห้อง:
           </span>
           {[
@@ -150,35 +151,36 @@ export function PublicCalendar() {
             <button
               key={rf.id}
               onClick={() => setRoomFilter(rf.id)}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all touch-target ${
+              className={`px-3 py-1.5 rounded-lg font-semibold transition-colors touch-target ${
                 roomFilter === rf.id
-                  ? "bg-gradient-to-r from-violet-600 to-[#582c83] text-white shadow-xs"
-                  : "bg-[#f4effa] text-[#595963] hover:bg-[#eae2f3]"
+                  ? "bg-[#582c83] text-white"
+                  : "bg-[#f5f0fa] text-[#52525b] hover:bg-[#ede6f5]"
               }`}
             >
               {rf.label}
             </button>
           ))}
 
-          <span className="font-bold text-[#1e1e24] ml-2 flex items-center gap-1">
-            สถานะ:
-          </span>
+          <span className="font-bold text-[#18181b] ml-2">สถานะ:</span>
           {[
-            { id: "all", label: "ทุกสถานะ" },
-            { id: "pending", label: "รอการอนุมัติ" },
-            { id: "approved", label: "อนุมัติแล้ว" },
-            { id: "rejected", label: "ไม่อนุมัติ" },
-            { id: "cancelled", label: "ยกเลิก" },
+            { id: "all", label: "ทุกสถานะ", active: "", dot: "" },
+            { id: "pending", label: "รอการอนุมัติ", active: "bg-amber-500", dot: "bg-amber-500" },
+            { id: "approved", label: "อนุมัติแล้ว", active: "bg-emerald-600", dot: "bg-emerald-500" },
+            { id: "rejected", label: "ไม่อนุมัติ", active: "bg-rose-600", dot: "bg-rose-500" },
+            { id: "cancelled", label: "ยกเลิก", active: "bg-gray-500", dot: "bg-gray-400" },
           ].map((sf) => (
             <button
               key={sf.id}
               onClick={() => setStatusFilter(sf.id)}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all touch-target ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition-colors touch-target ${
                 statusFilter === sf.id
-                  ? "bg-gradient-to-r from-violet-600 to-[#582c83] text-white shadow-xs"
-                  : "bg-[#f4effa] text-[#595963] hover:bg-[#eae2f3]"
+                  ? sf.id === "all"
+                    ? "bg-[#582c83] text-white"
+                    : `${sf.active} text-white shadow-xs`
+                  : "bg-[#f5f0fa] text-[#52525b] hover:bg-[#ede6f5]"
               }`}
             >
+              {sf.dot && <span className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === sf.id ? "bg-white" : sf.dot}`} aria-hidden="true" />}
               {sf.label}
             </button>
           ))}
@@ -187,51 +189,50 @@ export function PublicCalendar() {
 
       {/* Main Content Area */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center p-12 bg-white/90 backdrop-blur-xl rounded-3xl border border-white/80 shadow-[0_12px_40px_rgba(88,44,131,0.06)]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#582c83]" />
-          <p className="text-sm text-[#595963] mt-3 font-semibold">กำลังโหลดข้อมูลปฏิทิน...</p>
+        <div className="flex flex-col items-center justify-center p-12 card">
+          <Loader2 className="w-8 h-8 animate-spin text-[#582c83]" aria-hidden="true" />
+          <p className="text-sm text-[#52525b] mt-3 font-semibold">กำลังโหลดข้อมูลปฏิทิน...</p>
         </div>
       ) : viewMode === "month" ? (
         /* =================== MONTH VIEW =================== */
-        <div className="bg-white/92 backdrop-blur-2xl rounded-3xl border border-white/80 overflow-hidden shadow-[0_16px_48px_rgba(88,44,131,0.06)]">
+        <div className="card overflow-hidden">
           {/* Month Navigation */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#582c83]/10 bg-gradient-to-r from-[#faf7fd] via-white to-[#faf7fd]">
-            <h3 className="font-extrabold text-base sm:text-lg text-[#1e1e24] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#e4e2ea] bg-[#faf9fd]">
+            <h3 className="font-extrabold text-base sm:text-lg text-[#18181b]">
               {thaiMonthName}
             </h3>
             <div className="flex items-center gap-2">
               <button
                 onClick={prevMonth}
                 aria-label="เดือนก่อนหน้า"
-                className="p-2 rounded-xl border border-[#e6e2ea] bg-white hover:bg-[#faf7fd] text-[#1e1e24] shadow-2xs transition-all touch-target"
+                className="p-2 rounded-lg border border-[#e4e2ea] bg-white hover:bg-[#f5f0fa] text-[#18181b] transition-colors touch-target"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
               </button>
               <button
                 onClick={nextMonth}
                 aria-label="เดือนถัดไป"
-                className="p-2 rounded-xl border border-[#e6e2ea] bg-white hover:bg-[#faf7fd] text-[#1e1e24] shadow-2xs transition-all touch-target"
+                className="p-2 rounded-lg border border-[#e4e2ea] bg-white hover:bg-[#f5f0fa] text-[#18181b] transition-colors touch-target"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>
 
           {/* Days of week header */}
-          <div className="grid grid-cols-7 border-b border-[#e6e2ea] text-center text-xs font-bold text-[#595963] bg-[#fbf9fd]">
+          <div className="grid grid-cols-7 border-b border-[#e4e2ea] text-center text-xs font-bold text-[#52525b] bg-[#f8f8fc]">
             {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((d, i) => (
-              <div key={i} className={`py-2.5 ${i === 0 ? "text-rose-600 font-extrabold" : ""}`}>
+              <div key={i} className={`py-2.5 ${i === 0 ? "text-rose-600" : ""}`}>
                 {d}
               </div>
             ))}
           </div>
 
           {/* Month Day Grid */}
-          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-[#ece7f2] border-b border-[#ece7f2]">
+          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-[#e4e2ea]">
             {/* Empty offset days */}
             {Array.from({ length: firstDayIndex }).map((_, i) => (
-              <div key={`empty-${i}`} className="min-h-[90px] sm:min-h-[110px] bg-gray-50/40 p-1.5" />
+              <div key={`empty-${i}`} className="min-h-[90px] sm:min-h-[110px] bg-[#fafafa] p-1.5" />
             ))}
 
             {/* Days in month */}
@@ -246,16 +247,16 @@ export function PublicCalendar() {
               return (
                 <div
                   key={`day-${dayNum}`}
-                  className={`min-h-[90px] sm:min-h-[110px] p-1.5 flex flex-col transition-colors hover:bg-[#faf7fd] ${
-                    isToday ? "bg-purple-50/50 ring-1 ring-inset ring-[#582c83]/30" : ""
+                  className={`min-h-[90px] sm:min-h-[110px] p-1.5 flex flex-col transition-colors hover:bg-[#faf8fd] ${
+                    isToday ? "bg-purple-50/60 ring-1 ring-inset ring-[#582c83]/25" : ""
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span
                       className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center ${
                         isToday
-                          ? "bg-gradient-to-r from-violet-600 to-[#582c83] text-white shadow-xs"
-                          : "text-[#1e1e24]"
+                          ? "bg-[#582c83] text-white"
+                          : "text-[#18181b]"
                       }`}
                     >
                       {dayNum}
@@ -263,14 +264,14 @@ export function PublicCalendar() {
                   </div>
 
                   {/* Day Events Badges */}
-                  <div className="space-y-1 flex-1 overflow-y-auto max-h-[85px] scrollbar-none">
-                    {dayEvents.map((ev) => {
+                  <div className="space-y-1 flex-1 overflow-hidden">
+                    {dayEvents.slice(0, 2).map((ev) => {
                       const cfg = STATUS_CONFIG[ev.status];
                       return (
                         <button
                           key={ev.id}
                           onClick={() => setSelectedEvent(ev)}
-                          className={`w-full text-left p-1 rounded-lg border text-[11px] leading-tight block truncate font-medium transition-transform active:scale-95 ${cfg.bg} ${cfg.text} ${cfg.border} shadow-2xs`}
+                          className={`w-full text-left p-1 rounded-md border text-[11px] leading-tight block truncate font-medium transition-opacity hover:opacity-80 active:scale-95 ${cfg.bg} ${cfg.text} ${cfg.border}`}
                           title={`${ev.room_name} (${formatThaiTime(ev.starts_at)} - ${formatThaiTime(ev.ends_at)}): ${ev.activity_name}`}
                         >
                           <span className="font-bold text-[#582c83]">[{ev.room_id === "floor7" ? "ช.7" : "ช.2"}]</span>{" "}
@@ -278,6 +279,22 @@ export function PublicCalendar() {
                         </button>
                       );
                     })}
+
+                    {dayEvents.length > 2 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDayModalData({
+                            dateStr: `${dayNum} ${thaiMonths[month]} ${year + 543}`,
+                            events: dayEvents,
+                          });
+                        }}
+                        className="w-full text-left px-1.5 py-0.5 rounded text-[11px] font-bold text-[#582c83] bg-[#f5f0fa] hover:bg-[#ede6f5] border border-[#582c83]/20 transition-colors block truncate"
+                        title={`ดูรายการทั้งหมดของวันที่ ${dayNum} (${dayEvents.length} รายการ)`}
+                      >
+                        + อีก {dayEvents.length - 2} รายการ
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -286,37 +303,35 @@ export function PublicCalendar() {
         </div>
       ) : (
         /* =================== LIST VIEW =================== */
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-white/80 overflow-hidden shadow-[0_12px_40px_rgba(88,44,131,0.05)]">
+        <div className="card overflow-hidden">
           {events.length === 0 ? (
-            <div className="p-12 text-center text-[#595963] text-sm font-medium">
+            <div className="p-12 text-center text-[#52525b] text-sm font-medium">
               ไม่พบรายการจองห้องประชุมตามเงื่อนไขที่เลือก
             </div>
           ) : (
-            <div className="divide-y divide-[#ece7f2]">
+            <div className="divide-y divide-[#e4e2ea]">
               {events.map((ev) => {
                 const cfg = STATUS_CONFIG[ev.status];
                 return (
                   <div
                     key={ev.id}
                     onClick={() => setSelectedEvent(ev)}
-                    className="p-4 sm:p-5 hover:bg-[#faf7fd] transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-4 sm:p-5 hover:bg-[#faf8fd] transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
-                    <div className="space-y-1.5 flex-1">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
                           {cfg.label}
                         </span>
                         <span className="text-xs font-bold text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-2.5 py-0.5 rounded-md">
                           {ev.room_name}
                         </span>
-                        <span className="text-xs font-mono text-[#595963]">{ev.booking_code}</span>
+                        <span className="text-xs font-mono text-[#52525b]">{ev.booking_code}</span>
                       </div>
-                      <h4 className="font-bold text-base text-[#1e1e24]">{ev.activity_name}</h4>
-                      <p className="text-xs text-[#595963] flex items-center gap-3">
-                        <span className="flex items-center gap-1 font-medium">
-                          <Clock className="w-3.5 h-3.5 text-[#582c83]" />
-                          {formatThaiDate(ev.starts_at)} ({formatThaiTime(ev.starts_at)} – {formatThaiTime(ev.ends_at)})
-                        </span>
+                      <h4 className="font-bold text-base text-[#18181b] overflow-wrap-break-word">{ev.activity_name}</h4>
+                      <p className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-[#582c83] shrink-0" aria-hidden="true" />
+                        {formatThaiDate(ev.starts_at)} · {formatThaiTime(ev.starts_at)} – {formatThaiTime(ev.ends_at)}
                       </p>
                     </div>
 
@@ -325,7 +340,7 @@ export function PublicCalendar() {
                         e.stopPropagation();
                         setSelectedEvent(ev);
                       }}
-                      className="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-[#e6e2ea] bg-white hover:bg-gray-50 text-xs font-bold text-[#1e1e24] shadow-2xs touch-target shrink-0 transition-all"
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-[#e4e2ea] bg-white hover:bg-[#f5f0fa] text-xs font-bold text-[#18181b] touch-target shrink-0 transition-colors"
                     >
                       ดูรายละเอียด
                     </button>
@@ -337,46 +352,127 @@ export function PublicCalendar() {
         </div>
       )}
 
+      {/* =================== DAY EVENTS LIST MODAL =================== */}
+      {dayModalData && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="day-modal-title"
+        >
+          <div className="bg-white rounded-2xl max-w-lg w-full border border-[#e4e2ea] shadow-[0_25px_60px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-5 border-b border-[#e4e2ea] flex items-center justify-between bg-[#faf8fd] shrink-0">
+              <div>
+                <h3 id="day-modal-title" className="font-extrabold text-base text-[#18181b]">
+                  รายการจองวันที่ {dayModalData.dateStr}
+                </h3>
+                <p className="text-xs text-[#52525b] mt-0.5 font-medium">
+                  ทั้งหมด {dayModalData.events.length} รายการ
+                </p>
+              </div>
+              <button
+                onClick={() => setDayModalData(null)}
+                aria-label="ปิด"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[#52525b] hover:text-[#18181b] hover:bg-white touch-target transition-colors"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto space-y-2.5 flex-1 divide-y divide-[#f0edf5]">
+              {dayModalData.events.map((ev) => {
+                const cfg = STATUS_CONFIG[ev.status];
+                return (
+                  <div
+                    key={ev.id}
+                    onClick={() => setSelectedEvent(ev)}
+                    className="pt-2.5 first:pt-0 p-3 rounded-xl hover:bg-[#faf8fd] border border-transparent hover:border-[#e4e2ea] transition-colors cursor-pointer space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                          {cfg.label}
+                        </span>
+                        <span className="text-[11px] font-bold text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-2 py-0.5 rounded-md">
+                          {ev.room_name}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-mono text-[#52525b]">{ev.booking_code}</span>
+                    </div>
+
+                    <h4 className="font-bold text-sm text-[#18181b]">{ev.activity_name}</h4>
+
+                    <div className="flex items-center justify-between pt-0.5">
+                      <p className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-[#582c83] shrink-0" aria-hidden="true" />
+                        {formatThaiTime(ev.starts_at)} – {formatThaiTime(ev.ends_at)}
+                      </p>
+                      <span className="text-xs font-bold text-[#582c83] hover:underline">
+                        ดูรายละเอียด &rarr;
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="p-4 bg-[#f8f8fc] border-t border-[#e4e2ea] flex justify-end shrink-0">
+              <button
+                onClick={() => setDayModalData(null)}
+                className="px-5 py-2 rounded-xl bg-white border border-[#e4e2ea] hover:bg-[#f5f0fa] font-bold text-xs text-[#18181b] touch-target transition-colors"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* =================== EVENT DETAIL MODAL (No PII) =================== */}
       {selectedEvent && (
-        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full border border-white/80 shadow-[0_25px_60px_rgba(88,44,131,0.18)] overflow-hidden">
-            <div className="p-5 border-b border-[#e6e2ea] flex items-center justify-between bg-[#faf7fd]">
-              <h3 className="font-black text-base text-[#1e1e24]">รายละเอียดการจองห้องประชุม</h3>
+        <div
+          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full border border-[#e4e2ea] shadow-[0_25px_60px_rgba(0,0,0,0.15)] overflow-hidden">
+            <div className="p-5 border-b border-[#e4e2ea] flex items-center justify-between bg-[#faf8fd]">
+              <h3 id="modal-title" className="font-extrabold text-base text-[#18181b]">รายละเอียดการจองห้องประชุม</h3>
               <button
                 onClick={() => setSelectedEvent(null)}
                 aria-label="ปิด"
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-[#595963] hover:text-[#1e1e24] hover:bg-white touch-target transition-all"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[#52525b] hover:text-[#18181b] hover:bg-white touch-target transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
             <div className="p-6 space-y-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#595963] font-medium">รหัสอ้างอิง:</span>
-                <span className="font-mono font-bold text-sm text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-3 py-1 rounded-xl">
+                <span className="text-xs text-[#52525b] font-medium">รหัสอ้างอิง:</span>
+                <span className="font-mono font-bold text-sm text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-3 py-1 rounded-lg">
                   {selectedEvent.booking_code}
                 </span>
               </div>
 
               <div className="space-y-1">
-                <span className="text-xs text-[#595963] font-medium">ชื่อกิจกรรม:</span>
-                <h4 className="font-bold text-base text-[#1e1e24]">{selectedEvent.activity_name}</h4>
+                <span className="text-xs text-[#52525b] font-medium">ชื่อกิจกรรม:</span>
+                <h4 className="font-bold text-base text-[#18181b]">{selectedEvent.activity_name}</h4>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#e6e2ea]">
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#e4e2ea]">
                 <div className="space-y-1">
-                  <span className="text-xs text-[#595963] flex items-center gap-1 font-medium">
-                    <MapPin className="w-3.5 h-3.5 text-[#582c83]" />
+                  <span className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-[#582c83]" aria-hidden="true" />
                     สถานที่
                   </span>
-                  <p className="font-bold text-xs text-[#1e1e24]">{selectedEvent.room_name}</p>
+                  <p className="font-bold text-xs text-[#18181b]">{selectedEvent.room_name}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-xs text-[#595963] flex items-center gap-1 font-medium">
-                    <Tag className="w-3.5 h-3.5 text-[#582c83]" />
+                  <span className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
+                    <Tag className="w-3.5 h-3.5 text-[#582c83]" aria-hidden="true" />
                     สถานะ
                   </span>
                   <span
@@ -391,28 +487,28 @@ export function PublicCalendar() {
                 </div>
               </div>
 
-              <div className="space-y-1 pt-2 border-t border-[#e6e2ea]">
-                <span className="text-xs text-[#595963] flex items-center gap-1 font-medium">
-                  <Clock className="w-3.5 h-3.5 text-[#582c83]" />
+              <div className="space-y-1 pt-2 border-t border-[#e4e2ea]">
+                <span className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
+                  <Clock className="w-3.5 h-3.5 text-[#582c83]" aria-hidden="true" />
                   วันและเวลา
                 </span>
-                <p className="font-bold text-xs text-[#1e1e24]">
+                <p className="font-bold text-xs text-[#18181b]">
                   วันที่ {formatThaiDate(selectedEvent.starts_at)}
                 </p>
-                <p className="text-xs text-[#595963] font-medium">
+                <p className="text-xs text-[#52525b] font-medium">
                   เวลา {formatThaiTime(selectedEvent.starts_at)} – {formatThaiTime(selectedEvent.ends_at)}
                 </p>
               </div>
 
-              <div className="bg-[#faf8fd] border border-[#582c83]/10 rounded-2xl p-3.5 text-[11px] text-[#595963] leading-relaxed">
-                ℹ️ ข้อมูลผู้ประสานงานและรายละเอียดอาหารจะไม่แสดงในปฏิทินสาธารณะตามระเบียบรักษาความปลอดภัยข้อมูลส่วนบุคคล
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-[11px] text-blue-700 leading-relaxed">
+                ข้อมูลผู้ประสานงานและรายละเอียดอาหารจะไม่แสดงในปฏิทินสาธารณะตามระเบียบรักษาความปลอดภัยข้อมูลส่วนบุคคล
               </div>
             </div>
 
-            <div className="p-4 bg-[#faf8fd] border-t border-[#e6e2ea] flex justify-end">
+            <div className="p-4 bg-[#f8f8fc] border-t border-[#e4e2ea] flex justify-end">
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="px-5 py-2 rounded-xl bg-white border border-[#e6e2ea] hover:bg-gray-50 font-bold text-xs text-[#1e1e24] shadow-2xs touch-target transition-all"
+                className="px-5 py-2 rounded-xl bg-white border border-[#e4e2ea] hover:bg-[#f5f0fa] font-bold text-xs text-[#18181b] touch-target transition-colors"
               >
                 ปิดหน้าต่าง
               </button>

@@ -1,47 +1,165 @@
+/* Hallmark · v2.0.0 · redesign:full · genre:modern-minimal · theme:clean-tech-light
+   critique: image cropped by bad aspect-ratio + max-h, dark aurora backdrop too heavy, transition:all, overflow-x missing
+   waive: 47b — purple-to-brand gradient on CTA only (brand brand-primary is purple, not purple-to-blue decorative) */
+
 @import "tailwindcss";
 
+/* ─── Design Tokens ──────────────────────────────────────────────────── */
 @layer base {
   :root {
+    /* Brand colours */
     --brand-primary: #582c83;
     --brand-primary-hover: #48236b;
     --brand-primary-light: #f5f0fa;
-    --brand-accent: #cba052;
-    --brand-ink: #1e1e24;
-    --brand-ink-muted: #595963;
-    --brand-ground: #fbfbfe;
+    --brand-accent: #b8860b;
+
+    /* Ink scale */
+    --brand-ink: #18181b;
+    --brand-ink-muted: #52525b;
+    --brand-ink-faint: #a1a1aa;
+
+    /* Ground & Surface */
+    --brand-ground: #f8f8fc;
     --brand-surface: #ffffff;
-    --brand-border: #e6e2ea;
+    --brand-surface-raised: #faf9fd;
+
+    /* Border */
+    --brand-border: #e4e2ea;
+    --brand-border-strong: #c7c0d6;
+
+    /* Shadow scale */
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(88,44,131,0.05);
+    --shadow-card-hover: 0 4px 8px rgba(0,0,0,0.06), 0 16px 40px rgba(88,44,131,0.1);
+    --shadow-btn: 0 2px 8px rgba(88,44,131,0.22);
+    --shadow-btn-hover: 0 4px 16px rgba(88,44,131,0.3);
+
+    /* Radius scale */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+
+    /* Motion */
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Floor rule 4: overflow-x clip on both html and body */
+  html,
+  body {
+    overflow-x: clip;
   }
 
   body {
     background-color: var(--brand-ground);
     color: var(--brand-ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Sarabun", "Prompt", sans-serif;
+    font-family: "Sarabun", "Prompt", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    line-height: 1.65;
+  }
+
+  /* Floor rule 6: focus-visible instant, no transition */
+  :focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+
+  /* Floor rule 7: reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-/* Minimum 44px touch targets for mobile accessibility */
+/* ─── Touch targets ──────────────────────────────────────────────────── */
 .touch-target {
   min-height: 44px;
   min-width: 44px;
 }
 
-/* Royal Aurora Pearl Utilities */
+/* ─── Card system ────────────────────────────────────────────────────── */
+.card {
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
+}
+
+.card-hover {
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-spring), border-color 0.2s ease;
+}
+
+.card-hover:hover {
+  border-color: var(--brand-border-strong);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  min-height: 44px;
+  border-radius: var(--radius-lg);
+  background: var(--brand-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-btn);
+  border: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s var(--ease-spring);
+}
+
+.btn-primary:hover {
+  background: var(--brand-primary-hover);
+  box-shadow: var(--shadow-btn-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  min-height: 44px;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--brand-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid var(--brand-border-strong);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-ghost:hover {
+  background: var(--brand-primary-light);
+  border-color: var(--brand-primary);
+}
+
+/* ─── Legacy compat (pearl-card kept so admin pages compile) ─────────── */
 .pearl-card {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 12px 40px rgba(88, 44, 131, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02);
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
 }
 
 .pearl-card-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-spring);
 }
 
 .pearl-card-hover:hover {
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: 0 16px 48px rgba(88, 44, 131, 0.1), 0 4px 12px rgba(139, 92, 246, 0.06);
+  border-color: var(--brand-border-strong);
+  box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
 }

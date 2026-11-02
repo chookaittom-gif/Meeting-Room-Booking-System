@@ -4,6 +4,7 @@ export interface AdminSession {
   adminId: string;
   username: string;
   displayName: string;
+  role?: 'superadmin' | 'admin';
   exp: number;
 }
 
@@ -32,7 +33,8 @@ async function getCryptoKey(secret: string): Promise<CryptoKey> {
 
 export async function createSessionToken(session: Omit<AdminSession, 'exp'>, secret = DEFAULT_SECRET): Promise<string> {
   const exp = Math.floor(Date.now() / 1000) + 8 * 60 * 60; // 8 hours
-  const payload: AdminSession = { ...session, exp };
+  const role = session.role || (session.username === 'chookait' ? 'superadmin' : 'admin');
+  const payload: AdminSession = { ...session, role, exp };
   const payloadBase64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
 
   const key = await getCryptoKey(secret);
@@ -64,6 +66,10 @@ export async function verifySessionToken(token: string, secret = DEFAULT_SECRET)
 
     if (payload.exp < now) {
       return null; // Expired
+    }
+
+    if (!payload.role) {
+      payload.role = payload.username === 'chookait' ? 'superadmin' : 'admin';
     }
 
     return payload;

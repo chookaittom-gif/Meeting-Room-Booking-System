@@ -1,19 +1,25 @@
 import React from "react";
+import { Building2 } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="w-full mt-auto border-t border-[#582c83]/10 bg-white/80 backdrop-blur-xl py-6 px-4 text-center text-sm text-[#595963] shadow-[0_-4px_20px_rgba(88,44,131,0.02)]">
+    <footer className="w-full mt-auto border-t border-[#e4e2ea] bg-white py-5 px-4">
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-        <div>
-          <p className="font-bold text-[#1e1e24]">
-            ระบบจองห้องประชุม V.1 | © 2026 มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
-          </p>
-          <p className="text-xs text-[#582c83] font-medium mt-1">
-            พัฒนาโดย: นายชูเกียรติ กุศลสถิตย์
-          </p>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[#f5f0fa] border border-[#582c83]/15 flex items-center justify-center shrink-0" aria-hidden="true">
+            <Building2 className="w-4 h-4 text-[#582c83]" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-[#18181b] leading-tight">
+              ระบบจองห้องประชุม V.1
+            </p>
+            <p className="text-xs text-[#52525b] font-medium">
+              © 2026 มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง · พัฒนาโดย นายชูเกียรติ กุศลสถิตย์
+            </p>
+          </div>
         </div>
-        <div className="text-xs text-[#595963] font-semibold bg-[#582c83]/6 px-3 py-1.5 rounded-xl border border-[#582c83]/10">
-          หอประชุมชั้น 2 และห้องประชุมชั้น 7
+        <div className="text-xs text-[#52525b] font-semibold px-3 py-1.5 rounded-lg border border-[#e4e2ea] bg-[#f8f8fc] whitespace-nowrap">
+          หอประชุมชั้น 2 · ห้องประชุมชั้น 7
         </div>
       </div>
     </footer>

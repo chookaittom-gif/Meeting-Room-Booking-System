@@ -1,66 +1,108 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { Footer } from "./components/Footer";
+import { verifySessionToken } from "../lib/auth";
 import Image from "next/image";
 import Link from "next/link";
+import { CalendarDays, LogIn, BarChart3, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "ระบบจองห้องประชุม | มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
   description: "ระบบบริการจองหอประชุมชั้น 2 และห้องประชุมชั้น 7 มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16 32x32", type: "image/x-icon" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Hide the login button when an admin session cookie is already valid
+  const sessionCookie = (await cookies()).get("admin_session")?.value;
+  const isLoggedIn = sessionCookie
+    ? (await verifySessionToken(sessionCookie)) !== null
+    : false;
+
   return (
     <html lang="th" className="h-full">
-      <body className="min-h-full flex flex-col antialiased bg-gradient-to-br from-[#fbfbfe] via-[#f7f4fc] to-[#f0eaf7] text-[#1e1e24] relative selection:bg-purple-200 selection:text-[#582c83]">
-        {/* Ambient Royal Aurora Backdrop Glows */}
-        <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-purple-200/50 via-violet-100/30 to-transparent rounded-full blur-[110px]" />
-          <div className="absolute top-1/4 -right-36 w-96 h-96 bg-amber-200/30 rounded-full blur-[100px]" />
-          <div className="absolute bottom-20 -left-36 w-96 h-96 bg-violet-200/40 rounded-full blur-[120px]" />
-        </div>
+      <body
+        className="min-h-full flex flex-col antialiased text-[#18181b] selection:bg-purple-100 selection:text-[#582c83]"
+        style={{ backgroundColor: "var(--brand-ground)" }}
+      >
+        {/* Subtle top accent line */}
+        <div className="h-[3px] w-full bg-[#582c83] shrink-0" />
 
         {/* Header Navigation */}
-        <header className="w-full bg-white/85 backdrop-blur-2xl border-b border-[#582c83]/10 sticky top-0 z-40 shadow-[0_4px_25px_rgba(88,44,131,0.04)] transition-all">
-          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative w-10 h-10 shrink-0 p-1 rounded-2xl bg-white border border-[#582c83]/15 shadow-sm group-hover:scale-105 group-hover:border-[#582c83]/30 transition-all">
+        <header className="w-full bg-white border-b border-[#e4e2ea] sticky top-0 z-40 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+          <div className="max-w-5xl mx-auto px-4 py-0 flex items-center justify-between" style={{ minHeight: "64px" }}>
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 touch-target" aria-label="หน้าหลัก ระบบจองห้องประชุม">
+              <div
+                className="relative w-10 h-10 shrink-0 rounded-[10px] bg-[#f5f0fa] border border-[#582c83]/20 flex items-center justify-center overflow-hidden"
+                aria-hidden="true"
+              >
                 <Image
                   src="/images/meeting.png"
-                  alt="ตราสัญลักษณ์ระบบจองห้องประชุม"
+                  alt=""
                   fill
-                  className="object-contain p-0.5"
+                  sizes="40px"
+                  className="object-contain p-1"
                   priority
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-base sm:text-lg text-transparent bg-clip-text bg-gradient-to-r from-[#582c83] via-[#7c3aed] to-[#582c83] leading-tight tracking-tight group-hover:from-violet-700 group-hover:to-[#48236b] transition-all">
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="font-extrabold text-xs min-[400px]:text-sm sm:text-lg text-[#582c83] tracking-tight whitespace-nowrap truncate">
                   ระบบจองห้องประชุม
                 </span>
-                <span className="text-xs text-[#595963] font-medium">
+                <span className="hidden sm:block text-[11px] text-[#52525b] font-medium whitespace-nowrap">
                   มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
                 </span>
               </div>
             </Link>
 
-            <div className="flex items-center gap-2 sm:gap-2.5">
+            <nav className="flex items-center gap-1.5 sm:gap-3 shrink-0" aria-label="เมนูหลัก">
               <Link
                 href="/book"
-                className="inline-flex items-center justify-center px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold rounded-xl text-white bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] shadow-[0_4px_16px_rgba(88,44,131,0.22)] hover:shadow-[0_6px_22px_rgba(88,44,131,0.32)] hover:-translate-y-0.5 border border-white/20 transition-all touch-target"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-white bg-[#582c83] hover:bg-[#48236b] shadow-[0_2px_8px_rgba(88,44,131,0.22)] hover:shadow-[0_4px_14px_rgba(88,44,131,0.3)] transition-colors touch-target whitespace-nowrap"
               >
-                จองห้องประชุม
+                <CalendarDays className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden min-[420px]:inline">จองห้องประชุม</span>
+                <span className="hidden min-[375px]:inline min-[420px]:hidden">จองห้อง</span>
+                <span className="min-[375px]:hidden">จอง</span>
               </Link>
               <Link
-                href="/admin"
-                className="inline-flex items-center justify-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl text-[#582c83] bg-[#582c83]/8 hover:bg-[#582c83]/15 border border-[#582c83]/15 transition-all touch-target"
+                href="/stats"
+                aria-label="สถิติการจอง"
+                className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
               >
-                ผู้ดูแลระบบ
+                <BarChart3 className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden sm:inline">สถิติ</span>
               </Link>
-            </div>
+              {!isLoggedIn ? (
+                <Link
+                  href="/admin"
+                  aria-label="เข้าสู่ระบบผู้ดูแล"
+                  className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
+                >
+                  <LogIn className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">เข้าสู่ระบบ</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/admin"
+                  aria-label="ไปยังหน้าผู้ดูแลระบบ"
+                  className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-[#52525b] bg-white hover:bg-[#f5f0fa] border border-[#e4e2ea] hover:border-[#582c83]/40 hover:text-[#582c83] transition-colors touch-target whitespace-nowrap"
+                >
+                  <ShieldCheck className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">ผู้ดูแล</span>
+                </Link>
+              )}
+            </nav>
           </div>
         </header>
 

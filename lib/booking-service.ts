@@ -1,7 +1,11 @@
 import { FOOD_CATALOG, CreateBookingPayload, BookingRecord, BookingStatus } from './types';
+import type { BusyRange } from './availability';
 
 export class BookingConflictError extends Error {
-  constructor(message = 'ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล') {
+  constructor(
+    message = 'ห้องไม่ว่างในช่วงเวลาที่เลือก กรุณาเลือกเวลาอื่นหรือติดต่อผู้ดูแล',
+    public conflicts: BusyRange[] = []
+  ) {
     super(message);
     this.name = 'BookingConflictError';
   }
@@ -172,9 +176,10 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
       id, request_key, booking_code, room_id,
       activity_name, project_name, coordinator_name, coordinator_phone, coordinator_line_id,
       meeting_type, attendees_count, staff_count, table_layout, vvip_seats, vip_seats,
+      equipment_needed,
       starts_at, ends_at, status, total_price_thb, created_at, updated_at
     )
-    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?
+    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?
     WHERE NOT EXISTS (
       SELECT 1 FROM bookings
       WHERE room_id = ?
@@ -201,6 +206,7 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
     payload.table_layout,
     payload.vvip_seats || 0,
     payload.vip_seats || 0,
+    payload.equipment_needed || null,
     payload.starts_at,
     payload.ends_at,
     total,
@@ -221,8 +227,13 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
     if (collided) {
       return { booking: collided, isExisting: true };
     }
-    // Otherwise it was a room time collision!
-    throw new BookingConflictError();
+    // Otherwise it was a room time collision! Read the clashing ranges (times + status only) for the message.
+    const { results } = await db.prepare(`
+      SELECT starts_at, ends_at, status FROM bookings
+      WHERE room_id = ? AND status IN ('pending', 'approved') AND starts_at < ? AND ends_at > ?
+      ORDER BY starts_at
+    `).bind(payload.room_id, payload.ends_at, payload.starts_at).all<BusyRange>();
+    throw new BookingConflictError(undefined, results ?? []);
   }
 
   // 6. Insert items & initial history & notification in batch

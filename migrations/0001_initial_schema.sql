@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS admins (
 -- Seed 3 Admin accounts (Initial temp password: Admin@1234)
 INSERT OR IGNORE INTO admins (id, username, password_hash, display_name, created_at) VALUES
   ('admin_chookait', 'chookait', '$2a$12$6LAdqb7C8KhQ0DtsWOVEJuqChOLOlF/qNC2phlv00.GkxdnFJWPVu', 'ชูเกียรติ กุศลสถิตย์', 1730000000),
-  ('admin_pathaithep', 'pathaithep', '$2a$12$6LAdqb7C8KhQ0DtsWOVEJuqChOLOlF/qNC2phlv00.GkxdnFJWPVu', 'พัทธเทพ', 1730000000),
-  ('admin_nathlada', 'nathlada', '$2a$12$6LAdqb7C8KhQ0DtsWOVEJuqChOLOlF/qNC2phlv00.GkxdnFJWPVu', 'ณัฐลดา', 1730000000);
+  ('admin_pathaithep', 'pathaithep', '$2a$12$6LAdqb7C8KhQ0DtsWOVEJuqChOLOlF/qNC2phlv00.GkxdnFJWPVu', 'ไผทเทพ ตุทานนท์', 1730000000),
+  ('admin_nathlada', 'nathlada', '$2a$12$6LAdqb7C8KhQ0DtsWOVEJuqChOLOlF/qNC2phlv00.GkxdnFJWPVu', 'นาถลดา ศรียะพันธ์', 1730000000);
 
 -- 3. Bookings Table
 CREATE TABLE IF NOT EXISTS bookings (

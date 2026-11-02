@@ -1,4 +1,24 @@
 import { DatabaseSync } from 'node:sqlite';
+import fs from 'node:fs';
+import path from 'node:path';
+
+export function applyAllMigrations(db: D1Database) {
+  const migrationsDir = path.join(process.cwd(), 'migrations');
+  const files = [
+    '0001_initial_schema.sql',
+    '0002_system_settings.sql',
+    '0003_admin_roles.sql',
+    '0004_update_admin_names.sql',
+    '0005_add_equipment_and_update_capacities.sql',
+  ];
+  for (const f of files) {
+    const fullPath = path.join(migrationsDir, f);
+    if (fs.existsSync(fullPath)) {
+      const sql = fs.readFileSync(fullPath, 'utf8');
+      db.exec(sql);
+    }
+  }
+}
 
 export function createMemoryD1Database(): D1Database {
   const db = new DatabaseSync(':memory:');

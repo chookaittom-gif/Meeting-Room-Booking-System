@@ -42,8 +42,12 @@ Thumbs.db
 .taste-skill/
 Pic/
 Prompt*.txt
+scratch/
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
 
 .playwright-cli/
+
+# ZCode workspace session data (plans, local tooling)
+.zcode/

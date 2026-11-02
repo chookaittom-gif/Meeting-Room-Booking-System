@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookingStatus, TableLayout, MeetingType } from "@/lib/types";
 import { AdminNotificationBell } from "@/app/components/AdminNotificationBell";
+import { TelegramSettingsCard } from "@/app/components/TelegramSettingsCard";
+import { AdminUserManagementModal } from "@/app/components/AdminUserManagementModal";
+import { useAlertDialog } from "@/app/components/AlertDialog";
 import {
   ShieldCheck,
   LogOut,
@@ -22,6 +25,7 @@ import {
   X,
   User,
   Sparkles,
+  Users,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string; dot: string; pulse: boolean }> = {
@@ -60,24 +64,122 @@ export default function AdminDashboardPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [isProcessingAction, setIsProcessingAction] = useState(false);
   const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
+  const dialog = useAlertDialog();
+
+  // LINE Notification settings state
+  const [lineSettings, setLineSettings] = useState<{ enabled: boolean; groupId: string | null; configured: boolean }>({
+    enabled: true,
+    groupId: null,
+    configured: false,
+  });
+  const [isTogglingLine, setIsTogglingLine] = useState(false);
+  const [isTestingPing, setIsTestingPing] = useState(false);
+  const [pingFeedback, setPingFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [isSessionExpiredModalOpen, setIsSessionExpiredModalOpen] = useState(false);
+
+  const loadSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      if (res.ok) {
+        const data = (await res.json()) as any;
+        if (data.success && data.settings) {
+          setLineSettings({
+            enabled: data.settings.line_notify_enabled,
+            groupId: data.settings.group_id,
+            configured: data.settings.configured,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load settings:', err);
+    }
+  };
+
+  const handleToggleLine = async () => {
+    setIsTogglingLine(true);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ line_notify_enabled: !lineSettings.enabled }),
+      });
+      const data = (await res.json()) as any;
+      if (data.success) {
+        setLineSettings((prev) => ({ ...prev, enabled: data.line_notify_enabled }));
+      }
+    } catch (err) {
+      console.error('Toggle error:', err);
+    } finally {
+      setIsTogglingLine(false);
+    }
+  };
+
+  const handleTestPing = async () => {
+    setIsTestingPing(true);
+    setPingFeedback(null);
+    try {
+      const res = await fetch('/api/admin/settings', { method: 'POST' });
+      const data = (await res.json()) as any;
+      if (data.success) {
+        setPingFeedback({ type: 'success', text: data.message });
+      } else {
+        setPingFeedback({ type: 'error', text: data.error || 'เกิดข้อผิดพลาดในการส่งข้อความทดสอบ' });
+      }
+    } catch (err: any) {
+      setPingFeedback({ type: 'error', text: err?.message || 'เกิดข้อผิดพลาดในการส่งข้อความ' });
+    } finally {
+      setIsTestingPing(false);
+      setTimeout(() => setPingFeedback(null), 6000);
+    }
+  };
 
   // Check auth
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) {
+  const checkAuth = async () => {
+    try {
+      const res = await fetch("/api/admin/me");
+      if (!res.ok) {
+        // Only show "session expired" on the login page if the user actually HAD a session
+        // (avoids confusing first-time visitors with an expiry notice)
+        const hadSession = typeof window !== "undefined" && sessionStorage.getItem("mrb_had_session") === "1";
+        if (hadSession) {
+          sessionStorage.removeItem("mrb_had_session");
+          router.push("/admin/login?reason=expired");
+        } else {
           router.push("/admin/login");
-          return;
         }
-        const data = (await res.json()) as any;
-        setAdminUser(data.admin);
-      } catch {
-        router.push("/admin/login");
+        return;
       }
+      const data = (await res.json()) as any;
+      setAdminUser(data.admin);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("mrb_had_session", "1");
+      }
+      loadSettings();
+    } catch {
+      router.push("/admin/login");
     }
+  };
+
+  useEffect(() => {
     checkAuth();
-  }, [router]);
+  }, []);
+
+  // Background 8-hour session expiry monitor
+  useEffect(() => {
+    if (!adminUser?.expiresAt) return;
+
+    const verifySession = () => {
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (nowSec >= adminUser.expiresAt) {
+        setIsSessionExpiredModalOpen(true);
+      }
+    };
+
+    verifySession();
+    const timer = setInterval(verifySession, 30000); // Check every 30 seconds
+    return () => clearInterval(timer);
+  }, [adminUser?.expiresAt]);
 
   // Load bookings
   const loadBookings = async () => {
@@ -91,7 +193,7 @@ export default function AdminDashboardPage() {
       const res = await fetch(`/api/admin/bookings?${params.toString()}`);
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/admin/login");
+          router.push("/admin/login?reason=expired");
           return;
         }
         throw new Error("Failed to load");
@@ -120,6 +222,9 @@ export default function AdminDashboardPage() {
   const handleLogout = async () => {
     try {
       await fetch("/api/admin/logout", { method: "POST" });
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("mrb_had_session");
+      }
       router.push("/admin/login");
     } catch {
       router.push("/admin/login");
@@ -134,20 +239,32 @@ export default function AdminDashboardPage() {
   ) => {
     setIsProcessingAction(true);
     try {
-      const res = await fetch(`/api/admin/bookings/${bookingId}/status`, {
+      const res = await fetch(`/api/bookings/${bookingId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          expected_current_status: expectedCurrentStatus,
-          new_status: newStatus,
+          from_status: expectedCurrentStatus,
+          to_status: newStatus,
           reason,
         }),
       });
 
-      const data = (await res.json()) as any;
+      // Parse body defensively — the server may return non-JSON on some failures
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
 
       if (!res.ok) {
-        alert(data.error || "เกิดข้อผิดพลาดในการปรับสถานะ");
+        await dialog.alert({
+          title: "ไม่สามารถปรับสถานะได้",
+          message: `${data?.error || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์"} (รหัส ${res.status})`,
+          tone: "danger",
+          confirmLabel: "รับทราบ",
+          cancelLabel: "",
+        });
         return;
       }
 
@@ -156,7 +273,13 @@ export default function AdminDashboardPage() {
       setRejectReason("");
       await loadBookings();
     } catch {
-      alert("ไม่สามารถติดต่อเซิร์ฟเวอร์ได้");
+      await dialog.alert({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
+        tone: "danger",
+        confirmLabel: "รับทราบ",
+        cancelLabel: "",
+      });
     } finally {
       setIsProcessingAction(false);
     }
@@ -182,15 +305,28 @@ export default function AdminDashboardPage() {
   return (
     <div className="w-full space-y-6 pb-12">
       {/* Top Admin Header */}
-      <div className="bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-5 sm:p-7 shadow-[0_16px_48px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Admin Header — relative z-50 keeps the notification dropdown above later backdrop-blur cards */}
+      <div className="relative z-50 bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-5 sm:p-7 shadow-[0_16px_48px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-[#582c83] to-[#48236b] text-white flex items-center justify-center font-bold shadow-[0_4px_16px_rgba(88,44,131,0.25)] border border-white/20">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#1e1e24] tracking-tight flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-black text-[#1e1e24] tracking-tight">
               แผงควบคุมระบบ (Admin Dashboard)
             </h1>
+              {adminUser.role === "superadmin" ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#f5f0fa] text-[#582c83] border border-[#582c83]/20 shadow-2xs">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  Superadmin
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                  ผู้ดูแลระบบ
+                </span>
+              )}
+            </div>
             <p className="text-xs text-[#595963] font-medium">
               เข้าสู่ระบบโดย: <strong className="text-[#582c83]">{adminUser.displayName}</strong> ({adminUser.username})
             </p>
@@ -198,6 +334,17 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {adminUser.role === "superadmin" && (
+            <button
+              type="button"
+              onClick={() => setIsUserManagementOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#582c83]/20 bg-[#f5f0fa] hover:bg-[#ede5f7] text-[#582c83] text-xs font-bold touch-target transition-all shadow-2xs active:scale-95"
+              title="จัดการผู้ดูแลระบบและรหัสผ่าน"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>จัดการผู้ดูแลระบบ</span>
+            </button>
+          )}
           <AdminNotificationBell
             onSelectBooking={(code) => {
               setSearchQuery(code);
@@ -214,6 +361,78 @@ export default function AdminDashboardPage() {
           </button>
         </div>
       </div>
+
+      {/* LINE Notification Console */}
+      <div className="card p-4 sm:p-5 bg-white border border-[#e4e2ea] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+            lineSettings.enabled
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-gray-100 text-gray-500 border-gray-200'
+          }`}>
+            <MessageSquare className="w-5 h-5" aria-hidden="true" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-extrabold text-sm text-[#18181b]">การแจ้งเตือน LINE Messaging API</h3>
+              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                lineSettings.enabled
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-gray-100 text-gray-600 border border-gray-200'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${lineSettings.enabled ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                {lineSettings.enabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+              </span>
+            </div>
+            <p className="text-xs text-[#52525b] mt-0.5">
+              แจ้งเตือนเข้ากลุ่ม {lineSettings.groupId ? `(${lineSettings.groupId})` : ''} เมื่อมีคำขอจองใหม่ และเมื่ออนุมัติห้อง
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 self-end md:self-auto flex-wrap">
+          {pingFeedback && (
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${
+              pingFeedback.type === 'success'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : 'bg-rose-50 text-rose-800 border-rose-200'
+            }`}>
+              {pingFeedback.text}
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={handleTestPing}
+            disabled={isTestingPing || !lineSettings.enabled}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#e4e2ea] bg-white hover:bg-[#f8f8fc] text-xs font-bold text-[#18181b] touch-target disabled:opacity-40 transition-colors shadow-2xs"
+          >
+            {isTestingPing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-500" />}
+            ทดสอบส่ง (Ping)
+          </button>
+
+          {/* Toggle Switch */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={lineSettings.enabled}
+            onClick={handleToggleLine}
+            disabled={isTogglingLine}
+            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#582c83] before:absolute before:-inset-2.5 before:rounded-full before:content-[''] ${
+              lineSettings.enabled ? 'bg-[#059669]' : 'bg-gray-300'
+            }`}
+          >
+            <span className="sr-only">เปิดปิดการแจ้งเตือน LINE</span>
+            <span
+              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                lineSettings.enabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      <TelegramSettingsCard />
 
       {/* Stats Counter Bar (Aurora Telemetry HUD) */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -400,8 +619,14 @@ export default function AdminDashboardPage() {
                         </button>
                         <button
                           disabled={isProcessingAction}
-                          onClick={() => {
-                            if (confirm("ยืนยันการยกเลิกคำขอนี้หรือไม่?")) {
+                          onClick={async () => {
+                            const ok = await dialog.confirm({
+                              title: "ยืนยันการยกเลิกคำขอจอง",
+                              message: "คำขอนี้จะถูกเปลี่ยนเป็นสถานะยกเลิก และไม่สามารถเปลี่ยนกลับได้",
+                              tone: "danger",
+                              confirmLabel: "ยืนยันยกเลิก",
+                            });
+                            if (ok) {
                               handleUpdateStatus(b.id, "pending", "cancelled", "ยกเลิกคำขอ");
                             }
                           }}
@@ -415,8 +640,14 @@ export default function AdminDashboardPage() {
                     {b.status === "approved" && (
                       <button
                         disabled={isProcessingAction}
-                        onClick={() => {
-                          if (confirm("ยืนยันการยกเลิกรายการที่อนุมัติแล้วหรือไม่? ช่วงเวลาจะถูกคืนสู่ระบบ")) {
+                        onClick={async () => {
+                          const ok = await dialog.confirm({
+                            title: "ยืนยันการยกเลิกรายการที่อนุมัติแล้ว",
+                            message: "ช่วงเวลาจะถูกคืนสู่ระบบและผู้จองจะเห็นสถานะเปลี่ยนเป็นยกเลิก",
+                            tone: "danger",
+                            confirmLabel: "ยืนยันยกเลิก",
+                          });
+                          if (ok) {
                             handleUpdateStatus(b.id, "approved", "cancelled", "ผู้ดูแลยกเลิกหลังการอนุมัติ");
                           }
                         }}
@@ -543,6 +774,57 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
+            {/* Equipment & Notes */}
+            {(() => {
+              let eqItems: string[] = [];
+              let eqOther = "";
+              let eqNotes = "";
+              if (selectedBookingDetails.equipment_needed) {
+                try {
+                  const parsed = typeof selectedBookingDetails.equipment_needed === "string"
+                    ? JSON.parse(selectedBookingDetails.equipment_needed)
+                    : selectedBookingDetails.equipment_needed;
+                  if (Array.isArray(parsed.items)) eqItems = parsed.items;
+                  if (parsed.other) eqOther = parsed.other;
+                  if (parsed.notes) eqNotes = parsed.notes;
+                } catch {
+                  eqOther = String(selectedBookingDetails.equipment_needed);
+                }
+              }
+              const hasEq = eqItems.length > 0 || eqOther || eqNotes;
+              return (
+                <div className="space-y-2 pt-2 border-t border-[#e6e2ea]">
+                  <h4 className="font-bold text-xs text-[#582c83]">อุปกรณ์และหมายเหตุที่ต้องการ</h4>
+                  {!hasEq ? (
+                    <p className="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                      ไม่ได้ระบุอุปกรณ์หรือหมายเหตุเพิ่มเติม
+                    </p>
+                  ) : (
+                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 text-xs space-y-1.5">
+                      {eqItems.length > 0 && (
+                        <div>
+                          <span className="font-bold text-[#1e1e24]">อุปกรณ์: </span>
+                          <span className="text-[#582c83] font-semibold">{eqItems.join(", ")}</span>
+                        </div>
+                      )}
+                      {eqOther && (
+                        <div>
+                          <span className="font-bold text-[#1e1e24]">อุปกรณ์อื่นๆ: </span>
+                          <span className="text-gray-700">{eqOther}</span>
+                        </div>
+                      )}
+                      {eqNotes && (
+                        <div>
+                          <span className="font-bold text-[#1e1e24]">หมายเหตุเพิ่มเติม: </span>
+                          <span className="text-gray-700">{eqNotes}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* Status History */}
             <div className="space-y-2 pt-2 border-t border-[#e6e2ea]">
               <h4 className="font-bold text-xs text-[#582c83]">ประวัติการเปลี่ยนสถานะ</h4>
@@ -572,6 +854,42 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       )}
+      {/* User Management Modal */}
+      {adminUser.role === 'superadmin' && (
+        <AdminUserManagementModal
+          isOpen={isUserManagementOpen}
+          onClose={() => setIsUserManagementOpen(false)}
+          currentAdmin={adminUser}
+          onUserUpdated={checkAuth}
+        />
+      )}
+
+      {/* ── 8-Hour Session Expired Alert Modal ──────────────────────────────── */}
+      {isSessionExpiredModalOpen && (
+        <div className="fixed inset-0 z-70 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-sm w-full border border-white/80 shadow-[0_25px_60px_rgba(88,44,131,0.3)] p-6 space-y-4 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
+              <Clock className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-black text-lg text-[#1e1e24]">เซสชันหมดอายุ</h3>
+              <p className="text-xs text-[#595963] leading-relaxed">
+                ระยะเวลาการเข้าสู่ระบบของคุณครบกำหนด <strong>8 ชั่วโมง</strong> แล้ว เพื่อความปลอดภัยของข้อมูล กรุณาเข้าสู่ระบบใหม่อีกครั้ง
+              </p>
+            </div>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => router.push("/admin/login?reason=expired")}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs transition-all active:scale-95"
+              >
+                เข้าสู่ระบบใหม่
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {dialog.element}
     </div>
   );
 }

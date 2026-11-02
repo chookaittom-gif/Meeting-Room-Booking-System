@@ -1,17 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Lock, User, AlertCircle, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { Lock, User, AlertCircle, Loader2, Eye, EyeOff, ShieldCheck, Clock } from "lucide-react";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [infoMsg, setInfoMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("reason") === "expired") {
+        setInfoMsg("เซสชันการใช้งานของคุณหมดอายุ (ครบกำหนด 8 ชั่วโมง) กรุณาเข้าสู่ระบบใหม่อีกครั้ง");
+      }
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +46,8 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Success
-      router.push("/admin");
+      // Success — full page load so the server layout picks up the new session cookie
+      window.location.assign("/admin");
     } catch {
       setErrorMsg("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
       setIsLoading(false);
@@ -70,6 +78,13 @@ export default function AdminLoginPage() {
             ระบบจองห้องประชุม มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
           </p>
         </div>
+
+        {infoMsg && (
+          <div role="status" className="bg-amber-50/90 backdrop-blur-xs border border-amber-300 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-amber-900 shadow-xs">
+            <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex-1 font-semibold">{infoMsg}</div>
+          </div>
+        )}
 
         {errorMsg && (
           <div role="alert" className="bg-red-50/90 backdrop-blur-xs border border-red-200/80 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-red-800 shadow-xs">

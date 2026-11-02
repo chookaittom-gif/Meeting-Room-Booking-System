@@ -107,6 +107,12 @@ export const FOOD_CATALOG: Record<string, FoodItemCatalog> = {
   },
 };
 
+export interface EquipmentSelection {
+  items: string[];
+  other?: string;
+  notes?: string;
+}
+
 export interface BookingInputItem {
   item_code: string;
   quantity: number;
@@ -126,6 +132,7 @@ export interface CreateBookingPayload {
   table_layout: TableLayout;
   vvip_seats: number;
   vip_seats: number;
+  equipment_needed?: string;
   starts_at: number; // UTC epoch seconds
   ends_at: number;   // UTC epoch seconds
   items: BookingInputItem[];
@@ -147,6 +154,7 @@ export interface BookingRecord {
   table_layout: TableLayout;
   vvip_seats: number;
   vip_seats: number;
+  equipment_needed?: string | null;
   starts_at: number;
   ends_at: number;
   status: BookingStatus;
@@ -165,3 +173,14 @@ export interface PublicCalendarEvent {
   ends_at: number;
   status: BookingStatus;
 }
+
+export type AdminRole = 'superadmin' | 'admin';
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  displayName: string;
+  role: AdminRole;
+  createdAt?: number;
+}
+

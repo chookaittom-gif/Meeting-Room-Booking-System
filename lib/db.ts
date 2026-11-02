@@ -5,6 +5,7 @@ export interface Env {
   LINE_CHANNEL_ACCESS_TOKEN?: string;
   LINE_GROUP_ID?: string;
   ADMIN_SESSION_SECRET?: string;
+  TELEGRAM_ENCRYPTION_KEY?: string;
 }
 
 let mockDb: D1Database | null = null;
