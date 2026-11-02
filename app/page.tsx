@@ -30,6 +30,8 @@ interface RoomDetail {
   description: string;
   features: string[];
   layouts: string[];
+  imageSrc: string;
+  imageAlt: string;
 }
 
 const ROOM_DATA: Record<"floor2" | "floor7", RoomDetail> = {
@@ -48,6 +50,8 @@ const ROOM_DATA: Record<"floor2" | "floor7", RoomDetail> = {
       "บริการจุดลงทะเบียนและรับรองหน้าห้อง",
     ],
     layouts: ["Theater (250)", "Classroom (150)", "U-Shape (50)", "Cluster (80)"],
+    imageSrc: "/images/room-floor2.jpg",
+    imageAlt: "ภาพบรรยากาศหอประชุมชั้น 2 มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
   },
   floor7: {
     id: "floor7",
@@ -64,6 +68,8 @@ const ROOM_DATA: Record<"floor2" | "floor7", RoomDetail> = {
       "โถงพักคอยขนาดใหญ่และห้องรับรองผู้บริหาร",
     ],
     layouts: ["Theater (450)", "Classroom (250)", "U-Shape (80)", "Cluster (150)", "Boardroom (50)"],
+    imageSrc: "/images/room-floor7.jpg",
+    imageAlt: "ภาพบรรยากาศห้องประชุมชั้น 7 มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง",
   },
 };
 
@@ -90,8 +96,9 @@ export default function HomePage() {
           {/* Room Banner Preview */}
           <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16 / 7" }}>
             <Image
-              src="/images/meeting-room.jpg"
-              alt="ภาพบรรยากาศหอประชุมและห้องประชุม มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง"
+              key={currentRoom.id}
+              src={currentRoom.imageSrc}
+              alt={currentRoom.imageAlt}
               fill
               className="object-cover object-center"
               priority
