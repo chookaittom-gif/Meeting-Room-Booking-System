@@ -16,7 +16,18 @@
 
 ---
 
-## 🆕 งานล่าสุด (วันที่ 1 พฤศจิกายน 2569)
+## 🆕 งานล่าสุด (วันที่ 2 พฤศจิกายน 2569)
+
+### 0.0000 แยกภาพแบนเนอร์ห้องประชุมตามชั้น (38591d1)
+
+- **การตัดสินใจผ่าน /grill-me**: สถาปัตยกรรมรูปภาพไม่ได้เก็บใน D1 (D1 เป็น SQL Database สำหรับบันทึกการจอง) และไม่ได้ใช้ Cloudflare R2 แต่ใช้ Cloudflare Workers Static Assets ผ่านโฟลเดอร์ public/images/ โดยตรง ซึ่งเป็น Best Practice ที่เหมาะสมที่สุดสำหรับระบบที่มีรูปไม่กี่ภาพ (รวดเร็วผ่าน Global CDN, ไม่มีค่าใช้จ่าย, ไม่ติดข้อจำกัด Rate Limit ของ Google Drive)
+- **การปรับปรุงโค้ด UI**: เพิ่มฟิลด์ imageSrc และ imageAlt ใน ROOM_DATA ของ app/page.tsx พร้อมผูก <Image key={currentRoom.id}> เพื่อให้สลับภาพตามแท็บห้องประชุมชั้น 2 และชั้น 7 ได้ทันทีเมื่อผู้ใช้คลิกเลือก
+- **ไฟล์ภาพเริ่มต้น**: สร้าง public/images/room-floor7.jpg และ public/images/room-floor2.jpg จากภาพเดิมเป็น baseline ป้องกันปัญหาภาพแตก โดยผู้ใช้สามารถนำรูปใหม่มาวางทับชื่อเดิมใน public/images/ ได้ทุกเมื่อ
+- **การตรวจรับ**: tests 85/85 PASS, typecheck PASS, build:worker PASS; deploy version 9bf25edc-2ebf-42e5-bbc9-6c7724eca7ac
+
+---
+
+## 📅 ประวัติงานก่อนหน้า (วันที่ 1 พฤศจิกายน 2569)
 
 ### 0.000 แจ้งเตือน Telegram + หน้าตั้งค่า token/chat id (`f56128c`)
 
