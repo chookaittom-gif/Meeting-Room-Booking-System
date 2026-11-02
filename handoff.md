@@ -18,6 +18,13 @@
 
 ## 🆕 งานล่าสุด (วันที่ 2 พฤศจิกายน 2569)
 
+### 0.00005 แก้ปุ่มหัว admin ตัดบรรทัด, ตารางรายงานล้นกรอบบนมือถือ (`8f0a6a4`)
+
+- `app/admin/page.tsx`: ปุ่ม "จัดการผู้ดูแลระบบ"/"ออกจากระบบ" และป้ายสถานะ LINE ใส่ `whitespace-nowrap` และให้แถวห่อบรรทัดได้ (`flex-wrap`)
+- `app/components/MonthlyReportSheet.tsx`: ห่อตารางด้วย `overflow-x-auto`
+- `app/book/success/page.tsx`: หัวข้อใส่ `text-balance`
+- ผล audit ที่ตรวจแล้วไม่ใช่ปัญหา: สวิตช์ LINE/Telegram มีพื้นที่กดขยาย 48px อยู่แล้ว (`before:-inset-2.5`)
+
 ### 0.00004 แก้ stepper หน้าจองล้นจอและตัวอักษรเล็กกว่า 12px ตามผล Hallmark Audit (`ef4e1b1`)
 
 - `app/book/page.tsx`: stepper ลด padding/gap บนมือถือ และแสดง label ตั้งแต่ `lg` (เดิม `md` ทำให้ล้นที่ 768px) — ตรวจบนเว็บจริงที่ 320px/768px ไม่มีการเลื่อนในตัวแล้ว
@@ -228,7 +235,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `cb6299c0-00fa-4080-a04b-07cdcfed9017` (Commit: `ef4e1b1`)
+- **Latest Deployed Version**: `69dc8c67-80ce-4891-bb26-eed2898e79e7` (Commit: `8f0a6a4`)
 
 ---
 
