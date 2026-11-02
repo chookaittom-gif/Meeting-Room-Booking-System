@@ -107,6 +107,29 @@ export const FOOD_CATALOG: Record<string, FoodItemCatalog> = {
   },
 };
 
+export interface RoomFeeInfo {
+  dailyRate: number;
+  deposit: number;
+  categoryLabel: string;
+}
+
+export const ROOM_FEE_CATALOG: Record<string, Record<MeetingType, RoomFeeInfo>> = {
+  floor2: {
+    seminar: { dailyRate: 15000, deposit: 7500, categoryLabel: 'อบรมสัมมนาทั่วไป' },
+    small_group: { dailyRate: 15000, deposit: 7500, categoryLabel: 'อบรมสัมมนาทั่วไป' },
+    wedding: { dailyRate: 20000, deposit: 10000, categoryLabel: 'จัดเลี้ยงและงานแต่งงาน' },
+  },
+  floor7: {
+    seminar: { dailyRate: 30000, deposit: 15000, categoryLabel: 'อบรมสัมมนาทั่วไป' },
+    small_group: { dailyRate: 30000, deposit: 15000, categoryLabel: 'อบรมสัมมนาทั่วไป' },
+    wedding: { dailyRate: 35000, deposit: 17500, categoryLabel: 'จัดเลี้ยงและงานแต่งงาน' },
+  },
+};
+
+export function getRoomFee(roomId: string, meetingType: MeetingType): RoomFeeInfo | undefined {
+  return ROOM_FEE_CATALOG[roomId]?.[meetingType];
+}
+
 export interface EquipmentSelection {
   items: string[];
   other?: string;
@@ -159,6 +182,8 @@ export interface BookingRecord {
   ends_at: number;
   status: BookingStatus;
   total_price_thb: number;
+  room_fee_thb?: number;
+  deposit_thb?: number;
   created_at: number;
   updated_at: number;
 }
@@ -183,4 +208,3 @@ export interface AdminUser {
   role: AdminRole;
   createdAt?: number;
 }
-

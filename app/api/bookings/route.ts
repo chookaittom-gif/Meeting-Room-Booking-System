@@ -45,6 +45,8 @@ export async function POST(req: NextRequest) {
         starts_at: booking.starts_at,
         ends_at: booking.ends_at,
         total_price_thb: booking.total_price_thb,
+        room_fee_thb: booking.room_fee_thb,
+        deposit_thb: booking.deposit_thb,
         created_at: booking.created_at,
       },
     });

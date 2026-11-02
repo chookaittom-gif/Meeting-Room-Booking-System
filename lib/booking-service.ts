@@ -1,4 +1,4 @@
-import { FOOD_CATALOG, CreateBookingPayload, BookingRecord, BookingStatus } from './types';
+import { FOOD_CATALOG, CreateBookingPayload, BookingRecord, BookingStatus, MeetingType, ROOM_FEE_CATALOG } from './types';
 import type { BusyRange } from './availability';
 
 export class BookingConflictError extends Error {
@@ -86,14 +86,14 @@ export function validateBookingPayload(payload: CreateBookingPayload, roomCapaci
     throw new ValidationError('ช่วงเวลาให้บริการคือ 08:30 – 16:30 น.');
   }
 
-  // Advance booking check: max 60 days
+  // Advance booking check: max 30 days
   const now = Math.floor(Date.now() / 1000);
   if (payload.starts_at < now - 300) { // allow 5 mins grace for network latency
     throw new ValidationError('ไม่สามารถจองเวลาย้อนหลังได้');
   }
-  const maxAdvanceSec = 60 * 24 * 60 * 60;
+  const maxAdvanceSec = 30 * 24 * 60 * 60;
   if (payload.starts_at > now + maxAdvanceSec) {
-    throw new ValidationError('สามารถจองล่วงหน้าได้ไม่เกิน 60 วัน');
+    throw new ValidationError('สามารถจองล่วงหน้าได้ไม่เกิน 30 วัน');
   }
 
   // Items validation
@@ -134,6 +134,26 @@ export function calculateTotalPrice(items: { item_code: string; quantity: number
   return { total, detailedItems };
 }
 
+export function calculateRoomFee(roomId: string, meetingType: MeetingType): {
+  roomFee: number;
+  deposit: number;
+  categoryLabel: string;
+} {
+  const roomRates = ROOM_FEE_CATALOG[roomId];
+  if (!roomRates) {
+    throw new ValidationError(`ไม่พบข้อมูลอัตราค่าเช่าสำหรับห้อง: ${roomId}`);
+  }
+  const feeInfo = roomRates[meetingType];
+  if (!feeInfo) {
+    throw new ValidationError(`ไม่พบข้อมูลอัตราค่าเช่าสำหรับประเภทงาน: ${meetingType}`);
+  }
+  return {
+    roomFee: feeInfo.dailyRate,
+    deposit: feeInfo.deposit,
+    categoryLabel: feeInfo.categoryLabel,
+  };
+}
+
 // Generate random booking code e.g. BK-202610-A1B2
 export function generateBookingCode(): string {
   const d = new Date();
@@ -165,6 +185,7 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
 
   // 4. Calculate prices
   const { total, detailedItems } = calculateTotalPrice(payload.items || []);
+  const { roomFee, deposit } = calculateRoomFee(payload.room_id, payload.meeting_type);
   const bookingId = crypto.randomUUID();
   const bookingCode = generateBookingCode();
   const now = Math.floor(Date.now() / 1000);
@@ -177,9 +198,9 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
       activity_name, project_name, coordinator_name, coordinator_phone, coordinator_line_id,
       meeting_type, attendees_count, staff_count, table_layout, vvip_seats, vip_seats,
       equipment_needed,
-      starts_at, ends_at, status, total_price_thb, created_at, updated_at
+      starts_at, ends_at, status, total_price_thb, room_fee_thb, deposit_thb, created_at, updated_at
     )
-    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?
+    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?
     WHERE NOT EXISTS (
       SELECT 1 FROM bookings
       WHERE room_id = ?
@@ -210,6 +231,8 @@ export async function createBookingAtomic(db: D1Database, payload: CreateBooking
     payload.starts_at,
     payload.ends_at,
     total,
+    roomFee,
+    deposit,
     now,
     now,
     // WHERE NOT EXISTS params:

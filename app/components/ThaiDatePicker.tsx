@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatThaiDateString } from "@/lib/date-utils";
 
 interface ThaiDatePickerProps {
   value: string; // YYYY-MM-DD
   onChange: (val: string) => void;
   minDate?: string; // YYYY-MM-DD
-  maxDaysAhead?: number; // default: 60
+  maxDaysAhead?: number; // default: 30
 }
 
 const THAI_MONTH_NAMES = [
@@ -34,7 +34,7 @@ export function ThaiDatePicker({
   value,
   onChange,
   minDate,
-  maxDaysAhead = 60,
+  maxDaysAhead = 30,
 }: ThaiDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

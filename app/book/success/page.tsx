@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Calendar, ArrowRight, Home } from "lucide-react";
+import { CheckCircle2, ArrowRight, Home } from "lucide-react";
 import { formatThaiEpochDate, formatThaiEpochTime } from "@/lib/date-utils";
 
 export default function BookingSuccessPage() {
@@ -18,6 +18,9 @@ export default function BookingSuccessPage() {
       // ignore
     }
   }, []);
+
+  const hasRoomFee = typeof booking?.room_fee_thb === "number" && booking.room_fee_thb > 0;
+  const grandTotal = (booking?.room_fee_thb || 0) + (booking?.total_price_thb || 0);
 
   return (
     <div className="w-full max-w-xl mx-auto py-8 text-center space-y-6">
@@ -50,7 +53,19 @@ export default function BookingSuccessPage() {
             {booking.starts_at && (
               <p><strong className="text-[#1e1e24]">วัน-เวลา:</strong> <span className="text-[#582c83] font-semibold">{formatThaiEpochDate(booking.starts_at)} ({formatThaiEpochTime(booking.starts_at)} – {formatThaiEpochTime(booking.ends_at)})</span></p>
             )}
-            <p><strong className="text-[#1e1e24]">ยอดรวมทั้งสิ้น (รวม VAT):</strong> <span className="text-[#582c83] font-black">{booking.total_price_thb?.toLocaleString()} บาท</span></p>
+
+            {hasRoomFee ? (
+              <div className="pt-2 mt-2 border-t border-[#e6e2ea] space-y-1">
+                <p><strong className="text-[#1e1e24]">ค่าห้องจ่ายรายวัน:</strong> <span className="font-bold text-[#1e1e24]">{booking.room_fee_thb.toLocaleString()} บาท</span></p>
+                <p><strong className="text-amber-900">เงินประกันการจองห้อง (50%):</strong> <span className="font-bold text-amber-800">{booking.deposit_thb?.toLocaleString()} บาท</span> <span className="text-[11px] text-[#8c8c96]">(*วางเงินประกันครึ่งนึงของค่าห้อง)</span></p>
+                {booking.total_price_thb > 0 && (
+                  <p><strong className="text-[#1e1e24]">ค่าอาหารและเครื่องดื่ม:</strong> {booking.total_price_thb.toLocaleString()} บาท</p>
+                )}
+                <p className="pt-1 border-t border-dashed border-[#e6e2ea]"><strong className="text-[#1e1e24]">ยอดรวมทั้งสิ้น (รวม VAT):</strong> <span className="text-[#582c83] font-black text-sm">{grandTotal.toLocaleString()} บาท</span></p>
+              </div>
+            ) : (
+              <p><strong className="text-[#1e1e24]">ยอดรวมทั้งสิ้น (รวม VAT):</strong> <span className="text-[#582c83] font-black">{booking.total_price_thb?.toLocaleString()} บาท</span></p>
+            )}
           </div>
         </div>
       )}

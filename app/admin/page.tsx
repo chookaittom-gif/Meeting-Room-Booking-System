@@ -578,9 +578,34 @@ export default function AdminDashboardPage() {
                         LINE: {b.coordinator_line_id}
                       </p>
                     )}
-                    <div className="pt-2 border-t border-[#e6e2ea] flex justify-between items-center font-bold">
-                      <span className="text-[#595963]">ยอดรวม (VAT):</span>
-                      <span className="text-[#582c83] text-sm font-black">{b.total_price_thb?.toLocaleString()} บาท</span>
+                    <div className="pt-2 border-t border-[#e6e2ea] space-y-1">
+                      {b.room_fee_thb ? (
+                        <>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-[#595963]">ค่าห้องจ่ายรายวัน:</span>
+                            <span className="font-semibold text-[#1e1e24]">{b.room_fee_thb.toLocaleString()} บาท</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-amber-800 font-medium">เงินประกัน (50%):</span>
+                            <span className="font-bold text-amber-700">{b.deposit_thb?.toLocaleString()} บาท</span>
+                          </div>
+                          {b.total_price_thb > 0 && (
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-[#595963]">ค่าอาหาร/เครื่องดื่ม:</span>
+                              <span className="font-semibold text-[#1e1e24]">{b.total_price_thb.toLocaleString()} บาท</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center font-bold pt-1 border-t border-dashed border-[#e6e2ea]">
+                            <span className="text-[#1e1e24]">ยอดรวมทั้งสิ้น:</span>
+                            <span className="text-[#582c83] text-sm font-black">{(b.room_fee_thb + (b.total_price_thb || 0)).toLocaleString()} บาท</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex justify-between items-center font-bold">
+                          <span className="text-[#595963]">ยอดรวม (VAT):</span>
+                          <span className="text-[#582c83] text-sm font-black">{b.total_price_thb?.toLocaleString()} บาท</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -738,6 +763,31 @@ export default function AdminDashboardPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Financial Summary */}
+            {selectedBookingDetails.room_fee_thb ? (
+              <div className="p-3.5 bg-[#faf7fd] rounded-2xl border border-[#e6e2ea] space-y-2 text-xs">
+                <h4 className="font-bold text-[#582c83]">สรุปยอดค่าบริการ</h4>
+                <div className="flex justify-between items-center">
+                  <span className="text-[#595963]">ค่าห้องจ่ายรายวัน:</span>
+                  <span className="font-bold text-[#1e1e24]">{selectedBookingDetails.room_fee_thb.toLocaleString()} บาท</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-amber-800 font-medium">เงินประกันการจองห้อง (50%):</span>
+                  <span className="font-bold text-amber-700">{selectedBookingDetails.deposit_thb?.toLocaleString()} บาท</span>
+                </div>
+                {selectedBookingDetails.total_price_thb > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#595963]">ค่าอาหารและเครื่องดื่ม:</span>
+                    <span className="font-bold text-[#1e1e24]">{selectedBookingDetails.total_price_thb.toLocaleString()} บาท</span>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-[#e6e2ea] flex justify-between items-center text-sm font-black">
+                  <span className="text-[#1e1e24]">ยอดรวมทั้งสิ้น (รวม VAT):</span>
+                  <span className="text-[#582c83]">{(selectedBookingDetails.room_fee_thb + (selectedBookingDetails.total_price_thb || 0)).toLocaleString()} บาท</span>
+                </div>
+              </div>
+            ) : null}
 
             {/* Food items */}
             <div className="space-y-2">

@@ -27,13 +27,13 @@ describe("ThaiDatePicker logic", () => {
     expect(past < min).toBe(true);
   });
 
-  it("should flag dates beyond 60 days ahead as disabled", () => {
+  it("should flag dates beyond 30 days ahead as disabled", () => {
     const today = new Date(2026, 9, 31);
     const max = new Date(today);
-    max.setDate(max.getDate() + 60);
+    max.setDate(max.getDate() + 30);
 
     const validDate = new Date(2026, 10, 15);
-    const tooFarDate = new Date(2027, 0, 15);
+    const tooFarDate = new Date(2026, 11, 15);
 
     expect(validDate <= max).toBe(true);
     expect(tooFarDate > max).toBe(true);

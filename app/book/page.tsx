@@ -6,7 +6,7 @@ import { useBookingStore, toEpochSeconds } from "@/lib/booking-store";
 import { formatThaiDateString } from "@/lib/date-utils";
 import { findConflicts, suggestSlots, formatRange, statusLabel, toBangkokTime, BusyRange, FreeSlot } from "@/lib/availability";
 import { ThaiDatePicker } from "@/app/components/ThaiDatePicker";
-import { FOOD_CATALOG, FoodItemCatalog, TableLayout, MeetingType } from "@/lib/types";
+import { FOOD_CATALOG, FoodItemCatalog, TableLayout, MeetingType, getRoomFee } from "@/lib/types";
 import { Calendar, Users, Utensils, Coffee, CheckCircle, ChevronRight, ChevronLeft, AlertCircle, Loader2, Sparkles, Clock, ShieldCheck } from "lucide-react";
 
 const STEPS = [
@@ -44,6 +44,9 @@ export default function BookingWizardPage() {
   // Room capacities: floor2 = 250, floor7 = 450
   const maxCapacity = formData.room_id === "floor7" ? 450 : 250;
   const roomName = formData.room_id === "floor7" ? "ห้องประชุมชั้น 7" : "หอประชุมชั้น 2";
+  const roomFeeInfo = getRoomFee(formData.room_id, formData.meeting_type);
+  const roomDailyFee = roomFeeInfo?.dailyRate ?? 0;
+  const roomDeposit = roomFeeInfo?.deposit ?? 0;
 
   // Validate current step before advancing
   const validateStep = (step: number): boolean => {
@@ -206,6 +209,7 @@ export default function BookingWizardPage() {
 
   const selectedItemsList = getSelectedItems();
   const totalPrice = selectedItemsList.reduce((sum, i) => sum + i.subtotal, 0);
+  const grandTotalPrice = roomDailyFee + totalPrice;
 
   // Submit to Server
   const handleSubmit = async () => {
@@ -566,7 +570,7 @@ export default function BookingWizardPage() {
                   />
                 </div>
                 <p className="col-span-2 text-xs text-[#582c83] font-semibold">
-                  เปิดให้บริการ 08:30 – 16:30 น. (ขั้นต่ำ 2 ชั่วโมง จองล่วงหน้าได้ไม่เกิน 60 วัน)
+                  เปิดให้บริการ 08:30 – 16:30 น. (จองล่วงหน้าได้ไม่เกิน 30 วัน) *วางเงินประกันการจองห้องครึ่งนึงของค่าห้อง
                 </p>
               </div>
             </div>
@@ -993,14 +997,50 @@ export default function BookingWizardPage() {
               </div>
             </div>
 
-            {/* Itemized Price Breakdown */}
+            {/* Financial Summary Breakdown */}
             <div className="space-y-3 pt-2">
-              <span className="text-sm font-bold text-[#1e1e24]">รายการอาหารและเครื่องดื่มที่เลือก</span>
-              {selectedItemsList.length === 0 ? (
-                <div className="p-4 rounded-2xl bg-[#faf7fd] border border-[#e6e2ea] text-xs text-[#595963] text-center">
-                  ไม่ประสงค์อาหารและเครื่องดื่ม
+              <span className="text-sm font-bold text-[#1e1e24]">สรุปประมาณการค่าใช้จ่าย</span>
+              <div className="border border-[#e6e2ea] rounded-2xl overflow-hidden text-sm bg-white shadow-2xs">
+                <div className="p-4 bg-[#faf7fd] border-b border-[#e6e2ea] space-y-2">
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-medium">
+                    <span className="text-[#1e1e24]">
+                      ค่าบำรุงสถานที่/ค่าห้อง ({roomName} • {roomFeeInfo?.categoryLabel})
+                    </span>
+                    <span className="font-bold text-[#1e1e24]">{roomDailyFee.toLocaleString()} บาท</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-medium">
+                    <span className="text-[#595963]">
+                      ค่าอาหารและเครื่องดื่ม ({selectedItemsList.length} รายการ)
+                    </span>
+                    <span className="font-bold text-[#1e1e24]">{totalPrice.toLocaleString()} บาท</span>
+                  </div>
+                  <div className="pt-2 border-t border-[#e6e2ea] flex items-center justify-between font-black text-base">
+                    <span className="text-[#1e1e24]">ยอดรวมทั้งสิ้น (รวม VAT):</span>
+                    <span className="text-[#582c83] text-lg">{grandTotalPrice.toLocaleString()} บาท</span>
+                  </div>
                 </div>
-              ) : (
+
+                <div className="p-4 bg-amber-50/70 border-t border-amber-200/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-amber-700" />
+                      เงินประกันการจองห้อง (50% ของค่าห้อง):
+                    </span>
+                    <p className="text-[11px] text-amber-800/80">
+                      *วางเงินประกันการจองห้องครึ่งนึงของค่าห้องเพื่อยืนยันสิทธิ์การใช้งาน
+                    </p>
+                  </div>
+                  <span className="text-base font-black text-amber-900 sm:text-right">
+                    {roomDeposit.toLocaleString()} บาท
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Itemized Food Breakdown */}
+            {selectedItemsList.length > 0 ? (
+              <div className="space-y-3 pt-2">
+                <span className="text-sm font-bold text-[#1e1e24]">รายละเอียดอาหารและเครื่องดื่มที่เลือก</span>
                 <div className="border border-[#e6e2ea] rounded-2xl overflow-hidden text-sm">
                   <table className="w-full text-left">
                     <thead className="bg-[#f5f0fa] text-[#582c83] text-xs font-bold border-b border-[#e6e2ea]">
@@ -1021,16 +1061,20 @@ export default function BookingWizardPage() {
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className="bg-[#faf8fd] border-t border-[#e6e2ea] font-bold text-base">
+                    <tfoot className="bg-[#faf8fd] border-t border-[#e6e2ea] font-bold text-sm">
                       <tr>
-                        <td colSpan={3} className="py-3 px-4 text-right text-[#1e1e24]">ยอดรวมทั้งสิ้น (รวม VAT):</td>
-                        <td className="py-3 px-4 text-right text-[#582c83] font-black">{totalPrice.toLocaleString()} บาท</td>
+                        <td colSpan={3} className="py-3 px-4 text-right text-[#1e1e24]">รวมค่าอาหารและเครื่องดื่ม:</td>
+                        <td className="py-3 px-4 text-right text-[#582c83] font-bold">{totalPrice.toLocaleString()} บาท</td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="p-4 rounded-2xl bg-[#faf7fd] border border-[#e6e2ea] text-xs text-[#595963] text-center">
+                ไม่ประสงค์อาหารและเครื่องดื่ม
+              </div>
+            )}
           </div>
         )}
 

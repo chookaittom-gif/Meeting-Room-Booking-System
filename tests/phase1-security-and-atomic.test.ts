@@ -9,6 +9,7 @@ import {
   ValidationError,
   StatusTransitionError,
   calculateTotalPrice,
+  calculateRoomFee,
 } from '../lib/booking-service';
 import { hashPassword, verifyPassword, createSessionToken, verifySessionToken } from '../lib/auth';
 import { CreateBookingPayload } from '../lib/types';
@@ -394,5 +395,74 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
         expect(content).not.toContain(banned);
       }
     }
+  });
+
+  // -------------------------------------------------------------
+  // 7. Room Fee & Advance Booking Window Tests
+  // -------------------------------------------------------------
+  it('7.1 should calculate room fee and 50% deposit correctly for all rooms and meeting types', () => {
+    // Floor 2
+    expect(calculateRoomFee('floor2', 'seminar')).toEqual({
+      roomFee: 15000,
+      deposit: 7500,
+      categoryLabel: 'อบรมสัมมนาทั่วไป',
+    });
+    expect(calculateRoomFee('floor2', 'small_group')).toEqual({
+      roomFee: 15000,
+      deposit: 7500,
+      categoryLabel: 'อบรมสัมมนาทั่วไป',
+    });
+    expect(calculateRoomFee('floor2', 'wedding')).toEqual({
+      roomFee: 20000,
+      deposit: 10000,
+      categoryLabel: 'จัดเลี้ยงและงานแต่งงาน',
+    });
+
+    // Floor 7
+    expect(calculateRoomFee('floor7', 'seminar')).toEqual({
+      roomFee: 30000,
+      deposit: 15000,
+      categoryLabel: 'อบรมสัมมนาทั่วไป',
+    });
+    expect(calculateRoomFee('floor7', 'small_group')).toEqual({
+      roomFee: 30000,
+      deposit: 15000,
+      categoryLabel: 'อบรมสัมมนาทั่วไป',
+    });
+    expect(calculateRoomFee('floor7', 'wedding')).toEqual({
+      roomFee: 35000,
+      deposit: 17500,
+      categoryLabel: 'จัดเลี้ยงและงานแต่งงาน',
+    });
+
+    // Invalid room / meeting type
+    expect(() => calculateRoomFee('invalid_room', 'seminar')).toThrow(ValidationError);
+  });
+
+  it('7.2 should persist room_fee_thb and deposit_thb in atomic booking creation', async () => {
+    const payload = makeValidPayload({
+      room_id: 'floor7',
+      meeting_type: 'wedding',
+    });
+
+    const { booking } = await createBookingAtomic(db, payload);
+    expect(booking.room_fee_thb).toBe(35000);
+    expect(booking.deposit_thb).toBe(17500);
+
+    const row = await db.prepare('SELECT room_fee_thb, deposit_thb FROM bookings WHERE id = ?').bind(booking.id).first<{ room_fee_thb: number; deposit_thb: number }>();
+    expect(row?.room_fee_thb).toBe(35000);
+    expect(row?.deposit_thb).toBe(17500);
+  });
+
+  it('7.3 should reject booking more than 30 days in advance', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const future31Days = now + (31 * 24 * 60 * 60);
+
+    await expect(
+      createBookingAtomic(db, makeValidPayload({
+        starts_at: future31Days,
+        ends_at: future31Days + 7200,
+      }))
+    ).rejects.toThrow('สามารถจองล่วงหน้าได้ไม่เกิน 30 วัน');
   });
 });
