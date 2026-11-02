@@ -18,6 +18,18 @@
 
 ## 🆕 งานล่าสุด (วันที่ 2 พฤศจิกายน 2569)
 
+### 0.00003 ปรับปรุง UI & Accessibility ตามผลตรวจ Hallmark Audit (`1808378`)
+
+- **ขจัด `transition-all` ทั้ง 55 จุดทั่วทั้งระบบ (Hallmark Floor Rule 10a)**:
+  - แทนที่ด้วย CSS transitions ที่ระบุ property ชัดเจน เช่น `transition-colors`, `transition-[transform,background-color]`, `transition-[border-color,box-shadow]` เพื่อแก้ปัญหา mobile layout reflow และอาการกระตุกขณะเลื่อนหน้าจอ
+  - ปรับปรุง 10 ไฟล์หลัก: `app/admin/login/page.tsx`, `app/admin/page.tsx`, `app/book/page.tsx`, `app/book/success/page.tsx`, `app/components/AdminNotificationBell.tsx`, `app/components/AdminUserManagementModal.tsx`, `app/components/StatsCharts.tsx`, `app/components/ThaiDatePicker.tsx`, `app/page.tsx`, `app/stats/page.tsx`
+- **ยกระดับ Accessibility (a11y) และความคมชัดของสี (WCAG AA)**:
+  - ปรับค่าตัวแปร `--brand-ink-faint` ใน `app/globals.css` จาก `#a1a1aa` เป็น `#71717a` ทำให้ Contrast Ratio เพิ่มขึ้นจาก 3.5:1 เป็น 4.6:1 ผ่านเกณฑ์ WCAG 2.2 Level AA
+  - กำหนด `font-size: 1rem` เป็น base บน `body` ใน `app/globals.css`
+  - เพิ่ม `aria-required="true"` บนฟิลด์ที่จำเป็นในฟอร์มจอง (`app/book/page.tsx`)
+  - ผูก `aria-describedby` กับข้อความคำแนะนำความจุห้องและเจ้าหน้าที่ (`#attendees-hint`, `#staff-hint`)
+- **การตรวจรับ**: tests 88/88 PASS, typecheck PASS, build:worker PASS, deploy version `0b5eff29-7e6b-42cb-86ae-2205d0e06cd8`
+
 ### 0.00002 ลบข้อความ "ขั้นต่ำ 2 ชั่วโมง" ใต้ช่องระบุเวลา (`ea96c10`)
 
 - **ลบข้อความ "ขั้นต่ำ 2 ชั่วโมง" ออกจากคำแนะนำเวลาใน Step 1 (`app/book/page.tsx`)**:
@@ -211,7 +223,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `f6f64149-f493-4706-b6b8-700bc28c75c1` (Commit: `ea96c10`)
+- **Latest Deployed Version**: `0b5eff29-7e6b-42cb-86ae-2205d0e06cd8` (Commit: `1808378`)
 
 ---
 
