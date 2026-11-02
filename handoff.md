@@ -18,6 +18,11 @@
 
 ## 🆕 งานล่าสุด (วันที่ 2 พฤศจิกายน 2569)
 
+### 0.00004 แก้ stepper หน้าจองล้นจอและตัวอักษรเล็กกว่า 12px ตามผล Hallmark Audit (`ef4e1b1`)
+
+- `app/book/page.tsx`: stepper ลด padding/gap บนมือถือ และแสดง label ตั้งแต่ `lg` (เดิม `md` ทำให้ล้นที่ 768px) — ตรวจบนเว็บจริงที่ 320px/768px ไม่มีการเลื่อนในตัวแล้ว
+- เปลี่ยน `text-[11px]`/`text-[10px]` ทั้ง 41 จุดใน 12 ไฟล์ของ `app/` เป็น `text-xs` (12px)
+
 ### 0.00003 ปรับปรุง UI & Accessibility ตามผลตรวจ Hallmark Audit (`1808378`)
 
 - **ขจัด `transition-all` ทั้ง 55 จุดทั่วทั้งระบบ (Hallmark Floor Rule 10a)**:
@@ -223,7 +228,7 @@
   - `pathaithep`: ไผทเทพ ตุทานนท์ (Role: `admin`)
   - `nathlada`: นาถลดา ศรียะพันธ์ (Role: `admin`)
 - **Session Duration**: 8 ชั่วโมง (ตรวจจับอัตโนมัติในเบื้องหลัง พร้อมกล่องแจ้งเตือนและส่งกลับหน้า Login)
-- **Latest Deployed Version**: `0b5eff29-7e6b-42cb-86ae-2205d0e06cd8` (Commit: `1808378`)
+- **Latest Deployed Version**: `cb6299c0-00fa-4080-a04b-07cdcfed9017` (Commit: `ef4e1b1`)
 
 ---
 
