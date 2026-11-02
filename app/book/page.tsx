@@ -601,7 +601,7 @@ export default function BookingWizardPage() {
                   />
                 </div>
                 <p className="col-span-2 text-xs text-[#582c83] font-semibold">
-                  เปิดให้บริการ 08:30 – 16:30 น. (ขั้นต่ำ 2 ชั่วโมง จองล่วงหน้าได้ไม่เกิน 30 วัน)
+                  เปิดให้บริการ 08:30 – 16:30 น. (จองล่วงหน้าได้ไม่เกิน 30 วัน)
                 </p>
               </div>
             </div>
