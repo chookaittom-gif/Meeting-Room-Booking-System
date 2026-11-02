@@ -73,14 +73,14 @@ export default function BookingSuccessPage() {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
         <Link
           href="/"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target transition-all shadow-[0_4px_16px_rgba(88,44,131,0.22)] border border-white/20 active:scale-95"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target transition-[transform,box-shadow,background-color] duration-150 shadow-[0_4px_16px_rgba(88,44,131,0.22)] border border-white/20 active:scale-95"
         >
           <Home className="w-4 h-4" />
           กลับสู่หน้าหลัก / ดูปฏิทิน
         </Link>
         <Link
           href="/book"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl border border-[#e6e2ea] bg-white hover:bg-gray-50 text-[#1e1e24] font-bold text-sm touch-target transition-all shadow-2xs active:scale-95"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl border border-[#e6e2ea] bg-white hover:bg-gray-50 text-[#1e1e24] font-bold text-sm touch-target transition-[transform,background-color] duration-150 shadow-2xs active:scale-95"
         >
           จองรายการอื่นเพิ่มเติม
           <ArrowRight className="w-4 h-4" />

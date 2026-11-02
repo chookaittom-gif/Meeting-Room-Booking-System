@@ -167,7 +167,7 @@ export default function StatsPage() {
                     role="tab"
                     aria-selected={trendMode === t.id}
                     onClick={() => setTrendMode(t.id)}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all touch-target ${
+                    className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-colors touch-target ${
                       trendMode === t.id ? "bg-white text-[#582c83] shadow-sm" : "text-[#8e8e99] hover:text-[#582c83]"
                     }`}
                   >

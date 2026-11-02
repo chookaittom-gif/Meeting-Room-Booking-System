@@ -206,7 +206,7 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="การแจ้งเตือน"
-        className="relative inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-white border border-[#e6e2ea] text-[#595963] hover:text-[#582c83] hover:border-[#582c83] hover:bg-[#faf8fd] shadow-2xs transition-all touch-target focus:outline-hidden focus:ring-2 focus:ring-[#582c83]"
+        className="relative inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-white border border-[#e6e2ea] text-[#595963] hover:text-[#582c83] hover:border-[#582c83] hover:bg-[#faf8fd] shadow-2xs transition-colors touch-target focus:outline-hidden focus:ring-2 focus:ring-[#582c83]"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (

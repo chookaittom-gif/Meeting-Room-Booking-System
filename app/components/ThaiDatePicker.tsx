@@ -136,7 +136,7 @@ export function ThaiDatePicker({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full px-4 py-2.5 rounded-xl border text-left bg-white flex items-center justify-between text-sm touch-target transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#582c83] ${
+        className={`w-full px-4 py-2.5 rounded-xl border text-left bg-white flex items-center justify-between text-sm touch-target transition-colors shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#582c83] ${
           isOpen ? "border-[#582c83] ring-2 ring-[#582c83]/20" : "border-[#e6e2ea] hover:border-[#582c83]/50"
         }`}
         aria-haspopup="dialog"
@@ -172,7 +172,7 @@ export function ThaiDatePicker({
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#595963] hover:text-[#582c83] hover:bg-[#f5f0fa] active:scale-95 transition-all"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#595963] hover:text-[#582c83] hover:bg-[#f5f0fa] active:scale-95 transition-[transform,colors]"
               aria-label="เดือนก่อนหน้า"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -185,7 +185,7 @@ export function ThaiDatePicker({
             <button
               type="button"
               onClick={handleNextMonth}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#595963] hover:text-[#582c83] hover:bg-[#f5f0fa] active:scale-95 transition-all"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#595963] hover:text-[#582c83] hover:bg-[#f5f0fa] active:scale-95 transition-[transform,colors]"
               aria-label="เดือนถัดไป"
             >
               <ChevronRight className="w-4 h-4" />
@@ -220,7 +220,7 @@ export function ThaiDatePicker({
                 type="button"
                 disabled={item.disabled}
                 onClick={() => handleSelectDate(item.dateStr)}
-                className={`w-8 h-8 sm:w-9 sm:h-9 mx-auto rounded-xl text-xs font-semibold flex items-center justify-center transition-all ${
+                className={`w-8 h-8 sm:w-9 sm:h-9 mx-auto rounded-xl text-xs font-semibold flex items-center justify-center transition-colors ${
                   item.isSelected
                     ? "bg-[#582c83] text-white shadow-sm ring-2 ring-[#582c83]/30 scale-105"
                     : item.disabled

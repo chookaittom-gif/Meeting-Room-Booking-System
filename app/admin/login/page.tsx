@@ -106,7 +106,7 @@ export default function AdminLoginPage() {
               placeholder="กรอกชื่อผู้ใช้..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white/95 text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target transition-all shadow-2xs"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white/95 text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target transition-colors shadow-2xs"
             />
           </div>
 
@@ -123,7 +123,7 @@ export default function AdminLoginPage() {
                 placeholder="กรอกรหัสผ่าน..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-4 pr-12 py-2.5 rounded-xl border border-[#e6e2ea] bg-white/95 text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target transition-all shadow-2xs"
+                className="w-full pl-4 pr-12 py-2.5 rounded-xl border border-[#e6e2ea] bg-white/95 text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target transition-colors shadow-2xs"
               />
               <button
                 type="button"
@@ -143,7 +143,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] shadow-[0_4px_20px_rgba(88,44,131,0.22)] hover:shadow-[0_6px_25px_rgba(88,44,131,0.32)] border border-white/20 transition-all touch-target flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
+            className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] shadow-[0_4px_20px_rgba(88,44,131,0.22)] hover:shadow-[0_6px_25px_rgba(88,44,131,0.32)] border border-white/20 transition-[transform,box-shadow,background-color] duration-150 touch-target flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50"
           >
             {isLoading ? (
               <>

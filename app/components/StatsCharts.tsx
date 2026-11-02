@@ -246,7 +246,7 @@ export function RoomBars({ rooms }: { rooms: RoomStat[] }) {
           </div>
           <div className="h-3 rounded-full bg-[#efecf4] overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500"
+              className="h-full rounded-full transition-[width] duration-500"
               style={{
                 width: `${(r.count / max) * 100}%`,
                 background: i === 0 ? `linear-gradient(90deg, ${PURPLE}, #7a45b0)` : PURPLE_LIGHT,
@@ -280,7 +280,7 @@ export function SlotBars({ slots }: { slots: { morning: number; afternoon: numbe
             </span>
           </div>
           <div className="h-3 rounded-full bg-[#efecf4] overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(r.v / max) * 100}%`, background: r.fill }} />
+            <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${(r.v / max) * 100}%`, background: r.fill }} />
           </div>
         </div>
       ))}
@@ -304,7 +304,7 @@ export function TopItemsBars({ items }: { items: TopItemStat[] }) {
           </div>
           <div className="h-2.5 rounded-full bg-[#efecf4] overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500"
+              className="h-full rounded-full transition-[width] duration-500"
               style={{
                 width: `${(it.quantity / max) * 100}%`,
                 background: i === 0 ? "linear-gradient(90deg, #7a45b0, #582c83)" : PURPLE_LIGHT,

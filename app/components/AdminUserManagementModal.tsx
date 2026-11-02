@@ -303,7 +303,7 @@ export function AdminUserManagementModal({
               setIsAddOpen(true);
               setFeedback(null);
             }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs transition-all active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs transition-[transform,background-color] duration-150 active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
             <span>เพิ่มผู้ดูแลระบบ</span>
@@ -329,7 +329,7 @@ export function AdminUserManagementModal({
                 return (
                   <div
                     key={u.id}
-                    className="p-4 rounded-2xl border border-[#e6e2ea] bg-white hover:border-[#582c83]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-4 rounded-2xl border border-[#e6e2ea] bg-white hover:border-[#582c83]/30 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -376,7 +376,7 @@ export function AdminUserManagementModal({
                           setEditDisplayName(u.displayName || "");
                           setFeedback(null);
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold touch-target transition-all active:scale-95 shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold touch-target transition-[transform,background-color] duration-150 active:scale-95 shadow-2xs"
                         title="แก้ไขชื่อ-นามสกุล"
                       >
                         <Pencil className="w-3.5 h-3.5 text-slate-500" />
@@ -391,7 +391,7 @@ export function AdminUserManagementModal({
                           setConfirmPassword("");
                           setFeedback(null);
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#582c83] border border-[#582c83]/20 text-xs font-bold touch-target transition-all active:scale-95 shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#582c83] border border-[#582c83]/20 text-xs font-bold touch-target transition-[transform,background-color] duration-150 active:scale-95 shadow-2xs"
                         title="กำหนดรหัสผ่านใหม่"
                       >
                         <Key className="w-3.5 h-3.5" />
@@ -406,7 +406,7 @@ export function AdminUserManagementModal({
                             setDeleteTarget(u);
                             setFeedback(null);
                           }}
-                          className="w-9 h-9 rounded-xl flex items-center justify-center text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 touch-target transition-all active:scale-95 shadow-2xs"
+                          className="w-9 h-9 rounded-xl flex items-center justify-center text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 touch-target transition-[transform,background-color] duration-150 active:scale-95 shadow-2xs"
                           title="ลบบัญชีผู้ดูแลระบบ"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -425,7 +425,7 @@ export function AdminUserManagementModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-white border border-[#e6e2ea] text-xs font-bold text-[#1e1e24] hover:bg-gray-100 touch-target transition-all"
+            className="px-5 py-2.5 rounded-xl bg-white border border-[#e6e2ea] text-xs font-bold text-[#1e1e24] hover:bg-gray-100 touch-target transition-colors"
           >
             ปิดหน้าต่าง
           </button>
@@ -468,7 +468,7 @@ export function AdminUserManagementModal({
                     required
                     minLength={8}
                     placeholder="กรอกรหัสผ่านใหม่"
-                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                   />
                   <button
                     type="button"
@@ -492,7 +492,7 @@ export function AdminUserManagementModal({
                   required
                   minLength={8}
                   placeholder="กรอกยืนยันรหัสผ่านใหม่อีกครั้ง"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                 />
               </div>
 
@@ -507,7 +507,7 @@ export function AdminUserManagementModal({
                 <button
                   type="submit"
                   disabled={isResetting || !newPassword || !confirmPassword}
-                  className="px-5 py-2.5 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-colors"
                 >
                   {isResetting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{isResetting ? "กำลังบันทึก..." : "บันทึกรหัสผ่านใหม่"}</span>
@@ -552,7 +552,7 @@ export function AdminUserManagementModal({
                   onChange={(e) => setNewUsername(e.target.value)}
                   required
                   placeholder="เช่น somchai (3-30 ตัวอักษร)"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors font-mono"
                 />
               </div>
 
@@ -566,7 +566,7 @@ export function AdminUserManagementModal({
                   onChange={(e) => setNewDisplayName(e.target.value)}
                   required
                   placeholder="เช่น สมชาย ใจดี"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                 />
               </div>
 
@@ -582,7 +582,7 @@ export function AdminUserManagementModal({
                     required
                     minLength={8}
                     placeholder="กรอกรหัสผ่านเริ่มต้น"
-                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                   />
                   <button
                     type="button"
@@ -606,7 +606,7 @@ export function AdminUserManagementModal({
                   required
                   minLength={8}
                   placeholder="กรอกยืนยันรหัสผ่านอีกครั้ง"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                 />
               </div>
 
@@ -621,7 +621,7 @@ export function AdminUserManagementModal({
                 <button
                   type="submit"
                   disabled={isAdding || !newUsername || !newDisplayName || !addPassword}
-                  className="px-5 py-2.5 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-colors"
                 >
                   {isAdding && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{isAdding ? "กำลังบันทึก..." : "เพิ่มผู้ดูแลระบบ"}</span>
@@ -667,7 +667,7 @@ export function AdminUserManagementModal({
                   required
                   minLength={2}
                   placeholder="กรอกชื่อ-นามสกุล..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                   autoFocus
                 />
               </div>
@@ -683,7 +683,7 @@ export function AdminUserManagementModal({
                 <button
                   type="submit"
                   disabled={isSavingName || !editDisplayName.trim()}
-                  className="px-5 py-2.5 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-colors"
                 >
                   {isSavingName && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{isSavingName ? "กำลังบันทึก..." : "บันทึกชื่อ"}</span>
@@ -720,7 +720,7 @@ export function AdminUserManagementModal({
                 type="button"
                 onClick={handleDeleteUser}
                 disabled={isDeleting}
-                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold touch-target shadow-2xs disabled:opacity-50 flex items-center gap-1.5 transition-colors"
               >
                 {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 <span>{isDeleting ? "กำลังลบ..." : "ยืนยันลบบัญชี"}</span>

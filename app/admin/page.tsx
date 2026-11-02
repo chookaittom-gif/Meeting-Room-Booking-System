@@ -338,7 +338,7 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setIsUserManagementOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#582c83]/20 bg-[#f5f0fa] hover:bg-[#ede5f7] text-[#582c83] text-xs font-bold touch-target transition-all shadow-2xs active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#582c83]/20 bg-[#f5f0fa] hover:bg-[#ede5f7] text-[#582c83] text-xs font-bold touch-target transition-[transform,background-color] duration-150 shadow-2xs active:scale-95"
               title="จัดการผู้ดูแลระบบและรหัสผ่าน"
             >
               <Users className="w-3.5 h-3.5" />
@@ -354,7 +354,7 @@ export default function AdminDashboardPage() {
           />
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 text-xs font-bold touch-target transition-all shadow-2xs active:scale-95"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 text-xs font-bold touch-target transition-[transform,background-color] duration-150 shadow-2xs active:scale-95"
           >
             <LogOut className="w-3.5 h-3.5" />
             ออกจากระบบ
@@ -446,7 +446,7 @@ export default function AdminDashboardPage() {
           <button
             key={st.id}
             onClick={() => setStatusFilter(st.id)}
-            className={`p-4 rounded-2xl border text-left transition-all ${
+            className={`p-4 rounded-2xl border text-left transition-colors ${
               statusFilter === st.id
                 ? "bg-gradient-to-br from-white to-[#faf7fd] border-[#582c83] ring-2 ring-[#582c83]/30 shadow-md"
                 : "bg-white/85 backdrop-blur-xl border-white/80 hover:border-[#582c83]/30 hover:bg-white shadow-[0_4px_20px_rgba(88,44,131,0.03)]"
@@ -485,7 +485,7 @@ export default function AdminDashboardPage() {
           </div>
           <button
             type="submit"
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white font-bold touch-target hover:from-violet-700 hover:to-[#381a54] shadow-xs border border-white/20 transition-all shrink-0"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white font-bold touch-target hover:from-violet-700 hover:to-[#381a54] shadow-xs border border-white/20 transition-[background-color,box-shadow] duration-150 shrink-0"
           >
             ค้นหา
           </button>
@@ -523,7 +523,7 @@ export default function AdminDashboardPage() {
             return (
               <div
                 key={b.id}
-                className="bg-white/88 backdrop-blur-xl rounded-3xl border border-white/80 p-6 sm:p-7 shadow-[0_10px_35px_rgba(88,44,131,0.05)] hover:border-[#582c83]/30 hover:shadow-[0_16px_45px_rgba(88,44,131,0.09)] transition-all space-y-4"
+                className="bg-white/88 backdrop-blur-xl rounded-3xl border border-white/80 p-6 sm:p-7 shadow-[0_10px_35px_rgba(88,44,131,0.05)] hover:border-[#582c83]/30 hover:shadow-[0_16px_45px_rgba(88,44,131,0.09)] transition-[border-color,box-shadow] duration-200 space-y-4"
               >
                 {/* Header row */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e6e2ea]">
@@ -626,7 +626,7 @@ export default function AdminDashboardPage() {
                         <button
                           disabled={isProcessingAction}
                           onClick={() => handleUpdateStatus(b.id, "pending", "approved")}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold touch-target shadow-xs disabled:opacity-50 transition-all active:scale-95"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold touch-target shadow-xs disabled:opacity-50 transition-[transform,background-color] duration-150 active:scale-95"
                         >
                           <CheckCircle className="w-4 h-4" />
                           อนุมัติ
@@ -637,7 +637,7 @@ export default function AdminDashboardPage() {
                             setRejectingBooking(b);
                             setRejectReason("");
                           }}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold touch-target shadow-xs disabled:opacity-50 transition-all active:scale-95"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold touch-target shadow-xs disabled:opacity-50 transition-[transform,background-color] duration-150 active:scale-95"
                         >
                           <XCircle className="w-4 h-4" />
                           ไม่อนุมัติ
@@ -655,7 +655,7 @@ export default function AdminDashboardPage() {
                               handleUpdateStatus(b.id, "pending", "cancelled", "ยกเลิกคำขอ");
                             }
                           }}
-                          className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-xs font-bold touch-target transition-all"
+                          className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-xs font-bold touch-target transition-colors"
                         >
                           ยกเลิก
                         </button>
@@ -676,7 +676,7 @@ export default function AdminDashboardPage() {
                             handleUpdateStatus(b.id, "approved", "cancelled", "ผู้ดูแลยกเลิกหลังการอนุมัติ");
                           }
                         }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-300 bg-red-50/70 text-red-700 hover:bg-red-100 text-xs font-bold touch-target transition-all"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-300 bg-red-50/70 text-red-700 hover:bg-red-100 text-xs font-bold touch-target transition-colors"
                       >
                         <AlertTriangle className="w-4 h-4 text-red-600" />
                         ยกเลิกการจองนี้
@@ -896,7 +896,7 @@ export default function AdminDashboardPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedBookingDetails(null)}
-                className="px-5 py-2 rounded-xl bg-white border border-[#e6e2ea] text-xs font-bold text-[#1e1e24] hover:bg-gray-50 touch-target transition-all"
+                className="px-5 py-2 rounded-xl bg-white border border-[#e6e2ea] text-xs font-bold text-[#1e1e24] hover:bg-gray-50 touch-target transition-colors"
               >
                 ปิดหน้าต่าง
               </button>
@@ -931,7 +931,7 @@ export default function AdminDashboardPage() {
               <button
                 type="button"
                 onClick={() => router.push("/admin/login?reason=expired")}
-                className="w-full py-2.5 px-4 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs transition-all active:scale-95"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#582c83] hover:bg-[#48236b] text-white text-xs font-bold touch-target shadow-2xs transition-[transform,background-color] duration-150 active:scale-95"
               >
                 เข้าสู่ระบบใหม่
               </button>

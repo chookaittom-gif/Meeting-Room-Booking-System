@@ -301,7 +301,7 @@ export default function BookingWizardPage() {
             return (
               <div
                 key={s.id}
-                className={`flex items-center gap-2 shrink-0 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all ${
+                className={`flex items-center gap-2 shrink-0 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-colors ${
                   isActive
                     ? "bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white shadow-xs border border-white/20"
                     : isDone
@@ -418,6 +418,7 @@ export default function BookingWizardPage() {
                   placeholder="เช่น การสัมมนาเชิงปฏิบัติการการใช้เทคโนโลยี AI"
                   value={formData.activity_name}
                   onChange={(e) => updateFormData({ activity_name: e.target.value })}
+                  aria-required="true"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target shadow-2xs"
                 />
               </div>
@@ -431,6 +432,7 @@ export default function BookingWizardPage() {
                   placeholder="เช่น โครงการพัฒนาบุคลากรสายวิชาการ ประจำปีงบประมาณ 2569"
                   value={formData.project_name}
                   onChange={(e) => updateFormData({ project_name: e.target.value })}
+                  aria-required="true"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target shadow-2xs"
                 />
               </div>
@@ -444,6 +446,7 @@ export default function BookingWizardPage() {
                   placeholder="ชื่อ - นามสกุล"
                   value={formData.coordinator_name}
                   onChange={(e) => updateFormData({ coordinator_name: e.target.value })}
+                  aria-required="true"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target shadow-2xs"
                 />
               </div>
@@ -458,6 +461,7 @@ export default function BookingWizardPage() {
                   placeholder="0812345678"
                   value={formData.coordinator_phone}
                   onChange={(e) => updateFormData({ coordinator_phone: e.target.value.replace(/\D/g, "") })}
+                  aria-required="true"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] focus:border-transparent text-sm touch-target shadow-2xs"
                 />
               </div>
@@ -480,6 +484,7 @@ export default function BookingWizardPage() {
                 <select
                   value={formData.meeting_type === "small_group" ? "seminar" : formData.meeting_type}
                   onChange={(e) => updateFormData({ meeting_type: e.target.value as MeetingType })}
+                  aria-required="true"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target font-medium shadow-2xs"
                 >
                   <option value="seminar">อบรมสัมมนาทั่วไป</option>
@@ -494,6 +499,7 @@ export default function BookingWizardPage() {
                 <select
                   value={formData.room_id}
                   onChange={(e) => updateFormData({ room_id: e.target.value })}
+                  aria-required="true"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target font-medium shadow-2xs"
                 >
                   <option value="floor2">หอประชุมชั้น 2 (ความจุสูงสุด 250 คน)</option>
@@ -543,9 +549,11 @@ export default function BookingWizardPage() {
                   max={maxCapacity}
                   value={formData.attendees_count}
                   onChange={(e) => updateFormData({ attendees_count: Number(e.target.value) })}
+                  aria-required="true"
+                  aria-describedby="attendees-hint"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
                 />
-                <p className="text-xs text-[#595963]">ตรวจความจุสูงสุดเทียบกับจำนวนนี้ (ไม่เกิน {maxCapacity} คน)</p>
+                <p id="attendees-hint" className="text-xs text-[#595963]">ตรวจความจุสูงสุดเทียบกับจำนวนนี้ (ไม่เกิน {maxCapacity} คน)</p>
               </div>
 
               <div className="space-y-1.5">
@@ -555,9 +563,10 @@ export default function BookingWizardPage() {
                   min={0}
                   value={formData.staff_count}
                   onChange={(e) => updateFormData({ staff_count: Number(e.target.value) })}
+                  aria-describedby="staff-hint"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
                 />
-                <p className="text-xs text-[#595963]">(ไม่นำมาคำนวณเปรียบเทียบกับความจุห้อง)</p>
+                <p id="staff-hint" className="text-xs text-[#595963]">(ไม่นำมาคำนวณเปรียบเทียบกับความจุห้อง)</p>
               </div>
 
               <div className="space-y-1.5">
@@ -582,6 +591,7 @@ export default function BookingWizardPage() {
                     step="1800"
                     value={formData.start_time}
                     onChange={(e) => updateFormData({ start_time: e.target.value })}
+                    aria-required="true"
                     className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
                   />
                 </div>
@@ -597,6 +607,7 @@ export default function BookingWizardPage() {
                     step="1800"
                     value={formData.end_time}
                     onChange={(e) => updateFormData({ end_time: e.target.value })}
+                    aria-required="true"
                     className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target shadow-2xs"
                   />
                 </div>
@@ -634,7 +645,7 @@ export default function BookingWizardPage() {
                 ].map((item) => (
                   <label
                     key={item.id}
-                    className={`flex flex-col p-4 rounded-2xl border cursor-pointer transition-all ${
+                    className={`flex flex-col p-4 rounded-2xl border cursor-pointer transition-colors ${
                       formData.table_layout === item.id
                         ? "border-[#582c83] bg-[#f5f0fa] ring-2 ring-[#582c83] shadow-xs"
                         : "border-[#e6e2ea] bg-white hover:bg-[#faf7fd]"
@@ -707,7 +718,7 @@ export default function BookingWizardPage() {
                   return (
                     <label
                       key={item.id}
-                      className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all touch-target ${
+                      className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-colors touch-target ${
                         checked
                           ? "border-[#582c83] bg-[#f5f0fa] text-[#582c83] font-semibold"
                           : "border-[#e6e2ea] bg-white text-[#1e1e24] hover:bg-[#faf7fd]"
@@ -776,7 +787,7 @@ export default function BookingWizardPage() {
 
             {/* Toggle */}
             <div className="flex gap-4">
-              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-all ${
+              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-colors ${
                 !formData.wants_lunch
                   ? "bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white border-transparent shadow-xs"
                   : "bg-white text-[#1e1e24] border-[#e6e2ea] hover:bg-[#faf7fd]"
@@ -791,7 +802,7 @@ export default function BookingWizardPage() {
                 ไม่ประสงค์อาหารกลางวัน
               </label>
 
-              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-all ${
+              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-colors ${
                 formData.wants_lunch
                   ? "bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white border-transparent shadow-xs"
                   : "bg-white text-[#1e1e24] border-[#e6e2ea] hover:bg-[#faf7fd]"
@@ -828,7 +839,7 @@ export default function BookingWizardPage() {
                     return (
                       <div
                         key={code}
-                        className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
+                        className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
                           currentQty > 0
                             ? "border-[#582c83] bg-[#f5f0fa]/60 shadow-2xs"
                             : "border-[#e6e2ea] bg-white hover:bg-[#faf7fd]"
@@ -887,7 +898,7 @@ export default function BookingWizardPage() {
 
             {/* Toggle */}
             <div className="flex gap-4">
-              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-all ${
+              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-colors ${
                 !formData.wants_snacks
                   ? "bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white border-transparent shadow-xs"
                   : "bg-white text-[#1e1e24] border-[#e6e2ea] hover:bg-[#faf7fd]"
@@ -902,7 +913,7 @@ export default function BookingWizardPage() {
                 ไม่ประสงค์อาหารว่าง
               </label>
 
-              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-all ${
+              <label className={`flex-1 p-4 rounded-2xl border cursor-pointer text-center font-bold text-sm touch-target flex items-center justify-center gap-2 transition-colors ${
                 formData.wants_snacks
                   ? "bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white border-transparent shadow-xs"
                   : "bg-white text-[#1e1e24] border-[#e6e2ea] hover:bg-[#faf7fd]"
@@ -939,7 +950,7 @@ export default function BookingWizardPage() {
                     return (
                       <div
                         key={code}
-                        className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
+                        className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${
                           currentQty > 0
                             ? "border-[#582c83] bg-[#f5f0fa]/60 shadow-2xs"
                             : "border-[#e6e2ea] bg-white hover:bg-[#faf7fd]"
@@ -1116,7 +1127,7 @@ export default function BookingWizardPage() {
               type="button"
               onClick={handleBack}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] hover:bg-gray-50 font-bold text-sm touch-target transition-all disabled:opacity-50 shadow-2xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] hover:bg-gray-50 font-bold text-sm touch-target transition-colors disabled:opacity-50 shadow-2xs"
             >
               <ChevronLeft className="w-4 h-4" />
               ย้อนกลับ
@@ -1130,7 +1141,7 @@ export default function BookingWizardPage() {
               type="button"
               onClick={handleNext}
               disabled={isChecking}
-              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target shadow-xs border border-white/20 transition-all ml-auto active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-bold text-sm touch-target shadow-xs border border-white/20 transition-[transform,background-color] duration-150 ml-auto active:scale-95 disabled:opacity-50"
             >
               {isChecking ? (
                 <>
@@ -1149,7 +1160,7 @@ export default function BookingWizardPage() {
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-black text-base touch-target shadow-md border border-white/20 transition-all ml-auto active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] hover:from-violet-700 hover:to-[#381a54] text-white font-black text-base touch-target shadow-md border border-white/20 transition-[transform,background-color] duration-150 ml-auto active:scale-95 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

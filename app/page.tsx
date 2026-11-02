@@ -254,7 +254,7 @@ export default function HomePage() {
             <div className="pt-2">
               <Link
                 href={`/book?room=${activeRoom}`}
-                className="w-full btn-primary touch-target text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                className="w-full btn-primary touch-target text-sm font-bold shadow-md hover:shadow-lg transition-[transform,box-shadow]"
               >
                 <span>เริ่มจองห้องประชุมนี้</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
