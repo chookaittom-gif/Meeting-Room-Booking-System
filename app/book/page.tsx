@@ -478,13 +478,12 @@ export default function BookingWizardPage() {
                   ลักษณะการประชุม <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={formData.meeting_type}
+                  value={formData.meeting_type === "small_group" ? "seminar" : formData.meeting_type}
                   onChange={(e) => updateFormData({ meeting_type: e.target.value as MeetingType })}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] focus:outline-none focus:ring-2 focus:ring-[#582c83] text-sm touch-target font-medium shadow-2xs"
                 >
-                  <option value="seminar">ประชุมสัมมนา</option>
-                  <option value="small_group">ประชุมกลุ่มย่อย</option>
-                  <option value="wedding">งานแต่งงาน/งานฉลองยินดี</option>
+                  <option value="seminar">อบรมสัมมนาทั่วไป</option>
+                  <option value="wedding">จัดเลี้ยงและงานแต่งงาน</option>
                 </select>
               </div>
 
@@ -998,7 +997,7 @@ export default function BookingWizardPage() {
                 <span className="text-xs font-bold text-[#582c83]">ข้อมูลกิจกรรม</span>
                 <p className="text-sm font-bold text-[#1e1e24]">{formData.activity_name}</p>
                 <p className="text-xs text-[#595963]">โครงการ: {formData.project_name}</p>
-                <p className="text-xs text-[#595963]">ลักษณะงาน: {formData.meeting_type === "wedding" ? "งานแต่งงาน/ฉลองยินดี" : formData.meeting_type === "small_group" ? "ประชุมกลุ่มย่อย" : "ประชุมสัมมนา"}</p>
+                <p className="text-xs text-[#595963]">ลักษณะงาน: {formData.meeting_type === "wedding" ? "จัดเลี้ยงและงานแต่งงาน" : "อบรมสัมมนาทั่วไป"}</p>
                 <p className="text-xs text-[#595963]">ผู้ประสานงาน: {formData.coordinator_name} (โทร {formData.coordinator_phone})</p>
                 {formData.coordinator_line_id && (
                   <p className="text-xs text-[#595963]">LINE: {formData.coordinator_line_id}</p>
