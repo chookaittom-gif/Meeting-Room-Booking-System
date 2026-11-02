@@ -987,7 +987,7 @@ export default function BookingWizardPage() {
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-[#1e1e24]">หน้า 5: สรุปข้อมูลและยืนยันคำขอจอง</h2>
               <p className="text-xs sm:text-sm text-[#595963] mt-1 font-medium">
-                กรุณาตรวจสอบความถูกต้องของข้อมูลทั้งหมดก่อนกดส่งคำขอ (ราคาทั้งหมดคำนวณและตรวจสอบที่เซิร์ฟเวอร์)
+                กรุณาตรวจสอบข้อมูลให้ถูกต้องครบถ้วน ก่อนกดยืนยันและส่งคำขอจอง
               </p>
             </div>
 
