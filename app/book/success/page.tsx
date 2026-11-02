@@ -57,7 +57,7 @@ export default function BookingSuccessPage() {
             {hasRoomFee ? (
               <div className="pt-2 mt-2 border-t border-[#e6e2ea] space-y-1">
                 <p><strong className="text-[#1e1e24]">ค่าห้องจ่ายรายวัน:</strong> <span className="font-bold text-[#1e1e24]">{booking.room_fee_thb.toLocaleString()} บาท</span></p>
-                <p><strong className="text-amber-900">เงินประกันการจองห้อง (50%):</strong> <span className="font-bold text-amber-800">{booking.deposit_thb?.toLocaleString()} บาท</span> <span className="text-[11px] text-[#8c8c96]">(*วางเงินประกันครึ่งนึงของค่าห้อง)</span></p>
+                <p><strong className="text-amber-900">เงินประกันการจองห้อง (50%):</strong> <span className="font-bold text-amber-800">{booking.deposit_thb?.toLocaleString()} บาท</span> <span className="text-xs text-[#8c8c96]">(*วางเงินประกันครึ่งนึงของค่าห้อง)</span></p>
                 {booking.total_price_thb > 0 && (
                   <p><strong className="text-[#1e1e24]">ค่าอาหารและเครื่องดื่ม:</strong> {booking.total_price_thb.toLocaleString()} บาท</p>
                 )}

@@ -59,7 +59,7 @@ export default async function RootLayout({
                 <span className="font-extrabold text-xs min-[400px]:text-sm sm:text-lg text-[#582c83] tracking-tight whitespace-nowrap truncate">
                   ระบบจองห้องประชุม
                 </span>
-                <span className="hidden sm:block text-[11px] text-[#52525b] font-medium whitespace-nowrap">
+                <span className="hidden sm:block text-xs text-[#52525b] font-medium whitespace-nowrap">
                   มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
                 </span>
               </div>

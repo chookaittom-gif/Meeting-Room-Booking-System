@@ -292,7 +292,7 @@ export default function BookingWizardPage() {
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-12">
       {/* Wizard Step Bar */}
       <div className="bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-4 sm:p-6 shadow-[0_16px_48px_rgba(88,44,131,0.06)]">
-        <div className="flex items-center justify-between overflow-x-auto pb-2 sm:pb-0 gap-2">
+        <div className="flex items-center justify-between overflow-x-auto pb-2 sm:pb-0 gap-1 sm:gap-2">
           {STEPS.map((s) => {
             const Icon = s.icon;
             const isActive = currentStep === s.id;
@@ -301,7 +301,7 @@ export default function BookingWizardPage() {
             return (
               <div
                 key={s.id}
-                className={`flex items-center gap-2 shrink-0 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-colors ${
+                className={`flex items-center gap-2 shrink-0 px-2 sm:px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-colors ${
                   isActive
                     ? "bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white shadow-xs border border-white/20"
                     : isDone
@@ -320,7 +320,7 @@ export default function BookingWizardPage() {
                 >
                   {s.id}
                 </div>
-                <span className="hidden md:inline">{s.label}</span>
+                <span className="hidden lg:inline">{s.label}</span>
               </div>
             );
           })}
@@ -518,7 +518,7 @@ export default function BookingWizardPage() {
                       {roomName} • {roomFeeInfo?.categoryLabel}
                     </span>
                   </div>
-                  <span className="text-[11px] text-[#595963] font-medium">
+                  <span className="text-xs text-[#595963] font-medium">
                     คำนวณตามประเภทงานที่เลือก
                   </span>
                 </div>
@@ -534,7 +534,7 @@ export default function BookingWizardPage() {
                     <p className="text-lg font-black text-amber-700">
                       {roomDeposit.toLocaleString()} <span className="text-xs font-bold text-amber-800">บาท</span>
                     </p>
-                    <p className="text-[11px] text-[#8c8c96] font-normal">*วางเงินประกันการจองห้องครึ่งนึงของค่าห้อง</p>
+                    <p className="text-xs text-[#8c8c96] font-normal">*วางเงินประกันการจองห้องครึ่งนึงของค่าห้อง</p>
                   </div>
                 </div>
               </div>
@@ -1024,7 +1024,7 @@ export default function BookingWizardPage() {
                 <p className="text-xs text-[#595963]">ผังโต๊ะ: {formData.table_layout} | VVIP: {formData.vvip_seats} | VIP: {formData.vip_seats}</p>
                 {((formData.equipment_items && formData.equipment_items.length > 0) || formData.equipment_other || formData.equipment_notes) && (
                   <div className="pt-2 border-t border-[#e6e2ea]/60 space-y-1">
-                    <span className="text-[11px] font-bold text-[#582c83]">อุปกรณ์และหมายเหตุ:</span>
+                    <span className="text-xs font-bold text-[#582c83]">อุปกรณ์และหมายเหตุ:</span>
                     {formData.equipment_items && formData.equipment_items.length > 0 && (
                       <p className="text-xs text-[#1e1e24]">• {formData.equipment_items.join(", ")}</p>
                     )}
@@ -1068,7 +1068,7 @@ export default function BookingWizardPage() {
                       <ShieldCheck className="w-4 h-4 text-amber-700" />
                       เงินประกันการจองห้อง (50% ของค่าห้อง):
                     </span>
-                    <p className="text-[11px] text-amber-800/80">
+                    <p className="text-xs text-amber-800/80">
                       *วางเงินประกันการจองห้องครึ่งนึงของค่าห้องเพื่อยืนยันสิทธิ์การใช้งาน
                     </p>
                   </div>

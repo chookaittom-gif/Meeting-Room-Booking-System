@@ -210,7 +210,7 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[11px] font-bold text-white shadow-xs animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-xs font-bold text-white shadow-xs animate-pulse">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -276,21 +276,21 @@ export function AdminNotificationBell({ onSelectBooking }: AdminNotificationBell
                     <div className="mt-0.5 shrink-0">{badge.icon}</div>
                     <div className="flex-1 space-y-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${badge.bg}`}>
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${badge.bg}`}>
                           {badge.title}
                         </span>
-                        <span className="text-[10px] text-[#8e8e99] font-mono">
+                        <span className="text-xs text-[#8e8e99] font-mono">
                           {formatRelativeThaiTime(item.created_at)}
                         </span>
                       </div>
                       <p className="font-bold text-xs text-[#1e1e24] truncate">{item.activity_name}</p>
-                      <div className="flex items-center justify-between text-[11px] text-[#595963]">
+                      <div className="flex items-center justify-between text-xs text-[#595963]">
                         <span className="font-mono text-[#582c83] font-semibold">{item.booking_code}</span>
                         {item.is_read === 0 && (
                           <button
                             type="button"
                             onClick={(e) => handleMarkAsRead(item.id, e)}
-                            className="text-[10px] text-[#582c83] hover:underline"
+                            className="text-xs text-[#582c83] hover:underline"
                           >
                             ทำเครื่องหมายอ่านแล้ว
                           </button>

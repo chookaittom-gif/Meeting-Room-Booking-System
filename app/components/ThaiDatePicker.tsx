@@ -197,7 +197,7 @@ export function ThaiDatePicker({
             {THAI_DAY_HEADERS.map((dayName, idx) => (
               <span
                 key={dayName}
-                className={`text-[11px] font-bold py-1 ${
+                className={`text-xs font-bold py-1 ${
                   idx === 0 ? "text-rose-600" : idx === 6 ? "text-amber-700" : "text-[#595963]"
                 }`}
               >

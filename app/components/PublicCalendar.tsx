@@ -271,7 +271,7 @@ export function PublicCalendar() {
                         <button
                           key={ev.id}
                           onClick={() => setSelectedEvent(ev)}
-                          className={`w-full text-left p-1 rounded-md border text-[11px] leading-tight block truncate font-medium transition-opacity hover:opacity-80 active:scale-95 ${cfg.bg} ${cfg.text} ${cfg.border}`}
+                          className={`w-full text-left p-1 rounded-md border text-xs leading-tight block truncate font-medium transition-opacity hover:opacity-80 active:scale-95 ${cfg.bg} ${cfg.text} ${cfg.border}`}
                           title={`${ev.room_name} (${formatThaiTime(ev.starts_at)} - ${formatThaiTime(ev.ends_at)}): ${ev.activity_name}`}
                         >
                           <span className="font-bold text-[#582c83]">[{ev.room_id === "floor7" ? "ช.7" : "ช.2"}]</span>{" "}
@@ -289,7 +289,7 @@ export function PublicCalendar() {
                             events: dayEvents,
                           });
                         }}
-                        className="w-full text-left px-1.5 py-0.5 rounded text-[11px] font-bold text-[#582c83] bg-[#f5f0fa] hover:bg-[#ede6f5] border border-[#582c83]/20 transition-colors block truncate"
+                        className="w-full text-left px-1.5 py-0.5 rounded text-xs font-bold text-[#582c83] bg-[#f5f0fa] hover:bg-[#ede6f5] border border-[#582c83]/20 transition-colors block truncate"
                         title={`ดูรายการทั้งหมดของวันที่ ${dayNum} (${dayEvents.length} รายการ)`}
                       >
                         + อีก {dayEvents.length - 2} รายการ
@@ -390,14 +390,14 @@ export function PublicCalendar() {
                   >
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-1.5">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
                           {cfg.label}
                         </span>
-                        <span className="text-[11px] font-bold text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-2 py-0.5 rounded-md">
+                        <span className="text-xs font-bold text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-2 py-0.5 rounded-md">
                           {ev.room_name}
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono text-[#52525b]">{ev.booking_code}</span>
+                      <span className="text-xs font-mono text-[#52525b]">{ev.booking_code}</span>
                     </div>
 
                     <h4 className="font-bold text-sm text-[#18181b]">{ev.activity_name}</h4>
@@ -500,7 +500,7 @@ export function PublicCalendar() {
                 </p>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-[11px] text-blue-700 leading-relaxed">
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-700 leading-relaxed">
                 ข้อมูลผู้ประสานงานและรายละเอียดอาหารจะไม่แสดงในปฏิทินสาธารณะตามระเบียบรักษาความปลอดภัยข้อมูลส่วนบุคคล
               </div>
             </div>

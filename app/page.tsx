@@ -200,7 +200,7 @@ export default function HomePage() {
               {currentRoom.layouts.map((layout, idx) => (
                 <span
                   key={idx}
-                  className="text-[11px] font-medium bg-[#f5f0fa] text-[#582c83] px-2 py-0.5 rounded-md border border-[#582c83]/15"
+                  className="text-xs font-medium bg-[#f5f0fa] text-[#582c83] px-2 py-0.5 rounded-md border border-[#582c83]/15"
                 >
                   {layout}
                 </span>
@@ -259,7 +259,7 @@ export default function HomePage() {
                 <span>เริ่มจองห้องประชุมนี้</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
-              <p className="text-[11px] text-center text-[#71717a] mt-2">
+              <p className="text-xs text-center text-[#71717a] mt-2">
                 กรอกข้อมูลกิจกรรมและเลือกอาหารผ่านระบบออนไลน์ได้ใน 5 ขั้นตอน
               </p>
             </div>
@@ -273,7 +273,7 @@ export default function HomePage() {
               </div>
               <div className="text-xs">
                 <p className="font-bold text-[#18181b]">ความปลอดภัยข้อมูล</p>
-                <p className="text-[#71717a] text-[11px]">ไม่เปิดเผยข้อมูลส่วนบุคคลในตาราง</p>
+                <p className="text-[#71717a] text-xs">ไม่เปิดเผยข้อมูลส่วนบุคคลในตาราง</p>
               </div>
             </div>
           </div>

@@ -317,12 +317,12 @@ export default function AdminDashboardPage() {
               แผงควบคุมระบบ (Admin Dashboard)
             </h1>
               {adminUser.role === "superadmin" ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#f5f0fa] text-[#582c83] border border-[#582c83]/20 shadow-2xs">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#f5f0fa] text-[#582c83] border border-[#582c83]/20 shadow-2xs">
                   <Sparkles className="w-3 h-3 text-amber-500" />
                   Superadmin
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
                   ผู้ดูแลระบบ
                 </span>
               )}
@@ -375,7 +375,7 @@ export default function AdminDashboardPage() {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-extrabold text-sm text-[#18181b]">การแจ้งเตือน LINE Messaging API</h3>
-              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
                 lineSettings.enabled
                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                   : 'bg-gray-100 text-gray-600 border border-gray-200'
@@ -723,7 +723,7 @@ export default function AdminDashboardPage() {
                 onChange={(e) => setRejectReason(e.target.value)}
                 className="w-full p-3 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] placeholder:text-[#a1a1aa] focus:outline-none focus:ring-2 focus:ring-rose-500 text-xs touch-target shadow-2xs"
               />
-              <p className="text-[11px] text-gray-500">เหตุผลนี้จะถูกบันทึกในประวัติของระบบ</p>
+              <p className="text-xs text-gray-500">เหตุผลนี้จะถูกบันทึกในประวัติของระบบ</p>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
@@ -885,9 +885,9 @@ export default function AdminDashboardPage() {
                       <span className="text-[#1e1e24]">
                         {h.from_status ? `${h.from_status} → ` : ""}{h.to_status}
                       </span>
-                      <span className="text-gray-500 text-[11px]">{formatThaiDate(h.changed_at)} {formatThaiTime(h.changed_at)}</span>
+                      <span className="text-gray-500 text-xs">{formatThaiDate(h.changed_at)} {formatThaiTime(h.changed_at)}</span>
                     </div>
-                    {h.reason && <p className="text-gray-600 text-[11px]">เหตุผล: {h.reason}</p>}
+                    {h.reason && <p className="text-gray-600 text-xs">เหตุผล: {h.reason}</p>}
                   </div>
                 ))}
               </div>

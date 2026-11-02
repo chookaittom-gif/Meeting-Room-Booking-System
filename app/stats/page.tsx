@@ -234,7 +234,7 @@ export default function StatsPage() {
             </section>
           </div>
 
-          <p className="text-center text-[11px] text-[#8e8e99]">
+          <p className="text-center text-xs text-[#8e8e99]">
             อัปเดตล่าสุด: {new Date(stats.generated_at * 1000).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })} ·
             ข้อมูลรวมเพื่อการแสดงผลสาธารณะ ไม่มีข้อมูลส่วนบุคคลของผู้ประสานงาน
           </p>
@@ -267,10 +267,10 @@ function KpiCard({
         >
           {icon}
         </span>
-        <span className="text-[11px] sm:text-xs font-semibold text-[#595963] leading-tight">{label}</span>
+        <span className="text-xs sm:text-xs font-semibold text-[#595963] leading-tight">{label}</span>
       </div>
       <p className="text-xl sm:text-2xl font-extrabold text-[#1e1e24] leading-tight">{value}</p>
-      <p className="text-[10px] sm:text-[11px] text-[#8e8e99] mt-0.5">{sub}</p>
+      <p className="text-xs sm:text-xs text-[#8e8e99] mt-0.5">{sub}</p>
     </div>
   );
 }

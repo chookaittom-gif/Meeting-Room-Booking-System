@@ -345,18 +345,18 @@ export function AdminUserManagementModal({
                         <div className="flex items-center gap-2 flex-wrap">
                           <h4 className="font-bold text-sm text-[#1e1e24]">{u.displayName}</h4>
                           {isSuper ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#f5f0fa] text-[#582c83] border border-[#582c83]/20 shadow-2xs">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#f5f0fa] text-[#582c83] border border-[#582c83]/20 shadow-2xs">
                               <Sparkles className="w-3 h-3 text-amber-500" />
                               Superadmin
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
                               <UserCheck className="w-3 h-3 text-slate-500" />
                               Admin
                             </span>
                           )}
                           {isSelf && (
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                               คุณ
                             </span>
                           )}
@@ -643,7 +643,7 @@ export function AdminUserManagementModal({
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-[#1e1e24]">แก้ไขชื่อผู้ดูแลระบบ</h3>
-                  <p className="text-[11px] text-[#595963] font-mono">@{editTarget.username}</p>
+                  <p className="text-xs text-[#595963] font-mono">@{editTarget.username}</p>
                 </div>
               </div>
               <button

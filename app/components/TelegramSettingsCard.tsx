@@ -119,7 +119,7 @@ export function TelegramSettingsCard() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-extrabold text-sm text-[#18181b]">การแจ้งเตือน Telegram Bot</h3>
-              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badge.cls}`}>
+              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge.cls}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
                 {badge.text}
               </span>
@@ -219,7 +219,7 @@ export function TelegramSettingsCard() {
               />
             </label>
           </div>
-          <p className="text-[11px] text-[#71717a]">
+          <p className="text-xs text-[#71717a]">
             Chat ID ของกลุ่มขึ้นต้นด้วย -100 และต้องเพิ่มบอทเข้ากลุ่มก่อน ระบบจะตรวจ Token และส่งข้อความทดสอบเข้ากลุ่มก่อนบันทึก
           </p>
           <div className="flex flex-wrap items-center gap-2">

@@ -137,14 +137,14 @@ export function MonthlyTrendChart({ monthly, mode }: MonthlyTrendProps) {
 
       {/* legend */}
       {mode === "bookings" ? (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 justify-center mt-1 text-[11px] text-[#595963]">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 justify-center mt-1 text-xs text-[#595963]">
           <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: EMERALD }} />อนุมัติ</span>
           <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: AMBER }} />รออนุมัติ</span>
           <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: ROSE }} />ไม่อนุมัติ</span>
           <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{ background: GRAY }} />ยกเลิก</span>
         </div>
       ) : (
-        <p className="text-center text-[11px] text-[#8e8e99] mt-1">ชั่วโมงการใช้งานสะสมของคำขอที่อนุมัติแล้ว</p>
+        <p className="text-center text-xs text-[#8e8e99] mt-1">ชั่วโมงการใช้งานสะสมของคำขอที่อนุมัติแล้ว</p>
       )}
     </div>
   );
@@ -219,7 +219,7 @@ export function StatusDonut({ summary }: DonutProps) {
               {s.label}
             </span>
             <span className="font-bold text-[#1e1e24]">
-              {s.v} <span className="text-[10px] font-medium text-[#8e8e99]">({Math.round((s.v / total) * 100)}%)</span>
+              {s.v} <span className="text-xs font-medium text-[#8e8e99]">({Math.round((s.v / total) * 100)}%)</span>
             </span>
           </div>
         ))}
@@ -255,7 +255,7 @@ export function RoomBars({ rooms }: { rooms: RoomStat[] }) {
           </div>
         </div>
       ))}
-      <p className="text-[11px] text-[#8e8e99]">รวมชั่วโมงที่อนุมัติ {totalHours.toLocaleString("th-TH")} ชม. ในรอบ 12 เดือน</p>
+      <p className="text-xs text-[#8e8e99]">รวมชั่วโมงที่อนุมัติ {totalHours.toLocaleString("th-TH")} ชม. ในรอบ 12 เดือน</p>
     </div>
   );
 }
@@ -284,7 +284,7 @@ export function SlotBars({ slots }: { slots: { morning: number; afternoon: numbe
           </div>
         </div>
       ))}
-      <p className="text-[11px] text-[#8e8e99]">นับจากคำขอที่อนุมัติแล้วและรออนุมัติในรอบ 12 เดือน</p>
+      <p className="text-xs text-[#8e8e99]">นับจากคำขอที่อนุมัติแล้วและรออนุมัติในรอบ 12 เดือน</p>
     </div>
   );
 }
