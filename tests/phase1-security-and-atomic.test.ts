@@ -455,13 +455,16 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
   });
 
   it('7.3 should reject booking more than 30 days in advance', async () => {
-    const now = Math.floor(Date.now() / 1000);
-    const future31Days = now + (31 * 24 * 60 * 60);
+    // 09:00 Bangkok time on day 32 ahead
+    const futureDate = new Date();
+    futureDate.setUTCDate(futureDate.getUTCDate() + 32);
+    futureDate.setUTCHours(2, 0, 0, 0); // 09:00 Bangkok
+    const futureStart = Math.floor(futureDate.getTime() / 1000);
 
     await expect(
       createBookingAtomic(db, makeValidPayload({
-        starts_at: future31Days,
-        ends_at: future31Days + 7200,
+        starts_at: futureStart,
+        ends_at: futureStart + 7200, // 11:00 Bangkok
       }))
     ).rejects.toThrow('สามารถจองล่วงหน้าได้ไม่เกิน 30 วัน');
   });

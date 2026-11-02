@@ -91,8 +91,11 @@ export function validateBookingPayload(payload: CreateBookingPayload, roomCapaci
   if (payload.starts_at < now - 300) { // allow 5 mins grace for network latency
     throw new ValidationError('ไม่สามารถจองเวลาย้อนหลังได้');
   }
-  const maxAdvanceSec = 30 * 24 * 60 * 60;
-  if (payload.starts_at > now + maxAdvanceSec) {
+  // ponytail: end of 30th calendar day in Bangkok (UTC+7)
+  const bkkNow = new Date((now + 7 * 3600) * 1000);
+  bkkNow.setUTCHours(23, 59, 59, 0);
+  const maxAdvanceSec = Math.floor(bkkNow.getTime() / 1000) - 7 * 3600 + (30 * 86400);
+  if (payload.starts_at > maxAdvanceSec) {
     throw new ValidationError('สามารถจองล่วงหน้าได้ไม่เกิน 30 วัน');
   }
 

@@ -502,6 +502,38 @@ export default function BookingWizardPage() {
                 </select>
               </div>
 
+              {/* อัตราค่าบริการรายวันและเงินประกัน */}
+              <div className="sm:col-span-2 p-4 rounded-2xl bg-gradient-to-br from-[#faf7fd] via-[#f5f0fa] to-white border border-[#582c83]/20 shadow-2xs space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e6e2ea] pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#582c83] text-white">
+                      อัตราค่าบริการ
+                    </span>
+                    <span className="text-xs font-semibold text-[#582c83]">
+                      {roomName} • {roomFeeInfo?.categoryLabel}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-[#595963] font-medium">
+                    คำนวณตามประเภทงานที่เลือก
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-[#595963] font-medium">ค่าห้องจ่ายรายวัน:</span>
+                    <p className="text-lg font-black text-[#1e1e24]">
+                      {roomDailyFee.toLocaleString()} <span className="text-xs font-bold text-[#595963]">บาท/วัน</span>
+                    </p>
+                  </div>
+                  <div className="space-y-0.5 sm:text-right">
+                    <span className="text-xs text-amber-900 font-medium">เงินประกันการจองห้อง (50%):</span>
+                    <p className="text-lg font-black text-amber-700">
+                      {roomDeposit.toLocaleString()} <span className="text-xs font-bold text-amber-800">บาท</span>
+                    </p>
+                    <p className="text-[11px] text-[#8c8c96] font-normal">*วางเงินประกันการจองห้องครึ่งนึงของค่าห้อง</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <label className="text-xs sm:text-sm font-bold text-[#1e1e24]">
                   จำนวนผู้เข้าร่วม (คน) <span className="text-red-500">*</span>
