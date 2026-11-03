@@ -116,7 +116,7 @@ export default function HomePage() {
             <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/95 text-[#582c83] text-xs font-bold rounded-full shadow-sm border border-white/60">
                 <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
-                สวนดุสิต ลำปาง
+                สวนดุสิต ศูนย์การศึกษาลำปาง
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/95 text-emerald-700 text-xs font-bold rounded-full shadow-sm border border-white/60">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
