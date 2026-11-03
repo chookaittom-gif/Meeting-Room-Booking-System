@@ -40,7 +40,7 @@ export default async function RootLayout({
 
         {/* Header Navigation */}
         <header className="w-full bg-white border-b border-[#e4e2ea] sticky top-0 z-40 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-          <div className="max-w-5xl mx-auto px-4 py-0 flex items-center justify-between" style={{ minHeight: "64px" }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-0 flex items-center justify-between" style={{ minHeight: "64px" }}>
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 touch-target" aria-label="หน้าหลัก ระบบจองห้องประชุม">
               <div
                 className="relative w-10 h-10 shrink-0 rounded-[10px] bg-[#f5f0fa] border border-[#582c83]/20 flex items-center justify-center overflow-hidden"
@@ -107,7 +107,7 @@ export default async function RootLayout({
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-6 sm:py-8">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-6">
           {children}
         </main>
 

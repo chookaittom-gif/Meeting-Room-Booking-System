@@ -305,19 +305,19 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="w-full space-y-6 pb-12">
+    <div className="w-full space-y-4 sm:space-y-5 pb-12">
       {/* Top Admin Header */}
       {/* Top Admin Header — relative z-50 keeps the notification dropdown above later backdrop-blur cards */}
-      <div className="relative z-50 bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-5 sm:p-7 shadow-[0_16px_48px_rgba(88,44,131,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-[#582c83] to-[#48236b] text-white flex items-center justify-center font-bold shadow-[0_4px_16px_rgba(88,44,131,0.25)] border border-white/20">
-            <ShieldCheck className="w-6 h-6" />
+      <div className="relative z-50 bg-white/88 backdrop-blur-2xl rounded-2xl border border-white/80 p-4 sm:p-6 shadow-[0_8px_30px_rgba(88,44,131,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-violet-600 via-[#582c83] to-[#48236b] text-white flex items-center justify-center font-bold shadow-[0_3px_12px_rgba(88,44,131,0.22)] border border-white/20 shrink-0">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black text-[#1e1e24] tracking-tight">
-              แผงควบคุมระบบ (Admin Dashboard)
-            </h1>
+              <h1 className="text-lg sm:text-xl font-black text-[#1e1e24] tracking-tight">
+                แผงควบคุมระบบ (Admin Dashboard)
+              </h1>
               {adminUser.role === "superadmin" ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#f5f0fa] text-[#582c83] border border-[#582c83]/20 shadow-2xs">
                   <Sparkles className="w-3 h-3 text-amber-500" />
@@ -371,7 +371,7 @@ export default function AdminDashboardPage() {
 
       {/* LINE Notification Console */}
       {adminUser.role !== "staff" && (
-      <div className="card p-4 sm:p-5 bg-white border border-[#e4e2ea] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 bg-white/88 backdrop-blur-xl rounded-2xl border border-[#e4e2ea] shadow-[0_4px_20px_rgba(88,44,131,0.03)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start sm:items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
             lineSettings.enabled
@@ -444,7 +444,7 @@ export default function AdminDashboardPage() {
       {adminUser.role !== "staff" && <TelegramSettingsCard />}
 
       {/* Stats Counter Bar (Aurora Telemetry HUD) */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
         {[
           { id: "all", label: "ทั้งหมด", count: stats.all, color: "text-[#582c83]", dot: "bg-[#582c83]", pulse: false },
           { id: "pending", label: "รอการอนุมัติ", count: stats.pending, color: "text-amber-600", dot: "bg-amber-500", pulse: true },
@@ -455,7 +455,9 @@ export default function AdminDashboardPage() {
           <button
             key={st.id}
             onClick={() => setStatusFilter(st.id)}
-            className={`p-4 rounded-2xl border text-left transition-colors ${
+            className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-colors ${
+              st.id === "all" ? "col-span-2 sm:col-span-1" : "col-span-1"
+            } ${
               statusFilter === st.id
                 ? "bg-gradient-to-br from-white to-[#faf7fd] border-[#582c83] ring-2 ring-[#582c83]/30 shadow-md"
                 : "bg-white/85 backdrop-blur-xl border-white/80 hover:border-[#582c83]/30 hover:bg-white shadow-[0_4px_20px_rgba(88,44,131,0.03)]"
@@ -472,7 +474,7 @@ export default function AdminDashboardPage() {
                 <span className={`inline-block w-2 h-2 rounded-full ${st.dot}`}></span>
               )}
             </div>
-            <span className={`text-2xl sm:text-3xl font-black ${st.color} block mt-1 tracking-tight`}>
+            <span className={`text-xl sm:text-2xl font-black ${st.color} block mt-1 tracking-tight`}>
               {st.count}
             </span>
           </button>
@@ -480,7 +482,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/80 p-4 sm:p-5 shadow-[0_12px_40px_rgba(88,44,131,0.05)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-white/88 backdrop-blur-2xl rounded-2xl border border-white/80 p-3.5 sm:p-4 shadow-[0_6px_24px_rgba(88,44,131,0.04)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-[#8e8e99] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -494,18 +496,18 @@ export default function AdminDashboardPage() {
           </div>
           <button
             type="submit"
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white font-bold touch-target hover:from-violet-700 hover:to-[#381a54] shadow-xs border border-white/20 transition-[background-color,box-shadow] duration-150 shrink-0"
+            className="px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-[#582c83] to-[#48236b] text-white font-bold touch-target hover:from-violet-700 hover:to-[#381a54] shadow-xs border border-white/20 transition-[background-color,box-shadow] duration-150 shrink-0"
           >
             ค้นหา
           </button>
         </form>
 
         <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-          <span className="font-bold text-[#1e1e24] shrink-0">ห้อง:</span>
+          <span className="font-bold text-[#1e1e24] shrink-0 text-xs">ห้อง:</span>
           <select
             value={roomFilter}
             onChange={(e) => setRoomFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] text-xs touch-target focus:outline-none focus:ring-2 focus:ring-[#582c83] font-medium shadow-2xs"
+            className="flex-1 sm:flex-initial w-full sm:w-auto px-3 py-2.5 rounded-xl border border-[#e6e2ea] bg-white text-[#1e1e24] text-xs touch-target focus:outline-none focus:ring-2 focus:ring-[#582c83] font-medium shadow-2xs"
           >
             <option value="all">ทุกห้อง</option>
             <option value="floor2">หอประชุมชั้น 2</option>
@@ -516,23 +518,23 @@ export default function AdminDashboardPage() {
 
       {/* Bookings List */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center p-12 bg-white/90 backdrop-blur-xl rounded-3xl border border-white/80 shadow-[0_12px_40px_rgba(88,44,131,0.06)]">
+        <div className="flex flex-col items-center justify-center p-8 sm:p-12 bg-white/90 backdrop-blur-xl rounded-2xl border border-white/80 shadow-[0_8px_30px_rgba(88,44,131,0.05)]">
           <Loader2 className="w-8 h-8 animate-spin text-[#582c83]" />
           <p className="text-sm text-[#595963] mt-3 font-semibold">กำลังโหลดข้อมูลรายการจอง...</p>
         </div>
       ) : bookings.length === 0 ? (
-        <div className="bg-white/88 backdrop-blur-xl rounded-3xl border border-white/80 p-12 text-center text-sm text-[#595963] shadow-[0_12px_40px_rgba(88,44,131,0.05)] font-medium">
+        <div className="bg-white/88 backdrop-blur-xl rounded-2xl border border-white/80 p-8 sm:p-10 text-center text-sm text-[#595963] shadow-[0_8px_30px_rgba(88,44,131,0.04)] font-medium">
           ไม่พบรายการจองตามเงื่อนไขที่เลือก
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3.5 sm:space-y-4">
           {bookings.map((b) => {
             const cfg = STATUS_CONFIG[b.status as BookingStatus];
 
             return (
               <div
                 key={b.id}
-                className="bg-white/88 backdrop-blur-xl rounded-3xl border border-white/80 p-6 sm:p-7 shadow-[0_10px_35px_rgba(88,44,131,0.05)] hover:border-[#582c83]/30 hover:shadow-[0_16px_45px_rgba(88,44,131,0.09)] transition-[border-color,box-shadow] duration-200 space-y-4"
+                className="bg-white/88 backdrop-blur-xl rounded-2xl border border-white/80 p-4 sm:p-5 shadow-[0_8px_30px_rgba(88,44,131,0.04)] hover:border-[#582c83]/30 hover:shadow-[0_12px_40px_rgba(88,44,131,0.08)] transition-[border-color,box-shadow] duration-200 space-y-3.5"
               >
                 {/* Header row */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e6e2ea]">
@@ -644,7 +646,7 @@ export default function AdminDashboardPage() {
                     ดูรายการอาหาร/ของว่าง ({b.items?.length || 0} รายการ) และประวัติ
                   </button>
 
-                  <div className="flex items-center gap-2 ml-auto">
+                  <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto justify-end flex-wrap">
                     {adminUser.role === "staff" ? (
                       <span className="text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-xl">
                         สิทธิ์ดูข้อมูลอย่างเดียว
