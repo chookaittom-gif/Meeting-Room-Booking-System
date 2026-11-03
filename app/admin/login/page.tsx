@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
 
       <div className="w-full max-w-md bg-white/90 backdrop-blur-2xl rounded-3xl border border-white/80 p-7 sm:p-9 shadow-[0_20px_50px_rgba(88,44,131,0.08)] space-y-6">
         <div className="text-center space-y-2">
-          <div className="relative w-16 h-16 mx-auto mb-2 p-1.5 rounded-2xl bg-gradient-to-br from-[#582c83]/10 to-transparent border border-[#582c83]/15 shadow-inner">
+          <div className="relative w-16 h-16 mx-auto mb-2 p-1.5 rounded-2xl bg-white border border-[#e4e2ea] shadow-xs overflow-hidden">
             <Image
               src="/images/meeting.png"
               alt="ระบบจองห้องประชุม"

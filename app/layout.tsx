@@ -43,7 +43,7 @@ export default async function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-0 flex items-center justify-between" style={{ minHeight: "64px" }}>
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0 touch-target" aria-label="หน้าหลัก ระบบจองห้องประชุม">
               <div
-                className="relative w-10 h-10 shrink-0 rounded-[10px] bg-[#f5f0fa] border border-[#582c83]/20 flex items-center justify-center overflow-hidden"
+                className="relative w-10 h-10 shrink-0 rounded-[10px] bg-white border border-[#e4e2ea] shadow-2xs flex items-center justify-center overflow-hidden"
                 aria-hidden="true"
               >
                 <Image
