@@ -18,6 +18,18 @@
 
 ## 🆕 งานล่าสุด (วันที่ 3 พฤศจิกายน 2569)
 
+### 0.00009 ปรับปรุง UI เว้นระยะห่างและความกระชับรองรับทั้งคอมและมือถือ (Desktop & Mobile Responsive) (`e1665de`)
+
+- `app/layout.tsx` & `app/components/Footer.tsx`:
+  - ขยายความกว้างโครงสร้างหลัก Header, Main Content, และ Footer จาก `max-w-5xl` (1024px) เป็น `max-w-7xl` (1280px) ขอบซ้าย-ขวาตรงกันทุกองค์ประกอบ ลดพื้นที่ว่างโล่งด้านข้างบนจอคอมพิวเตอร์แบบ Widescreen
+  - ปรับ Padding แนวตั้งของ Main Container ให้กระชับขึ้นเป็น `py-5 sm:py-6`
+- `app/admin/page.tsx`:
+  - **Header Card แดชบอร์ด**: ปรับลดขนาดและ Padding จาก `rounded-3xl p-5 sm:p-7` เป็น `rounded-2xl p-4 sm:p-6` กระชับสมส่วน สวยงามทันสมัย
+  - **Stats Filter HUD (5 สถานะ)**: บนจอมือถือจัดแบบสมดุล ให้ปุ่ม "ทั้งหมด" กว้างเต็ม 2 คอลัมน์ (`col-span-2`) และอีก 4 สถานะแบ่งเป็น 2x2 (`col-span-1`) ขจัดปัญหาเศษติ่ง 1 ช่องบนมือถือ ส่วนบนจอคอมแสดง 5 คอลัมน์เต็มตา
+  - **Search & Filter Bar**: ปรับมุมโค้งเป็น `rounded-2xl` พร้อมปรับ dropdown เลือกห้องให้ยืดเต็มจออย่างเป็นระเบียบเมื่อแสดงผลบนมือถือ
+  - **Bookings Cards & Actions**: ลดขนาดความเทอะทะเป็น `rounded-2xl p-4 sm:p-5` พร้อมจัดแถวปุ่ม Action ท้ายการ์ดให้ Wrap อย่างสวยงามบนมือถือโดยไม่ล้นจอ และคง Touch Target $\ge$ 44px
+- Deployed Version: `40436bd6-2252-4ebf-954f-d6050c30cf7f` (commit `e1665de`)
+
 ### 0.00008 ปรับปรุงรูปแบบข้อความแจ้งเตือน Telegram ใส่ไอคอนและเส้นคั่นให้อ่านง่าย (`ba2a114`)
 
 - `lib/telegram-service.ts`:
