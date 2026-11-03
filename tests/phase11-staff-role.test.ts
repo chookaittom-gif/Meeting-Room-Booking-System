@@ -138,9 +138,11 @@ describe('Phase 11: Staff (Catering / Read-Only) Role & Permissions', () => {
 
   it('11.4 Staff can view bookings with catering items, but cannot approve/reject', async () => {
     // Create a booking with catering items
-    const now = Math.floor(Date.now() / 1000);
-    const startsAt = now + 86400;
-    const endsAt = startsAt + 7200;
+    const t = new Date();
+    t.setUTCDate(t.getUTCDate() + 1);
+    t.setUTCHours(2, 0, 0, 0); // 09:00 ICT
+    const startsAt = Math.floor(t.getTime() / 1000);
+    const endsAt = startsAt + 7200; // 11:00 ICT
 
     const { booking } = await createBookingAtomic(db, {
       request_key: 'req-catering-test-1',

@@ -98,11 +98,12 @@ function bangkokClock(): string {
 export function testText(byAdmin: string): string {
   return [
     "✅ ทดสอบการเชื่อมต่อ Telegram สำเร็จ",
-    "",
-    "ระบบจองห้องประชุม ม.สวนดุสิต ลำปาง",
-    `เวลาที่ทดสอบ: ${bangkokClock()}`,
-    `ทดสอบโดย: ${byAdmin}`,
-    "บอทพร้อมรับการแจ้งเตือนจริงแล้ว",
+    DIVIDER,
+    "🏛️ ระบบจองห้องประชุม ม.สวนดุสิต ลำปาง",
+    `⏰ เวลาที่ทดสอบ: ${bangkokClock()}`,
+    `👤 ทดสอบโดย: ${byAdmin}`,
+    "🤖 สถานะ: บอทพร้อมรับการแจ้งเตือนจริงแล้ว",
+    DIVIDER,
   ].join("\n");
 }
 
@@ -168,6 +169,8 @@ async function getSendConfig(db: D1Database): Promise<{ token: string; chatId: s
   return token ? { token, chatId: chat.value } : null;
 }
 
+const DIVIDER = "━━━━━━━━━━━━━━━━━━━━";
+
 // ---------- message formats ----------
 
 function phone(p: string): string {
@@ -177,12 +180,12 @@ function phone(p: string): string {
 function headerLines(b: BookingWithDetails): string[] {
   const { dateStr, timeStr } = formatThaiDateTimeRange(b.starts_at, b.ends_at);
   return [
-    `รหัสการจอง: ${b.booking_code}`,
-    `กิจกรรม: ${b.activity_name}`,
-    ...(b.project_name ? [`โครงการ: ${b.project_name}`] : []),
-    `ห้อง: ${ROOM_NAMES[b.room_id] || b.room_id}`,
-    `วันเวลา: ${dateStr}`,
-    `         ${timeStr}`,
+    `🔖 รหัสการจอง: ${b.booking_code}`,
+    `📌 กิจกรรม: ${b.activity_name}`,
+    ...(b.project_name ? [`📁 โครงการ: ${b.project_name}`] : []),
+    `🏢 ห้อง: ${ROOM_NAMES[b.room_id] || b.room_id}`,
+    `📅 วันที่: ${dateStr}`,
+    `⏰ เวลา: ${timeStr}`,
   ];
 }
 
@@ -202,16 +205,16 @@ export function pendingText(b: BookingWithDetails): string {
   }
   return [
     "🔔 คำขอจองห้องประชุมใหม่ (รออนุมัติ)",
-    "",
+    DIVIDER,
     ...headerLines(b),
-    `ผู้เข้าร่วม: ${b.attendees_count} คน (เจ้าหน้าที่ ${b.staff_count} คน)`,
-    `ประเภท: ${MEETING_TYPE_NAMES[b.meeting_type] || b.meeting_type}`,
-    `ผัง: ${TABLE_LAYOUT_NAMES[b.table_layout] || b.table_layout}`,
-    `ผู้ประสานงาน: ${b.coordinator_name} ${phone(b.coordinator_phone)}`,
-    `อุปกรณ์: ${equipment}`,
-    ...(notes ? [`หมายเหตุ: ${notes}`] : []),
-    "",
-    `ตรวจสอบและอนุมัติ: ${SITE_URL}/admin`,
+    `👥 ผู้เข้าร่วม: ${b.attendees_count} คน (เจ้าหน้าที่ ${b.staff_count} คน)`,
+    `🏷️ ประเภท: ${MEETING_TYPE_NAMES[b.meeting_type] || b.meeting_type}`,
+    `🪑 ผังห้อง: ${TABLE_LAYOUT_NAMES[b.table_layout] || b.table_layout}`,
+    `👤 ผู้ประสานงาน: ${b.coordinator_name} ${phone(b.coordinator_phone)}`,
+    `🎤 อุปกรณ์: ${equipment}`,
+    ...(notes ? [`📝 หมายเหตุ: ${notes}`] : []),
+    DIVIDER,
+    `👉 ตรวจสอบและอนุมัติ: ${SITE_URL}/admin`,
   ].join("\n");
 }
 
@@ -219,10 +222,12 @@ export function approvedText(b: BookingWithDetails): string {
   const catering = b.items && b.items.length > 0 ? b.items.map((i) => `${i.item_name} (${i.quantity} ชุด)`).join(", ") : "ไม่ระบุอาหาร/เครื่องดื่ม";
   return [
     "✅ อนุมัติการจองห้องประชุมแล้ว",
-    "",
-    ...headerLines(b).filter((l) => !l.startsWith("โครงการ:")),
-    `ผู้ประสานงาน: ${b.coordinator_name} ${phone(b.coordinator_phone)}`,
-    `อาหาร/เครื่องดื่ม: ${catering}`,
+    DIVIDER,
+    ...headerLines(b).filter((l) => !l.includes("โครงการ:")),
+    `👤 ผู้ประสานงาน: ${b.coordinator_name} ${phone(b.coordinator_phone)}`,
+    `🍽️ อาหาร/เครื่องดื่ม: ${catering}`,
+    DIVIDER,
+    `👉 ติดตามสถานะได้ที่: ${SITE_URL}`,
   ].join("\n");
 }
 
