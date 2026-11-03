@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createMemoryD1Database, applyAllMigrations } from './sqlite-d1-adapter';
 import { setTestDatabase } from '../lib/db';
+import { formatEquipmentItems } from '../lib/booking-store';
 import { POST } from '../app/api/bookings/route';
 import { NextRequest } from 'next/server';
 import { CreateBookingPayload } from '../lib/types';
@@ -191,5 +192,17 @@ describe('Phase 2: Multi-step Booking Form & API Verification', () => {
 
     const saved = await db.prepare('SELECT equipment_needed FROM bookings WHERE request_key = ?').bind('equipment-req-key-1').first<any>();
     expect(saved?.equipment_needed).toBe(equipmentData);
+  });
+
+  it('2.10 should format equipment items with quantities for notifications and summary', () => {
+    const formatted = formatEquipmentItems(
+      ['projector', 'microphone', 'sound_system', 'wifi'],
+      { projector: 5, microphone: 2 }
+    );
+    expect(formatted).toEqual(['โปรเจ็คเตอร์ (5)', 'ไมโครโฟน (2)', 'เครื่องเสียง', 'Wi-Fi']);
+
+    // Default quantity when missing or 0
+    const formattedDefaults = formatEquipmentItems(['computer'], {});
+    expect(formattedDefaults).toEqual(['คอมพิวเตอร์ (1)']);
   });
 });

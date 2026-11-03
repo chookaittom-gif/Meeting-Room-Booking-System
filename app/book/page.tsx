@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useBookingStore, toEpochSeconds } from "@/lib/booking-store";
+import { useBookingStore, toEpochSeconds, EQUIPMENT_OPTIONS, formatEquipmentItems } from "@/lib/booking-store";
 import { formatThaiDateString } from "@/lib/date-utils";
 import { findConflicts, suggestSlots, formatRange, statusLabel, toBangkokTime, BusyRange, FreeSlot } from "@/lib/availability";
 import { ThaiDatePicker } from "@/app/components/ThaiDatePicker";
@@ -243,7 +243,7 @@ export default function BookingWizardPage() {
       vvip_seats: Number(formData.vvip_seats || 0),
       vip_seats: Number(formData.vip_seats || 0),
       equipment_needed: JSON.stringify({
-        items: formData.equipment_items || [],
+        items: formatEquipmentItems(formData.equipment_items || [], formData.equipment_quantities),
         other: (formData.equipment_other || "").trim(),
         notes: (formData.equipment_notes || "").trim(),
       }),
@@ -705,39 +705,112 @@ export default function BookingWizardPage() {
                 </p>
               </div>
 
-              {/* Checkbox 2 Columns */}
+              {/* Equipment Grid: 2 Columns */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {[
-                  { id: "projector", label: "โปรเจ็คเตอร์ (Projector)" },
-                  { id: "microphone", label: "ไมโครโฟน (Microphone)" },
-                  { id: "sound_system", label: "เครื่องเสียง (Sound System)" },
-                  { id: "computer", label: "คอมพิวเตอร์ (Computer)" },
-                  { id: "wifi", label: "Wi-Fi อินเทอร์เน็ต" },
-                ].map((item) => {
-                  const checked = (formData.equipment_items || []).includes(item.label);
+                {EQUIPMENT_OPTIONS.map((item) => {
+                  const isChecked = (formData.equipment_items || []).some(
+                    (x) => x === item.id || x === item.label || x === item.name || x.startsWith(item.name)
+                  );
+                  const qty = Math.max(1, formData.equipment_quantities?.[item.id] ?? 1);
+
+                  const toggleItem = (checked: boolean) => {
+                    const current = formData.equipment_items || [];
+                    const updated = checked
+                      ? [...current.filter((x) => x !== item.id && x !== item.label && x !== item.name && !x.startsWith(item.name)), item.id]
+                      : current.filter((x) => x !== item.id && x !== item.label && x !== item.name && !x.startsWith(item.name));
+                    updateFormData({ equipment_items: updated });
+                  };
+
+                  const setQty = (newQty: number) => {
+                    const validQty = Math.max(1, Math.min(99, Math.floor(newQty) || 1));
+                    updateFormData({
+                      equipment_quantities: {
+                        ...(formData.equipment_quantities || {}),
+                        [item.id]: validQty,
+                      },
+                    });
+                    if (!isChecked) {
+                      toggleItem(true);
+                    }
+                  };
+
                   return (
-                    <label
+                    <div
                       key={item.id}
-                      className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-colors touch-target ${
-                        checked
+                      onClick={() => toggleItem(!isChecked)}
+                      className={`flex items-center justify-between gap-2 p-3.5 rounded-xl border cursor-pointer transition-colors touch-target ${
+                        isChecked
                           ? "border-[#582c83] bg-[#f5f0fa] text-[#582c83] font-semibold"
                           : "border-[#e6e2ea] bg-white text-[#1e1e24] hover:bg-[#faf7fd]"
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(e) => {
-                          const current = formData.equipment_items || [];
-                          const updated = e.target.checked
-                            ? [...current, item.label]
-                            : current.filter((x) => x !== item.label);
-                          updateFormData({ equipment_items: updated });
-                        }}
-                        className="w-4 h-4 rounded text-[#582c83] focus:ring-[#582c83] border-[#e6e2ea]"
-                      />
-                      <span className="text-sm">{item.label}</span>
-                    </label>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleItem(e.target.checked);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-4 h-4 rounded text-[#582c83] focus:ring-[#582c83] border-[#e6e2ea] shrink-0"
+                        />
+                        <span className="text-sm truncate">{item.label}</span>
+                      </div>
+
+                      {item.hasQty && (
+                        <div
+                          className="flex items-center gap-1 shrink-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            type="button"
+                            disabled={!isChecked}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setQty(qty - 1);
+                            }}
+                            className="w-8 h-8 rounded-lg border border-[#e6e2ea] bg-white flex items-center justify-center text-sm font-bold text-[#1e1e24] hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all touch-target"
+                            aria-label={`ลดจำนวน ${item.name}`}
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            min={1}
+                            max={99}
+                            disabled={!isChecked}
+                            value={isChecked ? qty : ""}
+                            placeholder="1"
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value, 10);
+                              if (!isNaN(val)) setQty(val);
+                              else if (e.target.value === "") {
+                                updateFormData({
+                                  equipment_quantities: {
+                                    ...(formData.equipment_quantities || {}),
+                                    [item.id]: 1,
+                                  },
+                                });
+                              }
+                            }}
+                            className="w-11 h-8 text-center text-sm font-bold border border-[#e6e2ea] rounded-lg bg-white text-[#1e1e24] focus:outline-none focus:ring-1 focus:ring-[#582c83] disabled:opacity-40 disabled:bg-gray-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                          <button
+                            type="button"
+                            disabled={!isChecked}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setQty(qty + 1);
+                            }}
+                            className="w-8 h-8 rounded-lg border border-[#e6e2ea] bg-white flex items-center justify-center text-sm font-bold text-[#1e1e24] hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all touch-target"
+                            aria-label={`เพิ่มจำนวน ${item.name}`}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -1026,7 +1099,7 @@ export default function BookingWizardPage() {
                   <div className="pt-2 border-t border-[#e6e2ea]/60 space-y-1">
                     <span className="text-xs font-bold text-[#582c83]">อุปกรณ์และหมายเหตุ:</span>
                     {formData.equipment_items && formData.equipment_items.length > 0 && (
-                      <p className="text-xs text-[#1e1e24]">• {formData.equipment_items.join(", ")}</p>
+                      <p className="text-xs text-[#1e1e24]">• {formatEquipmentItems(formData.equipment_items || [], formData.equipment_quantities).join(", ")}</p>
                     )}
                     {formData.equipment_other && (
                       <p className="text-xs text-[#595963]">อื่นๆ: {formData.equipment_other}</p>

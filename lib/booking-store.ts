@@ -24,6 +24,7 @@ export interface BookingFormData {
   vvip_seats: number;
   vip_seats: number;
   equipment_items: string[];
+  equipment_quantities?: Record<string, number>;
   equipment_other: string;
   equipment_notes: string;
 
@@ -65,6 +66,7 @@ export function getDefaultFormData(): BookingFormData {
     vvip_seats: 0,
     vip_seats: 0,
     equipment_items: [],
+    equipment_quantities: { projector: 1, microphone: 1, computer: 1 },
     equipment_other: "",
     equipment_notes: "",
     wants_lunch: false,
@@ -83,7 +85,14 @@ export function useBookingStore() {
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        setFormData(parsed);
+        setFormData({
+          ...getDefaultFormData(),
+          ...parsed,
+          equipment_quantities: {
+            ...getDefaultFormData().equipment_quantities,
+            ...(parsed.equipment_quantities || {}),
+          },
+        });
       }
     } catch {
       // ignore
@@ -129,4 +138,36 @@ export function toEpochSeconds(dateStr: string, timeStr: string): number {
   // UTC time = Bangkok time - 7 hours
   const utcDate = new Date(Date.UTC(year, month - 1, day, hours - 7, minutes, 0));
   return Math.floor(utcDate.getTime() / 1000);
+}
+
+export interface EquipmentOption {
+  id: string;
+  name: string;
+  label: string;
+  hasQty: boolean;
+}
+
+export const EQUIPMENT_OPTIONS: EquipmentOption[] = [
+  { id: "projector", name: "โปรเจ็คเตอร์", label: "โปรเจ็คเตอร์ (Projector)", hasQty: true },
+  { id: "microphone", name: "ไมโครโฟน", label: "ไมโครโฟน (Microphone)", hasQty: true },
+  { id: "sound_system", name: "เครื่องเสียง", label: "เครื่องเสียง (Sound System)", hasQty: false },
+  { id: "computer", name: "คอมพิวเตอร์", label: "คอมพิวเตอร์ (Computer)", hasQty: true },
+  { id: "wifi", name: "Wi-Fi", label: "Wi-Fi อินเทอร์เน็ต", hasQty: false },
+];
+
+export function formatEquipmentItems(
+  items: string[],
+  quantities?: Record<string, number>
+): string[] {
+  return (items || []).map((val) => {
+    const opt = EQUIPMENT_OPTIONS.find(
+      (o) => o.id === val || o.label === val || o.name === val || val.startsWith(o.name)
+    );
+    if (!opt) return val;
+    if (opt.hasQty) {
+      const qty = Math.max(1, quantities?.[opt.id] ?? 1);
+      return `${opt.name} (${qty})`;
+    }
+    return opt.name;
+  });
 }
