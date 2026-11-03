@@ -50,7 +50,7 @@ export function AdminUserManagementModal({
   const [addPassword, setAddPassword] = useState("");
   const [addConfirmPassword, setAddConfirmPassword] = useState("");
   const [showAddPassword, setShowAddPassword] = useState(false);
-  const [newRole, setNewRole] = useState<"admin" | "staff">("staff");
+  const [newRole, setNewRole] = useState<"admin" | "staff">("admin");
   const [isAdding, setIsAdding] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
@@ -210,6 +210,7 @@ export function AdminUserManagementModal({
       setNewDisplayName("");
       setAddPassword("");
       setAddConfirmPassword("");
+      setNewRole("admin");
       await loadUsers();
     } catch (err: any) {
       setFeedback({ type: "error", text: err.message || "เกิดข้อผิดพลาดในการเพิ่มผู้ดูแลระบบ" });
@@ -304,6 +305,7 @@ export function AdminUserManagementModal({
           <button
             type="button"
             onClick={() => {
+              setNewRole("admin");
               setIsAddOpen(true);
               setFeedback(null);
             }}
@@ -506,44 +508,6 @@ export function AdminUserManagementModal({
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#1e1e24] mb-1.5">
-                  สิทธิ์การใช้งาน (Role)
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setNewRole("admin")}
-                    className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target ${
-                      newRole === "admin"
-                        ? "bg-purple-50 text-[#582c83] border-[#582c83] shadow-2xs"
-                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-                    }`}
-                  >
-                    <UserCheck className="w-4 h-4 text-purple-700 shrink-0" />
-                    <div>
-                      <div className="font-extrabold">Admin</div>
-                      <div className="text-[10px] text-gray-500 font-normal">อนุมัติ/ยกเลิกคำขอได้</div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNewRole("staff")}
-                    className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target ${
-                      newRole === "staff"
-                        ? "bg-sky-50 text-sky-900 border-sky-400 shadow-2xs"
-                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-                    }`}
-                  >
-                    <UtensilsCrossed className="w-4 h-4 text-sky-600 shrink-0" />
-                    <div>
-                      <div className="font-extrabold">Staff (ฝ่ายอาหาร)</div>
-                      <div className="text-[10px] text-gray-500 font-normal">ดูข้อมูลอย่างเดียว</div>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e6e2ea]">
                 <button
                   type="button"
@@ -656,6 +620,46 @@ export function AdminUserManagementModal({
                   placeholder="กรอกยืนยันรหัสผ่านอีกครั้ง"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#1e1e24] mb-1.5">
+                  สิทธิ์การใช้งาน (Role)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={isAdding}
+                    onClick={() => setNewRole("admin")}
+                    className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target disabled:opacity-50 ${
+                      newRole === "admin"
+                        ? "bg-purple-50 text-[#582c83] border-[#582c83] shadow-2xs"
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <UserCheck className="w-4 h-4 text-purple-700 shrink-0" />
+                    <div>
+                      <div className="font-extrabold">Admin</div>
+                      <div className="text-[10px] text-gray-500 font-normal">อนุมัติ/ยกเลิกคำขอได้</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isAdding}
+                    onClick={() => setNewRole("staff")}
+                    className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target disabled:opacity-50 ${
+                      newRole === "staff"
+                        ? "bg-sky-50 text-sky-900 border-sky-400 shadow-2xs"
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <UtensilsCrossed className="w-4 h-4 text-sky-600 shrink-0" />
+                    <div>
+                      <div className="font-extrabold">Staff (ฝ่ายอาหาร)</div>
+                      <div className="text-[10px] text-gray-500 font-normal">ดูข้อมูลอย่างเดียว</div>
+                    </div>
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e6e2ea]">
