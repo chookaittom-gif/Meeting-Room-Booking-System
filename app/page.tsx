@@ -238,7 +238,7 @@ export default function HomePage() {
               </div>
 
               {/* Service Highlights Box */}
-              <div className="bg-[#faf9fd] border border-[#582c83]/10 rounded-xl p-3.5 flex flex-col justify-center gap-2 flex-1">
+              <div className="bg-[#faf9fd] border border-[#582c83]/10 rounded-xl p-3.5 flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#582c83]">
                   <Building className="w-4 h-4 shrink-0" aria-hidden="true" />
                   <span>2 ห้องประชุมมาตรฐานพร้อมใช้งาน</span>
@@ -251,7 +251,7 @@ export default function HomePage() {
             </div>
 
             {/* Quick Action Button */}
-            <div className="pt-2">
+            <div className="pt-2 mt-auto">
               <Link
                 href={`/book?room=${activeRoom}`}
                 className="w-full btn-primary touch-target text-sm font-bold shadow-md hover:shadow-lg transition-[transform,box-shadow]"
