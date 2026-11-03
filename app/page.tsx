@@ -248,6 +248,28 @@ export default function HomePage() {
                   <li>• ชั้น 7: ประชุมวิชาการขนาดใหญ่ 450 ท่าน</li>
                 </ul>
               </div>
+
+              {/* 3 Steps Quick Guide */}
+              <div className="bg-[#faf9fd] border border-[#582c83]/10 rounded-xl p-3.5 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#582c83]">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-[#582c83]" aria-hidden="true" />
+                  <span>3 ขั้นตอนการจองห้องออนไลน์</span>
+                </div>
+                <div className="space-y-1.5 text-xs text-[#52525b]">
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-[#582c83]/10 text-[#582c83] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+                    <span>เช็กวันว่างในปฏิทินด้านล่าง แล้วกดจองห้อง</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-[#582c83]/10 text-[#582c83] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+                    <span>ระบุรายละเอียดกิจกรรม ผังที่นั่ง และอาหาร</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-[#582c83]/10 text-[#582c83] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                    <span>รอผู้ดูแลตรวจสอบและอนุมัติผ่านระบบ</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Quick Action Button */}
