@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   const session = await sessionOf(req);
   if (!session) return err("ไม่มีสิทธิ์เข้าถึง", 401);
+  if (session.role === "staff") return err("สิทธิ์การเข้าถึงจำกัดเฉพาะผู้ดูแลระบบเท่านั้น", 403);
   if (session.role !== "superadmin") return err("เฉพาะ Superadmin เท่านั้นที่ตั้งค่า Telegram ได้", 403);
   if (!isJson(req)) return err("รูปแบบคำขอไม่ถูกต้อง", 415);
 
@@ -82,6 +83,7 @@ export async function PATCH(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await sessionOf(req);
   if (!session) return err("ไม่มีสิทธิ์เข้าถึง", 401);
+  if (session.role === "staff") return err("สิทธิ์การเข้าถึงจำกัดเฉพาะผู้ดูแลระบบเท่านั้น", 403);
   if (!isJson(req)) return err("รูปแบบคำขอไม่ถูกต้อง", 415);
   const result = await sendTelegramTestPing(await getD1Database(), session.displayName || session.username);
   if (!result.success) return err(result.error || "ไม่สามารถส่งข้อความทดสอบได้", 400);
@@ -92,6 +94,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await sessionOf(req);
   if (!session) return err("ไม่มีสิทธิ์เข้าถึง", 401);
+  if (session.role === "staff") return err("สิทธิ์การเข้าถึงจำกัดเฉพาะผู้ดูแลระบบเท่านั้น", 403);
   if (session.role !== "superadmin") return err("เฉพาะ Superadmin เท่านั้นที่ลบการตั้งค่า Telegram ได้", 403);
   if (!isJson(req)) return err("รูปแบบคำขอไม่ถูกต้อง", 415);
   await clearTelegramConfig(await getD1Database());

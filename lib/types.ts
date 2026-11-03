@@ -199,7 +199,7 @@ export interface PublicCalendarEvent {
   status: BookingStatus;
 }
 
-export type AdminRole = 'superadmin' | 'admin';
+export type AdminRole = 'superadmin' | 'admin' | 'staff';
 
 export interface AdminUser {
   id: string;

@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
     const username = (body.username || "").trim().toLowerCase();
     const displayName = (body.displayName || "").trim();
     const password = body.password || "";
+    const role = body.role === "staff" ? "staff" : "admin";
 
     if (!username || !/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
       return NextResponse.json(
@@ -108,9 +109,9 @@ export async function POST(req: NextRequest) {
 
     await db
       .prepare(
-        "INSERT INTO admins (id, username, password_hash, display_name, role, created_at) VALUES (?, ?, ?, ?, 'admin', ?)"
+        "INSERT INTO admins (id, username, password_hash, display_name, role, created_at) VALUES (?, ?, ?, ?, ?, ?)"
       )
-      .bind(newId, username, passwordHash, displayName, now)
+      .bind(newId, username, passwordHash, displayName, role, now)
       .run();
 
     return NextResponse.json(
@@ -121,7 +122,7 @@ export async function POST(req: NextRequest) {
           id: newId,
           username,
           displayName,
-          role: "admin",
+          role: role,
           createdAt: now,
         },
       },

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://repomix.com/schemas/repomix.json",
+  "output": {
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "removeComments": false,
+    "removeEmptyLines": true,
+    "showLineNumbers": true,
+    "calculateTokens": true
+  },
+  "include": [
+    "app/**/*",
+    "lib/**/*",
+    "tests/**/*",
+    "scripts/**/*",
+    "migrations/**/*",
+    "*.ts",
+    "*.json",
+    "*.md"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "*.png",
+      "*.jpg",
+      "*.jpeg",
+      "*.svg",
+      "*.ico",
+      "package-lock.json",
+      "graft/**/*",
+      ".open-next/**/*",
+      ".wrangler/**/*",
+      "skill-observations/**/*",
+      "repomix-output.*"
+    ]
+  }
+}

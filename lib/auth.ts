@@ -4,7 +4,7 @@ export interface AdminSession {
   adminId: string;
   username: string;
   displayName: string;
-  role?: 'superadmin' | 'admin';
+  role?: 'superadmin' | 'admin' | 'staff';
   exp: number;
 }
 

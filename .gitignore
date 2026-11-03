@@ -49,5 +49,9 @@ scratch/
 
 .playwright-cli/
 
+# Repomix
+repomix-output.*
+
+
 # ZCode workspace session data (plans, local tooling)
 .zcode/

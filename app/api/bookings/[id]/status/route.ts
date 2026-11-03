@@ -20,6 +20,13 @@ export async function PATCH(
       return NextResponse.json({ error: "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่" }, { status: 401 });
     }
 
+    if (session.role === "staff") {
+      return NextResponse.json(
+        { error: "บัญชีระดับเจ้าหน้าที่ (Staff) ไม่มีสิทธิ์เปลี่ยนสถานะหรืออนุมัติการจอง" },
+        { status: 403 }
+      );
+    }
+
     const { id: bookingId } = await params;
     const body = (await req.json()) as any;
     const { from_status, to_status, reason } = body;

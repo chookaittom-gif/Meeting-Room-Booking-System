@@ -38,7 +38,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, { status: 401 });
     }
 
-    const adminRole = (admin.role === "superadmin" || admin.username === "chookait") ? "superadmin" : "admin";
+    const adminRole =
+      admin.username === "chookait"
+        ? "superadmin"
+        : admin.role === "superadmin" || admin.role === "staff"
+        ? admin.role
+        : "admin";
 
     // Create session token (8 hours)
     const token = await createSessionToken({

@@ -26,11 +26,19 @@ export async function PATCH(
     }
 
     const body = (await req.json()) as any;
-    const displayName = body?.display_name?.trim();
+    const displayName = body?.display_name !== undefined ? body.display_name.trim() : undefined;
+    const newRole = body?.role !== undefined ? body.role : undefined;
 
-    if (!displayName || displayName.length < 2) {
+    if (displayName !== undefined && displayName.length < 2) {
       return NextResponse.json(
         { error: "ชื่อ-นามสกุลต้องมีความยาวอย่างน้อย 2 ตัวอักษร" },
+        { status: 400 }
+      );
+    }
+
+    if (newRole !== undefined && !["admin", "staff"].includes(newRole)) {
+      return NextResponse.json(
+        { error: "บทบาทไม่ถูกต้อง (ต้องเป็น admin หรือ staff)" },
         { status: 400 }
       );
     }
@@ -49,24 +57,38 @@ export async function PATCH(
       return NextResponse.json({ error: "ไม่พบข้อมูลผู้ดูแลระบบที่ต้องการแก้ไข" }, { status: 404 });
     }
 
+    if (targetAdmin.username === "chookait" && newRole && newRole !== "superadmin") {
+      return NextResponse.json(
+        { error: "ไม่สามารถเปลี่ยนสิทธิ์ของบัญชีผู้ดูแลระบบหลักได้" },
+        { status: 400 }
+      );
+    }
+
+    const updatedDisplayName = displayName !== undefined ? displayName : targetAdmin.display_name;
+    const updatedRole = (newRole !== undefined && targetAdmin.username !== "chookait") ? newRole : targetAdmin.role;
+
     await db
-      .prepare("UPDATE admins SET display_name = ? WHERE id = ?")
-      .bind(displayName, targetId)
+      .prepare("UPDATE admins SET display_name = ?, role = ? WHERE id = ?")
+      .bind(updatedDisplayName, updatedRole, targetId)
       .run();
 
     return NextResponse.json({
       success: true,
-      message: `แก้ไขชื่อผู้ดูแลระบบเป็น "${displayName}" เรียบร้อยแล้ว`,
+      message: newRole && displayName
+        ? `อัปเดตข้อมูลผู้ดูแลระบบเป็น "${updatedDisplayName}" (สิทธิ์: ${updatedRole}) เรียบร้อยแล้ว`
+        : newRole
+        ? `เปลี่ยนสิทธิ์ผู้ใช้เป็น "${updatedRole}" เรียบร้อยแล้ว`
+        : `แก้ไขชื่อผู้ดูแลระบบเป็น "${updatedDisplayName}" เรียบร้อยแล้ว`,
       admin: {
         id: targetAdmin.id,
         username: targetAdmin.username,
-        displayName: displayName,
-        role: targetAdmin.role || (targetAdmin.username === "chookait" ? "superadmin" : "admin"),
+        displayName: updatedDisplayName,
+        role: updatedRole || (targetAdmin.username === "chookait" ? "superadmin" : "admin"),
       },
     });
   } catch (err: any) {
     console.error("PATCH /api/admin/users/[id] error:", err);
-    return NextResponse.json({ error: "เกิดข้อผิดพลาดในการแก้ไขชื่อผู้ดูแลระบบ" }, { status: 500 });
+    return NextResponse.json({ error: "เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ดูแลระบบ" }, { status: 500 });
   }
 }
 

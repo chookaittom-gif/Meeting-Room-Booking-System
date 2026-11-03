@@ -16,6 +16,7 @@ import {
   EyeOff,
   UserCheck,
   Pencil,
+  UtensilsCrossed,
 } from "lucide-react";
 import { AdminRole, AdminUser } from "@/lib/types";
 
@@ -49,6 +50,7 @@ export function AdminUserManagementModal({
   const [addPassword, setAddPassword] = useState("");
   const [addConfirmPassword, setAddConfirmPassword] = useState("");
   const [showAddPassword, setShowAddPassword] = useState(false);
+  const [newRole, setNewRole] = useState<"admin" | "staff">("staff");
   const [isAdding, setIsAdding] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
@@ -57,6 +59,7 @@ export function AdminUserManagementModal({
   // Edit Name state
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
   const [editDisplayName, setEditDisplayName] = useState("");
+  const [editRole, setEditRole] = useState<"admin" | "staff">("admin");
   const [isSavingName, setIsSavingName] = useState(false);
 
   const loadUsers = async () => {
@@ -138,7 +141,7 @@ export function AdminUserManagementModal({
       const res = await fetch(`/api/admin/users/${editTarget.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ display_name: trimmedName }),
+        body: JSON.stringify({ display_name: trimmedName, role: editTarget.username === "chookait" ? "superadmin" : editRole }),
       });
       const data = (await res.json()) as any;
       if (!res.ok) {
@@ -147,7 +150,7 @@ export function AdminUserManagementModal({
 
       setFeedback({ type: "success", text: data.message });
       setUsers((prev) =>
-        prev.map((u) => (u.id === editTarget.id ? { ...u, displayName: trimmedName } : u))
+        prev.map((u) => (u.id === editTarget.id ? { ...u, displayName: trimmedName, role: editTarget.username === "chookait" ? "superadmin" : editRole } : u))
       );
       setEditTarget(null);
       if (editTarget.id === currentAdmin.id && onUserUpdated) {
@@ -194,6 +197,7 @@ export function AdminUserManagementModal({
           username: newUsername.trim().toLowerCase(),
           displayName: newDisplayName.trim(),
           password: addPassword,
+          role: newRole,
         }),
       });
       const data = (await res.json()) as any;
@@ -349,6 +353,11 @@ export function AdminUserManagementModal({
                               <Sparkles className="w-3 h-3 text-amber-500" />
                               Superadmin
                             </span>
+                          ) : u.role === "staff" ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200">
+                              <UtensilsCrossed className="w-3 h-3 text-sky-600" />
+                              Staff (ฝ่ายอาหาร)
+                            </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
                               <UserCheck className="w-3 h-3 text-slate-500" />
@@ -374,6 +383,7 @@ export function AdminUserManagementModal({
                         onClick={() => {
                           setEditTarget(u);
                           setEditDisplayName(u.displayName || "");
+                          setEditRole(u.role === "staff" ? "staff" : "admin");
                           setFeedback(null);
                         }}
                         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold touch-target transition-[transform,background-color] duration-150 active:scale-95 shadow-2xs"
@@ -494,6 +504,44 @@ export function AdminUserManagementModal({
                   placeholder="กรอกยืนยันรหัสผ่านใหม่อีกครั้ง"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#e6e2ea] focus:border-[#582c83] focus:ring-2 focus:ring-[#582c83]/15 text-xs outline-none transition-colors"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#1e1e24] mb-1.5">
+                  สิทธิ์การใช้งาน (Role)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setNewRole("admin")}
+                    className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target ${
+                      newRole === "admin"
+                        ? "bg-purple-50 text-[#582c83] border-[#582c83] shadow-2xs"
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <UserCheck className="w-4 h-4 text-purple-700 shrink-0" />
+                    <div>
+                      <div className="font-extrabold">Admin</div>
+                      <div className="text-[10px] text-gray-500 font-normal">อนุมัติ/ยกเลิกคำขอได้</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewRole("staff")}
+                    className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target ${
+                      newRole === "staff"
+                        ? "bg-sky-50 text-sky-900 border-sky-400 shadow-2xs"
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <UtensilsCrossed className="w-4 h-4 text-sky-600 shrink-0" />
+                    <div>
+                      <div className="font-extrabold">Staff (ฝ่ายอาหาร)</div>
+                      <div className="text-[10px] text-gray-500 font-normal">ดูข้อมูลอย่างเดียว</div>
+                    </div>
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e6e2ea]">
@@ -642,7 +690,7 @@ export function AdminUserManagementModal({
                   <Pencil className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-black text-sm text-[#1e1e24]">แก้ไขชื่อผู้ดูแลระบบ</h3>
+                  <h3 className="font-black text-sm text-[#1e1e24]">แก้ไขข้อมูลและสิทธิ์ผู้ดูแลระบบ</h3>
                   <p className="text-xs text-[#595963] font-mono">@{editTarget.username}</p>
                 </div>
               </div>
@@ -671,6 +719,48 @@ export function AdminUserManagementModal({
                   autoFocus
                 />
               </div>
+
+              {editTarget.username !== "chookait" && (
+                <div>
+                  <label className="block text-xs font-bold text-[#1e1e24] mb-1.5">
+                    สิทธิ์การใช้งาน (Role)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditRole("admin")}
+                      className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target ${
+                        editRole === "admin"
+                          ? "bg-purple-50 text-[#582c83] border-[#582c83] shadow-2xs"
+                          : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      <UserCheck className="w-4 h-4 text-purple-700 shrink-0" />
+                      <div>
+                        <div className="font-extrabold">Admin</div>
+                        <div className="text-[10px] text-gray-500 font-normal">อนุมัติ/ยกเลิกคำขอได้</div>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditRole("staff")}
+                      className={`p-2.5 rounded-xl border text-left text-xs font-bold flex items-center gap-2 transition-colors touch-target ${
+                        editRole === "staff"
+                          ? "bg-sky-50 text-sky-900 border-sky-400 shadow-2xs"
+                          : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      <UtensilsCrossed className="w-4 h-4 text-sky-600 shrink-0" />
+                      <div>
+                        <div className="font-extrabold">Staff (ฝ่ายอาหาร)</div>
+                        <div className="text-[10px] text-gray-500 font-normal">ดูข้อมูลอย่างเดียว</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+
 
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e6e2ea]">
                 <button

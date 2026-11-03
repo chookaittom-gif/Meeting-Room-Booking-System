@@ -11,8 +11,12 @@ import {
 export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get("admin_session")?.value;
-    if (!token || !(await verifySessionToken(token))) {
+    const session = token ? await verifySessionToken(token) : null;
+    if (!session) {
       return NextResponse.json({ error: "ไม่มีสิทธิ์เข้าถึง" }, { status: 401 });
+    }
+    if (session.role === "staff") {
+      return NextResponse.json({ error: "สิทธิ์การเข้าถึงจำกัดเฉพาะผู้ดูแลระบบเท่านั้น" }, { status: 403 });
     }
 
     const db = await getD1Database();
@@ -27,8 +31,8 @@ export async function GET(req: NextRequest) {
       success: true,
       settings: {
         line_notify_enabled: enabled,
+        group_id: groupId || null,
         configured: Boolean(lineToken && groupId),
-        group_id: groupId ? `${groupId.slice(0, 6)}...${groupId.slice(-4)}` : null,
       },
     });
   } catch (err: any) {
@@ -40,8 +44,12 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const token = req.cookies.get("admin_session")?.value;
-    if (!token || !(await verifySessionToken(token))) {
+    const session = token ? await verifySessionToken(token) : null;
+    if (!session) {
       return NextResponse.json({ error: "ไม่มีสิทธิ์เข้าถึง" }, { status: 401 });
+    }
+    if (session.role === "staff") {
+      return NextResponse.json({ error: "สิทธิ์การเข้าถึงจำกัดเฉพาะผู้ดูแลระบบเท่านั้น" }, { status: 403 });
     }
 
     const body = (await req.json()) as any;
@@ -75,6 +83,9 @@ export async function POST(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: "ไม่มีสิทธิ์เข้าถึง" }, { status: 401 });
     }
+    if (session.role === "staff") {
+      return NextResponse.json({ error: "สิทธิ์การเข้าถึงจำกัดเฉพาะผู้ดูแลระบบเท่านั้น" }, { status: 403 });
+    }
 
     const result = await sendLineTestPing(session.displayName || session.username);
     if (!result.success) {
@@ -89,7 +100,7 @@ export async function POST(req: NextRequest) {
       message: "ส่งข้อความทดสอบเข้ากลุ่ม LINE สำเร็จแล้ว!",
     });
   } catch (err: any) {
-    console.error("POST /api/admin/settings test error:", err);
-    return NextResponse.json({ error: "เกิดข้อผิดพลาดในการทดสอบส่ง LINE" }, { status: 500 });
+    console.error("POST /api/admin/settings error:", err);
+    return NextResponse.json({ error: "เกิดข้อผิดพลาดในการทดสอบส่งการแจ้งเตือน" }, { status: 500 });
   }
 }
