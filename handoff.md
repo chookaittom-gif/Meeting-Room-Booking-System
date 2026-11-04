@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `9bfd60ce-66db-464c-a944-7a5b028d3900` (commit `cbee9a8`)
+- **Latest Deployed Version**: `c9e96e3d-582d-4c1d-a2a5-af229f5718e9` (commit `cba0150`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,19 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 4 พฤศจิกายน 2569)
+
+### 0.00016 เพิ่มระบบแบ่งหน้ารายการจอง (Pagination 10 รายการต่อหน้า) ทั้ง Admin Dashboard และ Public Calendar (`cba0150`)
+
+- `app/components/Pagination.tsx`:
+  - สร้างคอมโพเนนต์ Pagination รองรับ Touch target >= 44px ตามมาตรฐาน UX
+  - รองรับการแสดงผลหน้าตัวเลขแบบ Smart Ellipsis, ปุ่มก่อนหน้า/ถัดไป พร้อมข้อความสรุปจำนวนรายการที่แสดง
+- `app/admin/page.tsx`:
+  - ติดตั้ง Pagination ขนาด 10 รายการต่อหน้าในแผงควบคุม Admin Dashboard พร้อมรีเซ็ตหน้าเป็นหน้า 1 อัตโนมัติเมื่อเปลี่ยนตัวกรองห้อง/สถานะ หรือค้นหา
+- `app/components/PublicCalendar.tsx`:
+  - ติดตั้ง Pagination ขนาด 10 รายการต่อหน้าในแท็บรายการจองหน้าแรก (Public Calendar list view)
+- `tests/pagination.test.ts`:
+  - เพิ่ม Unit tests ตรวจสอบความถูกต้องของการคำนวณขอบเขต Slice, การ Clamp หน้า และกรณีลิสต์ว่าง (0 รายการ)
+- Deployed Version: `c9e96e3d-582d-4c1d-a2a5-af229f5718e9` (commit `cba0150`)
 
 ### 0.00015 ปรับความสอดคล้องข้อความขั้นตอนการขอใช้บริการและแบบฟอร์มออนไลน์ 5 ขั้นตอน (`cbee9a8`)
 
