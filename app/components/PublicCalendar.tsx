@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { PublicCalendarEvent, BookingStatus } from "@/lib/types";
+import { Pagination } from "@/app/components/Pagination";
 import { Calendar as CalendarIcon, List, Filter, ChevronLeft, ChevronRight, X, Clock, MapPin, Tag, Loader2 } from "lucide-react";
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string; dot: string }> = {
@@ -38,6 +39,14 @@ export function PublicCalendar() {
   const [selectedEvent, setSelectedEvent] = useState<PublicCalendarEvent | null>(null);
   const [dayModalData, setDayModalData] = useState<{ dateStr: string; events: PublicCalendarEvent[] } | null>(null);
 
+  // Pagination states for List view (10 items per page)
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalItems = events.length;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
+  const paginatedEvents = events.slice((safeCurrentPage - 1) * PAGE_SIZE, safeCurrentPage * PAGE_SIZE);
+
   // Current calendar month view state (Bangkok time)
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date();
@@ -64,6 +73,7 @@ export function PublicCalendar() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchEvents();
   }, [roomFilter, statusFilter]);
 
@@ -309,45 +319,58 @@ export function PublicCalendar() {
               ไม่พบรายการจองห้องประชุมตามเงื่อนไขที่เลือก
             </div>
           ) : (
-            <div className="divide-y divide-[#e4e2ea]">
-              {events.map((ev) => {
-                const cfg = STATUS_CONFIG[ev.status];
-                return (
-                  <div
-                    key={ev.id}
-                    onClick={() => setSelectedEvent(ev)}
-                    className="p-4 sm:p-5 hover:bg-[#faf8fd] transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="space-y-1.5 flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
-                          {cfg.label}
-                        </span>
-                        <span className="text-xs font-bold text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-2.5 py-0.5 rounded-md">
-                          {ev.room_name}
-                        </span>
-                        <span className="text-xs font-mono text-[#52525b]">{ev.booking_code}</span>
-                      </div>
-                      <h4 className="font-bold text-base text-[#18181b] overflow-wrap-break-word">{ev.activity_name}</h4>
-                      <p className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
-                        <Clock className="w-3.5 h-3.5 text-[#582c83] shrink-0" aria-hidden="true" />
-                        {formatThaiDate(ev.starts_at)} · {formatThaiTime(ev.starts_at)} – {formatThaiTime(ev.ends_at)}
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedEvent(ev);
-                      }}
-                      className="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-[#e4e2ea] bg-white hover:bg-[#f5f0fa] text-xs font-bold text-[#18181b] touch-target shrink-0 transition-colors"
+            <>
+              <div className="divide-y divide-[#e4e2ea]">
+                {paginatedEvents.map((ev) => {
+                  const cfg = STATUS_CONFIG[ev.status];
+                  return (
+                    <div
+                      key={ev.id}
+                      onClick={() => setSelectedEvent(ev)}
+                      className="p-4 sm:p-5 hover:bg-[#faf8fd] transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
-                      ดูรายละเอียด
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                            {cfg.label}
+                          </span>
+                          <span className="text-xs font-bold text-[#582c83] bg-[#f5f0fa] border border-[#582c83]/15 px-2.5 py-0.5 rounded-md">
+                            {ev.room_name}
+                          </span>
+                          <span className="text-xs font-mono text-[#52525b]">{ev.booking_code}</span>
+                        </div>
+                        <h4 className="font-bold text-base text-[#18181b] overflow-wrap-break-word">{ev.activity_name}</h4>
+                        <p className="text-xs text-[#52525b] flex items-center gap-1 font-medium">
+                          <Clock className="w-3.5 h-3.5 text-[#582c83] shrink-0" aria-hidden="true" />
+                          {formatThaiDate(ev.starts_at)} · {formatThaiTime(ev.starts_at)} – {formatThaiTime(ev.ends_at)}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedEvent(ev);
+                        }}
+                        className="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-[#e4e2ea] bg-white hover:bg-[#f5f0fa] text-xs font-bold text-[#18181b] touch-target shrink-0 transition-colors"
+                      >
+                        ดูรายละเอียด
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              <div className="p-4 bg-[#faf8fd] border-t border-[#e4e2ea]">
+                <Pagination
+                  currentPage={safeCurrentPage}
+                  totalItems={totalItems}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setCurrentPage}
+                  className="border-t-0 pt-0"
+                />
+              </div>
+            </>
           )}
         </div>
       )}

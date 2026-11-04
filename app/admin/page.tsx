@@ -7,6 +7,7 @@ import { AdminNotificationBell } from "@/app/components/AdminNotificationBell";
 import { TelegramSettingsCard } from "@/app/components/TelegramSettingsCard";
 import { AdminUserManagementModal } from "@/app/components/AdminUserManagementModal";
 import { useAlertDialog } from "@/app/components/AlertDialog";
+import { Pagination } from "@/app/components/Pagination";
 import {
   ShieldCheck,
   LogOut,
@@ -60,6 +61,14 @@ export default function AdminDashboardPage() {
   const [roomFilter, setRoomFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [onlyWithCatering, setOnlyWithCatering] = useState(false);
+
+  // Pagination states (10 items per page)
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalBookings = bookings.length;
+  const totalBookingPages = Math.ceil(totalBookings / PAGE_SIZE);
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), Math.max(totalBookingPages, 1));
+  const paginatedBookings = bookings.slice((safeCurrentPage - 1) * PAGE_SIZE, safeCurrentPage * PAGE_SIZE);
 
   // Modal states
   const [rejectingBooking, setRejectingBooking] = useState<any>(null);
@@ -186,6 +195,7 @@ export default function AdminDashboardPage() {
   // Load bookings
   const loadBookings = async () => {
     setIsLoading(true);
+    setCurrentPage(1);
     try {
       const params = new URLSearchParams();
       if (statusFilter !== "all") params.append("status", statusFilter);
@@ -528,7 +538,7 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <div className="space-y-3.5 sm:space-y-4">
-          {bookings.map((b) => {
+          {paginatedBookings.map((b) => {
             const cfg = STATUS_CONFIG[b.status as BookingStatus];
 
             return (
@@ -721,6 +731,17 @@ export default function AdminDashboardPage() {
               </div>
             );
           })}
+
+          {/* Pagination */}
+          <div className="bg-white/88 backdrop-blur-xl rounded-2xl border border-white/80 p-4 shadow-[0_8px_30px_rgba(88,44,131,0.04)]">
+            <Pagination
+              currentPage={safeCurrentPage}
+              totalItems={totalBookings}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+              className="border-t-0 pt-0"
+            />
+          </div>
         </div>
       )}
 
