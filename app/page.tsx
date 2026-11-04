@@ -253,7 +253,7 @@ export default function HomePage() {
               <div className="bg-[#faf9fd] border border-[#582c83]/10 rounded-xl p-3.5 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#582c83]">
                   <CheckCircle2 className="w-4 h-4 shrink-0 text-[#582c83]" aria-hidden="true" />
-                  <span>3 ขั้นตอนการจองห้องออนไลน์</span>
+                  <span>3 ขั้นตอนการขอใช้บริการ</span>
                 </div>
                 <div className="space-y-1.5 text-xs text-[#52525b]">
                   <div className="flex items-start gap-2">
@@ -262,7 +262,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="w-4 h-4 rounded-full bg-[#582c83]/10 text-[#582c83] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
-                    <span>ระบุรายละเอียดกิจกรรม ผังที่นั่ง และอาหาร</span>
+                    <span>กรอกข้อมูลผ่านแบบฟอร์ม 5 ส่วน (กิจกรรม, ผัง, อาหาร)</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="w-4 h-4 rounded-full bg-[#582c83]/10 text-[#582c83] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
@@ -282,7 +282,7 @@ export default function HomePage() {
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
               <p className="text-xs text-center text-[#71717a] mt-2">
-                กรอกข้อมูลกิจกรรมและเลือกอาหารผ่านระบบออนไลน์ได้ใน 5 ขั้นตอน
+                กรอกแบบฟอร์มออนไลน์ 5 ขั้นตอน สะดวกและรวดเร็ว
               </p>
             </div>
           </div>
