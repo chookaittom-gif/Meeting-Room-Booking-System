@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `c9e96e3d-582d-4c1d-a2a5-af229f5718e9` (commit `cba0150`)
+- **Latest Deployed Version**: `f8193b0d-1d18-4c7d-947e-e104bcf04915` (commit `3cb141c`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,21 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 4 พฤศจิกายน 2569)
+
+### 0.00017 เพิ่มข้อมูลสรุปการเงินและรายการอาหารในรายงานประจำเดือน (/report) (`3cb141c`)
+
+- `lib/monthly-report.ts`:
+  - เพิ่ม `FinancialSummary` interface (ค่าห้องรวม `room_fee_thb`, ค่าอาหารรวม `catering_fee_thb`, ยอดรวมทั้งสิ้น `grand_total_thb`, เงินประกันการจอง `deposit_thb`)
+  - เพิ่ม `CateringReportRow` interface (แจกแจงรายการอาหาร `item_name`, จำนวนรวม `quantity`, ยอดเงินรวม `subtotal`)
+  - ปรับปรุง Query คำนวณสรุปเฉพาะคำขอที่มีสถานะ `approved` ภายในเดือนนั้น
+- `app/components/MonthlyReportSheet.tsx`:
+  - เพิ่มหัวข้อที่ 4: สรุปประมาณการรายรับและค่าใช้จ่าย (คำขอที่อนุมัติ) แสดง 4 ยอดเงินชัดเจน
+  - เพิ่มหัวข้อที่ 5: สรุปรายการอาหารและเครื่องดื่มที่ให้บริการ (คำขอที่อนุมัติ) แสดงตารางแจกแจงเมนูและยอดรวม
+  - ปรับหัวข้อเดิมเป็นหัวข้อ 6 (การยกเลิก) และหัวข้อ 7 (ข้อมูลการยืนยันระบบ)
+  - เพิ่ม CSS `report-section` พร้อม `break-inside: avoid; page-break-inside: avoid;` ป้องกันเนื้อหาฉีกขาดข้ามหน้ากระดาษ A4
+- `tests/monthly-report.test.ts`:
+  - เพิ่ม Unit test ครอบคลุมการคำนวณรายรับและรายการอาหารเฉพาะคำขอที่อนุมัติแล้ว และทดสอบกรณีเดือนที่ไม่มีการจอง
+- Deployed Version: `f8193b0d-1d18-4c7d-947e-e104bcf04915` (commit `3cb141c`)
 
 ### 0.00016 เพิ่มระบบแบ่งหน้ารายการจอง (Pagination 10 รายการต่อหน้า) ทั้ง Admin Dashboard และ Public Calendar (`cba0150`)
 
