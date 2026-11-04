@@ -18,6 +18,20 @@ export interface PurposeRow {
   pct: number;
 }
 
+export interface FinancialSummary {
+  room_fee_thb: number;
+  catering_fee_thb: number;
+  grand_total_thb: number;
+  deposit_thb: number;
+}
+
+export interface CateringReportRow {
+  item_code: string;
+  item_name: string;
+  quantity: number;
+  subtotal: number;
+}
+
 export interface MonthlyReport {
   month_key: string; // "YYYY-MM" (ICT)
   operational_days: number; // weekdays Mon–Fri in that month
@@ -27,6 +41,8 @@ export interface MonthlyReport {
   overall_utilization_pct: number;
   rooms: RoomReportRow[];
   purposes: PurposeRow[];
+  financial: FinancialSummary;
+  catering: CateringReportRow[];
   cancelled_count: number;
 }
 
@@ -115,6 +131,46 @@ export async function getMonthlyReport(db: D1Database, monthKey: string): Promis
     pct: totalCount > 0 ? Math.round((p.cnt / totalCount) * 1000) / 10 : 0,
   }));
 
+  const financialRes = await db
+    .prepare(
+      `SELECT
+         COALESCE(SUM(room_fee_thb), 0) AS room_fee,
+         COALESCE(SUM(total_price_thb), 0) AS catering_fee,
+         COALESCE(SUM(deposit_thb), 0) AS deposit
+       FROM bookings
+       WHERE status = 'approved' AND starts_at >= ? AND starts_at < ?`
+    )
+    .bind(start, end)
+    .first<{ room_fee: number; catering_fee: number; deposit: number }>();
+
+  const roomFeeThb = financialRes?.room_fee || 0;
+  const cateringFeeThb = financialRes?.catering_fee || 0;
+  const depositThb = financialRes?.deposit || 0;
+  const grandTotalThb = roomFeeThb + cateringFeeThb;
+
+  const cateringRes = await db
+    .prepare(
+      `SELECT
+         bi.item_code,
+         bi.item_name,
+         SUM(bi.quantity) AS quantity,
+         SUM(bi.subtotal) AS subtotal
+       FROM booking_items bi
+       JOIN bookings b ON bi.booking_id = b.id
+       WHERE b.status = 'approved' AND b.starts_at >= ? AND b.starts_at < ?
+       GROUP BY bi.item_code, bi.item_name
+       ORDER BY subtotal DESC, quantity DESC`
+    )
+    .bind(start, end)
+    .all<{ item_code: string; item_name: string; quantity: number; subtotal: number }>();
+
+  const catering: CateringReportRow[] = (cateringRes.results || []).map((c) => ({
+    item_code: c.item_code,
+    item_name: c.item_name,
+    quantity: c.quantity,
+    subtotal: c.subtotal,
+  }));
+
   const cancelledRes = await db
     .prepare(
       `SELECT COUNT(*) AS cnt FROM bookings
@@ -132,6 +188,13 @@ export async function getMonthlyReport(db: D1Database, monthKey: string): Promis
     overall_utilization_pct: totalCapacity > 0 ? Math.round((totalHours / totalCapacity) * 1000) / 10 : 0,
     rooms: roomRows,
     purposes,
+    financial: {
+      room_fee_thb: roomFeeThb,
+      catering_fee_thb: cateringFeeThb,
+      grand_total_thb: grandTotalThb,
+      deposit_thb: depositThb,
+    },
+    catering,
     cancelled_count: cancelledRes?.cnt || 0,
   };
 }
