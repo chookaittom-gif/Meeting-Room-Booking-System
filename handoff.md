@@ -8,6 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
+- **Latest Deployed Version**: `9bfd60ce-66db-464c-a944-7a5b028d3900` (commit `cbee9a8`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -16,7 +17,17 @@
 
 ---
 
-## 🆕 งานล่าสุด (วันที่ 3 พฤศจิกายน 2569)
+## 🆕 งานล่าสุด (วันที่ 4 พฤศจิกายน 2569)
+
+### 0.00015 ปรับความสอดคล้องข้อความขั้นตอนการขอใช้บริการและแบบฟอร์มออนไลน์ 5 ขั้นตอน (`cbee9a8`)
+
+- `app/page.tsx`:
+  - ปรับหัวข้อกล่องคำแนะนำเป็น `"3 ขั้นตอนการขอใช้บริการ"` เพื่อสะท้อนกระบวนการภาพรวมของผู้ใช้งานอย่างชัดเจน
+  - ปรับข้อความขั้นตอนที่ 2 เป็น `"กรอกข้อมูลผ่านแบบฟอร์ม 5 ส่วน (กิจกรรม, ผัง, อาหาร)"` เชื่อมโยงกับฟอร์ม Wizard จริง
+  - ปรับข้อความใต้ปุ่มจองเป็น `"กรอกแบบฟอร์มออนไลน์ 5 ขั้นตอน สะดวกและรวดเร็ว"` สอดคล้องกับ Wizard 5 ขั้นตอนในหน้า `/book`
+- Deployed Version: `9bfd60ce-66db-464c-a944-7a5b028d3900` (commit `cbee9a8`)
+
+## งานก่อนหน้า (วันที่ 3 พฤศจิกายน 2569)
 
 ### 0.00014 เพิ่มช่องกรอกจำนวนอุปกรณ์ (Stepper) และฟอร์แมตแจ้งเตือน LINE & Telegram (`0126b21`)
 
