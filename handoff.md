@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `f8193b0d-1d18-4c7d-947e-e104bcf04915` (commit `3cb141c`)
+- **Latest Deployed Version**: `7a3f7be8-b760-456a-944a-596591c956fe` (commit `5cc2397`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -17,7 +17,21 @@
 
 ---
 
-## 🆕 งานล่าสุด (วันที่ 4 พฤศจิกายน 2569)
+## 🆕 งานล่าสุด (วันที่ 5 พฤศจิกายน 2569)
+
+### 0.00018 เพิ่มหมายเลขหน้ามุมขวาบน และตารางรายละเอียดรายการจองที่อนุมัติแยกหน้า 2 (/report) (`5cc2397`)
+
+- `lib/monthly-report.ts`:
+  - เพิ่ม `ApprovedBookingDetail` interface และบรรจุลงใน `MonthlyReport`
+  - ทำ SQL Query ดึงรายการคำขอสถานะ `approved` ในช่วงเดือนนั้น เรียงตาม `starts_at ASC` พร้อม JOIN ข้อมูลห้องประชุมและคำนวณยอดเงินรวมแต่ละใบงาน
+- `app/components/MonthlyReportSheet.tsx`:
+  - เพิ่มหมายเลขหน้ามุมขวาบน (`หน้า X / Y`) ทั้งบน Web Preview และ Print CSS
+  - ปรับปรุงการจัดหน้าตารางรายละเอียดรายการจองที่อนุมัติให้ตัดขึ้นหน้าใหม่เสมอ (`page-break-before: always`) เริ่มเป็นหน้า 2
+  - กำหนด Print CSS ให้ `thead` ซ้ำอัตโนมัติทุกหน้า (`table-header-group`) และแถวตาราง `tr` ไม่ถูกตัดแหว่งกลางแถว (`break-inside: avoid`)
+  - จัดการกรณีไม่มีรายการอนุมัติในเดือนนั้น ให้แสดงข้อความแจ้งในหน้า 1 โดยไม่ตัดขึ้นหน้า 2
+- `tests/monthly-report.test.ts`:
+  - เพิ่มการตรวจสอบ `approved_bookings` ทั้งกรณีมีรายการและไม่มีรายการ
+- Deployed Version: `7a3f7be8-b760-456a-944a-596591c956fe` (commit `5cc2397`)
 
 ### 0.00017 เพิ่มข้อมูลสรุปการเงินและรายการอาหารในรายงานประจำเดือน (/report) (`3cb141c`)
 
