@@ -32,6 +32,20 @@ export interface CateringReportRow {
   subtotal: number;
 }
 
+export interface ApprovedBookingDetail {
+  id: string;
+  booking_code: string;
+  room_name: string;
+  activity_name: string;
+  project_name: string;
+  coordinator_name: string;
+  coordinator_phone: string;
+  attendees_count: number;
+  starts_at: number;
+  ends_at: number;
+  total_amount_thb: number;
+}
+
 export interface MonthlyReport {
   month_key: string; // "YYYY-MM" (ICT)
   operational_days: number; // weekdays Mon–Fri in that month
@@ -43,6 +57,7 @@ export interface MonthlyReport {
   purposes: PurposeRow[];
   financial: FinancialSummary;
   catering: CateringReportRow[];
+  approved_bookings: ApprovedBookingDetail[];
   cancelled_count: number;
 }
 
@@ -171,6 +186,30 @@ export async function getMonthlyReport(db: D1Database, monthKey: string): Promis
     subtotal: c.subtotal,
   }));
 
+  const approvedRes = await db
+    .prepare(
+      `SELECT
+         b.id,
+         b.booking_code,
+         r.name AS room_name,
+         b.activity_name,
+         b.project_name,
+         b.coordinator_name,
+         b.coordinator_phone,
+         b.attendees_count,
+         b.starts_at,
+         b.ends_at,
+         (b.room_fee_thb + b.total_price_thb) AS total_amount_thb
+       FROM bookings b
+       JOIN rooms r ON b.room_id = r.id
+       WHERE b.status = 'approved' AND b.starts_at >= ? AND b.starts_at < ?
+       ORDER BY b.starts_at ASC`
+    )
+    .bind(start, end)
+    .all<ApprovedBookingDetail>();
+
+  const approvedBookings: ApprovedBookingDetail[] = approvedRes.results || [];
+
   const cancelledRes = await db
     .prepare(
       `SELECT COUNT(*) AS cnt FROM bookings
@@ -195,6 +234,7 @@ export async function getMonthlyReport(db: D1Database, monthKey: string): Promis
       deposit_thb: depositThb,
     },
     catering,
+    approved_bookings: approvedBookings,
     cancelled_count: cancelledRes?.cnt || 0,
   };
 }

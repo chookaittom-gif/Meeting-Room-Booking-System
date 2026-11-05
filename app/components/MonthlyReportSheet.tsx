@@ -1,5 +1,6 @@
 import { thaiMonthYearFull } from "@/lib/monthly-report";
 import type { MonthlyReport } from "@/lib/monthly-report";
+import { formatThaiEpochDate, formatThaiEpochTime } from "@/lib/date-utils";
 
 interface Props {
   report: MonthlyReport;
@@ -21,6 +22,10 @@ function fmtMoney(n: number): string {
 }
 
 export default function MonthlyReportSheet({ report, monthKey, printedAt }: Props) {
+  const approvedBookings = report.approved_bookings || [];
+  const hasApprovedBookings = approvedBookings.length > 0;
+  const totalPages = hasApprovedBookings ? 2 : 1;
+
   return (
     <div className="w-full">
       <style>{`
@@ -30,6 +35,9 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
           html, body { background: #fff !important; }
           .report-sheet { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; max-width: none !important; padding: 0 !important; }
           .report-section { break-inside: avoid; page-break-inside: avoid; }
+          .report-page-break { break-before: page !important; page-break-before: always !important; }
+          thead { display: table-header-group; }
+          tr { break-inside: avoid; page-break-inside: avoid; }
         }
         .report-section { break-inside: avoid; page-break-inside: avoid; }
       `}</style>
@@ -38,6 +46,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap"
       />
 
+      {/* แผ่นที่ 1: สรุปภาพรวมและสถิติ */}
       <div
         className="report-sheet bg-white mx-auto p-10 shadow-[0_2px_16px_rgba(88,44,131,0.10)] border border-[#e4e2ea]"
         style={{
@@ -50,6 +59,9 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
       >
         {/* หัวรายงาน */}
         <header className="text-center mb-5 report-section">
+          <div className="text-right text-[14pt] text-[#222] font-semibold mb-1">
+            หน้า 1 / {totalPages}
+          </div>
           <p style={{ fontSize: "15pt" }}>มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง</p>
           <h1 className="font-bold" style={{ fontSize: "20pt", margin: "2px 0" }}>
             รายงานสรุปการใช้บริการห้องประชุม
@@ -246,16 +258,138 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
           </ul>
         </section>
 
-        {/* 7. การยืนยันจากระบบ */}
+        {/* 7. สรุปรายการคำขอที่ได้รับการอนุมัติ */}
+        <section className="report-section mb-4">
+          <h2 className="font-bold" style={{ fontSize: "17pt" }}>
+            7. สรุปรายการคำขอที่ได้รับการอนุมัติ
+          </h2>
+          {hasApprovedBookings ? (
+            <p>
+              มีรายการคำขอที่ได้รับการอนุมัติทั้งสิ้น <strong>{approvedBookings.length}</strong> รายการ (แสดงรายละเอียดในตารางแนบท้าย หน้า 2)
+            </p>
+          ) : (
+            <p style={{ color: "#555" }}>ไม่มีรายการคำขอที่อนุมัติในเดือนนี้</p>
+          )}
+        </section>
+
+        {/* 8. การยืนยันจากระบบ */}
         <section className="report-section">
           <h2 className="font-bold" style={{ fontSize: "17pt" }}>
-            7. ข้อมูลการยืนยันจากระบบ
+            8. ข้อมูลการยืนยันจากระบบ
           </h2>
           <p>
             จัดทำโดย: ระบบจองห้องประชุมอัตโนมัติ มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง
           </p>
         </section>
       </div>
+
+      {/* แผ่นที่ 2: รายละเอียดรายการจองที่อนุมัติ (ถ้ามีรายการ) */}
+      {hasApprovedBookings && (
+        <div
+          className="report-sheet report-page-break bg-white mx-auto p-10 shadow-[0_2px_16px_rgba(88,44,131,0.10)] border border-[#e4e2ea] mt-8"
+          style={{
+            fontFamily: "'TH Sarabun New','TH SarabunPSK','TH Sarabun',Sarabun,sans-serif",
+            fontSize: "16pt",
+            lineHeight: 1.45,
+            color: "#000",
+            maxWidth: "210mm",
+          }}
+        >
+          {/* หัวตารางหน้า 2 */}
+          <header className="mb-4 report-section">
+            <div className="text-right text-[14pt] text-[#222] font-semibold mb-1">
+              หน้า 2 / {totalPages}
+            </div>
+            <div className="text-center">
+              <p style={{ fontSize: "15pt" }}>มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง</p>
+              <h2 className="font-bold" style={{ fontSize: "19pt", margin: "2px 0" }}>
+                รายละเอียดรายการจองห้องประชุมที่ได้รับการอนุมัติ
+              </h2>
+              <p className="font-bold" style={{ fontSize: "17pt" }}>
+                ประจำเดือน {thaiMonthYearFull(monthKey)}
+              </p>
+            </div>
+          </header>
+
+          {/* ตารางรายการจองที่อนุมัติ */}
+          <section className="report-section">
+            <div className="overflow-x-auto">
+              <table
+                className="w-full"
+                style={{ borderCollapse: "collapse", fontSize: "14pt", marginTop: "4px" }}
+              >
+                <thead>
+                  <tr style={{ backgroundColor: "#f0eaf6" }}>
+                    <th style={{ ...tdStyle, width: "35px", textAlign: "center" }}>ลำดับ</th>
+                    <th style={{ ...tdStyle, width: "130px", textAlign: "center" }}>วันที่-เวลา</th>
+                    <th style={{ ...tdStyle, width: "105px" }}>ห้องประชุม</th>
+                    <th style={tdStyle}>ชื่อกิจกรรม / โครงการ</th>
+                    <th style={{ ...tdStyle, width: "135px" }}>ผู้ขอจอง / โทรศัพท์</th>
+                    <th style={{ ...tdStyle, width: "65px", textAlign: "center" }}>ผู้เข้าร่วม (คน)</th>
+                    <th style={{ ...tdStyle, width: "95px", textAlign: "right" }}>ยอดรวม (บาท)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {approvedBookings.map((b, idx) => (
+                    <tr key={b.id || idx}>
+                      <td style={{ ...tdStyle, textAlign: "center" }}>{idx + 1}</td>
+                      <td style={{ ...tdStyle, fontSize: "13pt" }}>
+                        <div className="font-semibold">{formatThaiEpochDate(b.starts_at, false)}</div>
+                        <div style={{ color: "#444", fontSize: "12pt" }}>
+                          {formatThaiEpochTime(b.starts_at)} – {formatThaiEpochTime(b.ends_at)}
+                        </div>
+                      </td>
+                      <td style={tdStyle}>{b.room_name}</td>
+                      <td style={tdStyle}>
+                        <div className="font-bold">{b.activity_name}</div>
+                        {b.project_name && b.project_name !== b.activity_name && (
+                          <div style={{ fontSize: "12pt", color: "#555" }}>
+                            โครงการ: {b.project_name}
+                          </div>
+                        )}
+                        <div style={{ fontSize: "11pt", color: "#666" }}>
+                          รหัส: {b.booking_code}
+                        </div>
+                      </td>
+                      <td style={{ ...tdStyle, fontSize: "13pt" }}>
+                        <div>{b.coordinator_name}</div>
+                        {b.coordinator_phone && (
+                          <div style={{ color: "#555", fontSize: "12pt" }}>{b.coordinator_phone}</div>
+                        )}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "center" }}>
+                        {fmt(b.attendees_count)}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: "600" }}>
+                        {fmtMoney(b.total_amount_thb)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr style={{ backgroundColor: "#faf7fd", fontWeight: "bold" }}>
+                    <td style={{ ...tdStyle, textAlign: "center" }} colSpan={5}>
+                      รวมทั้งสิ้น ({approvedBookings.length} รายการ)
+                    </td>
+                    <td style={{ ...tdStyle, textAlign: "center" }}>
+                      {fmtMoney(approvedBookings.reduce((sum, b) => sum + (b.attendees_count || 0), 0))}
+                    </td>
+                    <td style={{ ...tdStyle, textAlign: "right", color: "#582c83" }}>
+                      {fmtMoney(approvedBookings.reduce((sum, b) => sum + (b.total_amount_thb || 0), 0))}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* ท้ายแผ่นที่ 2 */}
+          <footer className="report-section mt-6 pt-2" style={{ borderTop: "1px dashed #ccc", fontSize: "13pt", color: "#555" }}>
+            <div className="flex justify-between items-center">
+              <span>จัดทำโดย: ระบบจองห้องประชุมอัตโนมัติ มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง</span>
+              <span>ข้อมูล ณ {printedAt}</span>
+            </div>
+          </footer>
+        </div>
+      )}
     </div>
   );
 }

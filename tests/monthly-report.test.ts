@@ -132,6 +132,13 @@ describe('Monthly Report Financial & Catering Aggregation', () => {
       quantity: 50,
       subtotal: 2500,
     });
+
+    // Verify approved bookings details
+    expect(report.approved_bookings).toHaveLength(2);
+    expect(report.approved_bookings[0].booking_code).toBe('BK-001');
+    expect(report.approved_bookings[0].total_amount_thb).toBe(40000); // room 30000 + food 10000
+    expect(report.approved_bookings[1].booking_code).toBe('BK-002');
+    expect(report.approved_bookings[1].total_amount_thb).toBe(13000); // room 10000 + food 3000
   });
 
   it('handles months with no bookings gracefully', async () => {
@@ -145,5 +152,6 @@ describe('Monthly Report Financial & Catering Aggregation', () => {
       deposit_thb: 0,
     });
     expect(report.catering).toEqual([]);
+    expect(report.approved_bookings).toEqual([]);
   });
 });
