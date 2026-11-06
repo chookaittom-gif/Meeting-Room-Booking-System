@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `7a3f7be8-b760-456a-944a-596591c956fe` (commit `5cc2397`)
+- **Latest Deployed Version**: `e744ed61-a37a-4e90-a845-80478ff5adb2` (commit `e94dcfc`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -17,7 +17,29 @@
 
 ---
 
-## 🆕 งานล่าสุด (วันที่ 5 พฤศจิกายน 2569)
+## 🆕 งานล่าสุด (วันที่ 6 พฤศจิกายน 2569)
+
+### 0.00019 เพิ่มประเภทงาน "ประชุมภายในองค์กร" (ฟรีค่าห้องและเงินประกัน) ทั้งชั้น 2 และ 7 พร้อมซิงค์รายงาน (/report) (`e94dcfc`)
+
+- `lib/types.ts`:
+  - ขยาย `MeetingType` union type เพิ่ม `'internal'`
+  - กำหนด `ROOM_FEE_CATALOG` สำหรับ `internal` ทั้ง `floor2` และ `floor7`: `dailyRate: 0`, `deposit: 0`, `categoryLabel: 'ประชุมภายในองค์กร'`
+- `migrations/0008_add_internal_meeting_type.sql`:
+  - รันไมเกรชัน D1 ขยาย CHECK constraint บนคอลัมน์ `meeting_type IN ('seminar', 'small_group', 'wedding', 'internal')` พร้อมถ่ายโอนข้อมูลเดิมและสร้างดัชนีเรียบร้อย
+- `app/book/page.tsx`:
+  - เพิ่มตัวเลือก "ประชุมภายในองค์กร (ไม่มีค่าใช้จ่าย)" ใน dropdown ลักษณะการประชุม
+  - แสดงการ์ดอัตราค่าบริการกรณีภายในองค์กร: สิทธิ์ยกเว้นค่าห้อง (0 บาท) และยกเว้นเงินประกัน (0 บาท) อย่างชัดเจน
+  - ปรับปรุงการสรุปผลใน Step 5 สำหรับลักษณะงานและประมาณการค่าใช้จ่าย
+- `lib/line-service.ts`:
+  - เพิ่มการแมปชื่อภาษาไทย `internal: 'ประชุมภายในองค์กร'` ใน `MEETING_TYPE_NAMES` เพื่อให้แจ้งเตือน LINE/Telegram แสดงชื่อถูกต้อง
+- `lib/monthly-report.ts` & `app/components/MonthlyReportSheet.tsx`:
+  - แมป `PURPOSE_LABELS` สำหรับ `internal` ให้ขึ้นในสถิติประเภทการใช้งาน
+  - ในตารางสรุปประมาณการรายรับ (ข้อ 4) แสดงหมายเหตุจำนวนการจองภายในองค์กรที่ได้รับสิทธิ์ไม่มีค่าใช้จ่าย
+- `tests/`:
+  - เพิ่ม unit test ใน `tests/phase1-security-and-atomic.test.ts` และ `tests/monthly-report.test.ts` ครอบคลุมการคำนวณและบันทึกข้อมูล `internal`
+- Deployed Version: `e744ed61-a37a-4e90-a845-80478ff5adb2` (commit `e94dcfc`)
+
+---
 
 ### 0.00018 เพิ่มหมายเลขหน้ามุมขวาบน และตารางรายละเอียดรายการจองที่อนุมัติแยกหน้า 2 (/report) (`5cc2397`)
 
