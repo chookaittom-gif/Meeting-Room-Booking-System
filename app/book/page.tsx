@@ -489,7 +489,7 @@ export default function BookingWizardPage() {
                 >
                   <option value="seminar">อบรมสัมมนาทั่วไป</option>
                   <option value="wedding">จัดเลี้ยงและงานแต่งงาน</option>
-                  <option value="internal">ประชุมภายในองค์กร (เฉพาะพนักงาน/บุคลากร — ไม่มีค่าใช้จ่าย)</option>
+                  <option value="internal">ประชุมภายในองค์กร (พนักงานเท่านั้น — ฟรี)</option>
                 </select>
               </div>
 
