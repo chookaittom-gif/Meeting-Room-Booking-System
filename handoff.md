@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `e744ed61-a37a-4e90-a845-80478ff5adb2` (commit `e94dcfc`)
+- **Latest Deployed Version**: `24a2b20a-ca93-4163-9995-e8f63fc0f66c` (commit `6eb7851`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,14 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 6 พฤศจิกายน 2569)
+
+### 0.00020 ปรับ label "ประชุมภายในองค์กร" ให้ชัดเจนสำหรับบุคคลภายนอก (`6eb7851`)
+
+- `app/book/page.tsx`:
+  - เปลี่ยน option text จาก `"ประชุมภายในองค์กร (ไม่มีค่าใช้จ่าย)"` → `"ประชุมภายในองค์กร (เฉพาะพนักงาน/บุคลากร — ไม่มีค่าใช้จ่าย)"`
+  - ไม่มีการเปลี่ยน logic, pricing, หรือ database schema ใดๆ
+
+---
 
 ### 0.00019 เพิ่มประเภทงาน "ประชุมภายในองค์กร" (ฟรีค่าห้องและเงินประกัน) ทั้งชั้น 2 และ 7 พร้อมซิงค์รายงาน (/report) (`e94dcfc`)
 
