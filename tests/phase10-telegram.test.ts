@@ -160,4 +160,25 @@ describe('Phase 10: Telegram notification settings and messages', () => {
     expect(a).not.toContain('อุปกรณ์');
     expect(a).not.toContain('โครงการ:');
   });
+  it('10.10 approvedText includes meeting type and formatted fee for internal meetings', () => {
+    const internalFree: any = {
+      ...booking(),
+      meeting_type: 'internal',
+      total_price_thb: 0,
+      items: [],
+    };
+    const a1 = approvedText(internalFree);
+    expect(a1).toContain('🏷️ ประเภท: ประชุมภายในองค์กร');
+    expect(a1).toContain('💰 ค่าบริการรวม: ฿0 (สิทธิ์ภายในองค์กร — ยกเว้นค่าห้อง/ประกัน)');
+
+    const internalWithFood: any = {
+      ...booking(),
+      meeting_type: 'internal',
+      total_price_thb: 3600,
+      items: [{ item_code: 'snack_set', item_name: 'อาหารว่างเช้า', quantity: 60, subtotal: 3600 }],
+    };
+    const a2 = approvedText(internalWithFood);
+    expect(a2).toContain('🏷️ ประเภท: ประชุมภายในองค์กร');
+    expect(a2).toContain('💰 ค่าบริการรวม: ฿3,600 (เฉพาะค่าอาหาร — ฟรีค่าห้อง)');
+  });
 });

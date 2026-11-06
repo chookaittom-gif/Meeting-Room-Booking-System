@@ -4,6 +4,7 @@ import {
   TABLE_LAYOUT_NAMES,
   MEETING_TYPE_NAMES,
   formatThaiDateTimeRange,
+  formatFeeDisplay,
 } from "./line-service";
 
 const SITE_URL = "https://meeting-room-booking-system.chookait-tom.workers.dev";
@@ -224,8 +225,10 @@ export function approvedText(b: BookingWithDetails): string {
     "✅ อนุมัติการจองห้องประชุมแล้ว",
     DIVIDER,
     ...headerLines(b).filter((l) => !l.includes("โครงการ:")),
+    `🏷️ ประเภท: ${MEETING_TYPE_NAMES[b.meeting_type] || b.meeting_type}`,
     `👤 ผู้ประสานงาน: ${b.coordinator_name} ${phone(b.coordinator_phone)}`,
     `🍽️ อาหาร/เครื่องดื่ม: ${catering}`,
+    `💰 ค่าบริการรวม: ${formatFeeDisplay(b.total_price_thb, b.meeting_type)}`,
     DIVIDER,
     `👉 ติดตามสถานะได้ที่: ${SITE_URL}`,
   ].join("\n");

@@ -9,6 +9,7 @@ import {
   buildLineFlexMessage,
   sendLineApprovedNotification,
   formatThaiDateTimeRange,
+  formatFeeDisplay,
   BookingWithDetails,
 } from '../lib/line-service';
 import { PATCH as statusPATCH } from '../app/api/bookings/[id]/status/route';
@@ -348,5 +349,36 @@ describe('Phase 6: LINE Messaging API Integration (Strictly Approved-Only)', () 
     expect(data.status).toBe('approved');
     expect(data.line_notification?.success).toBe(true);
     expect(pushTargetGroup).toBe('group-123');
+  });
+  it('6.8 should format internal meeting fee correctly in LINE flex message and formatFeeDisplay helper', () => {
+    expect(formatFeeDisplay(0, 'internal')).toBe('฿0 (สิทธิ์ภายในองค์กร — ยกเว้นค่าห้อง/ประกัน)');
+    expect(formatFeeDisplay(1500, 'internal')).toBe('฿1,500 (เฉพาะค่าอาหาร — ฟรีค่าห้อง)');
+    expect(formatFeeDisplay(5000, 'seminar')).toBe('฿5,000 (รวม VAT)');
+
+    const internalBooking: BookingWithDetails = {
+      id: 'booking-internal-id',
+      booking_code: 'BK-INTERNAL-01',
+      room_id: 'floor7',
+      activity_name: 'ประชุมบุคลากรประจำเดือน',
+      project_name: 'งานภายใน',
+      coordinator_name: 'สมศรี มีสุข',
+      coordinator_phone: '0899998888',
+      meeting_type: 'internal',
+      attendees_count: 30,
+      staff_count: 2,
+      table_layout: 'classroom',
+      vvip_seats: 0,
+      vip_seats: 0,
+      starts_at: startEpoch,
+      ends_at: endEpoch,
+      status: 'approved',
+      total_price_thb: 0,
+      items: [],
+    };
+
+    const flexMsg: any = buildLineFlexMessage(internalBooking);
+    const jsonStr = JSON.stringify(flexMsg);
+    expect(jsonStr).toContain('ประชุมภายในองค์กร');
+    expect(jsonStr).toContain('฿0 (สิทธิ์ภายในองค์กร — ยกเว้นค่าห้อง/ประกัน)');
   });
 });

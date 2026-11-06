@@ -70,6 +70,16 @@ export function formatThaiDateTimeRange(startsAtEpoch: number, endsAtEpoch: numb
   return { dateStr, timeStr };
 }
 
+// ponytail: single fee formatter for both LINE Flex & Telegram messages
+export function formatFeeDisplay(totalPrice: number, meetingType: string): string {
+  if (meetingType === "internal") {
+    return totalPrice === 0
+      ? "฿0 (สิทธิ์ภายในองค์กร — ยกเว้นค่าห้อง/ประกัน)"
+      : `฿${totalPrice.toLocaleString("th-TH")} (เฉพาะค่าอาหาร — ฟรีค่าห้อง)`;
+  }
+  return `฿${totalPrice.toLocaleString("th-TH")} (รวม VAT)`;
+}
+
 /**
  * Checks if LINE notifications are enabled in system_settings table.
  */
@@ -518,7 +528,7 @@ export function buildLineFlexMessage(booking: BookingWithDetails): object {
                   { type: "text", text: "ค่าบริการรวม:", size: "xs", color: "#8e8e99", flex: 3 },
                   {
                     type: "text",
-                    text: `฿${booking.total_price_thb.toLocaleString("th-TH")} (รวม VAT)`,
+                    text: formatFeeDisplay(booking.total_price_thb, booking.meeting_type),
                     size: "xs",
                     color: "#582c83",
                     flex: 5,
