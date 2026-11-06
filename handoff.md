@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `95165daa-ce52-4083-8c34-7785ecf5e1d8` (commit `3dbc53c`)
+- **Latest Deployed Version**: `d0fc7f6c-c89d-42d4-b203-0b15eb448489` (commit `cdac462`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,23 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 6 พฤศจิกายน 2569)
+
+### 0.00022 ปรับการแจ้งเตือนอนุมัติ LINE และ Telegram ให้สอดคล้องกันสำหรับประชุมภายในองค์กร (`cdac462`)
+
+- `lib/line-service.ts`:
+  - เพิ่มฟังก์ชัน `formatFeeDisplay(totalPrice, meetingType)` จัดการแสดงผลค่าบริการ:
+    - กรณี `internal` ยอดเงิน 0 บาท: `"฿0 (สิทธิ์ภายในองค์กร — ยกเว้นค่าห้อง/ประกัน)"`
+    - กรณี `internal` มียอดเงิน > 0 บาท (สั่งอาหาร): `"฿X (เฉพาะค่าอาหาร — ฟรีค่าห้อง)"`
+    - กรณีทั่วไป: `"฿X (รวม VAT)"`
+  - นำไปใช้ใน `buildLineFlexMessage` สำหรับ LINE Flex Message เมื่ออนุมัติ
+- `lib/telegram-service.ts`:
+  - นำเข้า `formatFeeDisplay` และเพิ่มบรรทัด `🏷️ ประเภท:` และ `💰 ค่าบริการรวม:` ใน `approvedText`
+  - ทำให้ข้อความอนุมัติของ Telegram และ LINE มีข้อมูลประเภทงานและสิทธิ์ยกเว้นค่าห้องสอดคล้องกัน 100%
+- `tests/phase6-line.test.ts` & `tests/phase10-telegram.test.ts`:
+  - เพิ่ม Unit test ตรวจสอบ `formatFeeDisplay`, LINE Flex Message และ Telegram message สำหรับการประชุมภายในองค์กร
+- Deployed Version: `d0fc7f6c-c89d-42d4-b203-0b15eb448489` (commit `cdac462`)
+
+---
 
 ### 0.00021 ย่อ label ประชุมภายในองค์กรให้พอดี dropdown ไม่โดนตัด (`3dbc53c`)
 
