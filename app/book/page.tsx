@@ -489,6 +489,7 @@ export default function BookingWizardPage() {
                 >
                   <option value="seminar">อบรมสัมมนาทั่วไป</option>
                   <option value="wedding">จัดเลี้ยงและงานแต่งงาน</option>
+                  <option value="internal">ประชุมภายในองค์กร (ไม่มีค่าใช้จ่าย)</option>
                 </select>
               </div>
 
@@ -522,21 +523,35 @@ export default function BookingWizardPage() {
                     คำนวณตามประเภทงานที่เลือก
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div className="space-y-0.5">
-                    <span className="text-xs text-[#595963] font-medium">ค่าห้องจ่ายรายวัน:</span>
-                    <p className="text-lg font-black text-[#1e1e24]">
-                      {roomDailyFee.toLocaleString()} <span className="text-xs font-bold text-[#595963]">บาท/วัน</span>
-                    </p>
+                {formData.meeting_type === "internal" ? (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                    <div className="space-y-0.5">
+                      <span className="text-xs text-emerald-800 font-medium">สิทธิ์การใช้งานภายในองค์กร:</span>
+                      <p className="text-lg font-black text-emerald-700">
+                        ไม่มีค่าใช้จ่าย <span className="text-xs font-semibold text-emerald-600">(ฟรีค่าห้องและเงินประกัน)</span>
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      ได้รับการยกเว้นค่าธรรมเนียม
+                    </span>
                   </div>
-                  <div className="space-y-0.5 sm:text-right">
-                    <span className="text-xs text-amber-900 font-medium">เงินประกันการจองห้อง (50%):</span>
-                    <p className="text-lg font-black text-amber-700">
-                      {roomDeposit.toLocaleString()} <span className="text-xs font-bold text-amber-800">บาท</span>
-                    </p>
-                    <p className="text-xs text-[#8c8c96] font-normal">*วางเงินประกันการจองห้องครึ่งนึงของค่าห้อง</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="space-y-0.5">
+                      <span className="text-xs text-[#595963] font-medium">ค่าห้องจ่ายรายวัน:</span>
+                      <p className="text-lg font-black text-[#1e1e24]">
+                        {roomDailyFee.toLocaleString()} <span className="text-xs font-bold text-[#595963]">บาท/วัน</span>
+                      </p>
+                    </div>
+                    <div className="space-y-0.5 sm:text-right">
+                      <span className="text-xs text-amber-900 font-medium">เงินประกันการจองห้อง (50%):</span>
+                      <p className="text-lg font-black text-amber-700">
+                        {roomDeposit.toLocaleString()} <span className="text-xs font-bold text-amber-800">บาท</span>
+                      </p>
+                      <p className="text-xs text-[#8c8c96] font-normal">*วางเงินประกันการจองห้องครึ่งนึงของค่าห้อง</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -1081,7 +1096,7 @@ export default function BookingWizardPage() {
                 <span className="text-xs font-bold text-[#582c83]">ข้อมูลกิจกรรม</span>
                 <p className="text-sm font-bold text-[#1e1e24]">{formData.activity_name}</p>
                 <p className="text-xs text-[#595963]">โครงการ: {formData.project_name}</p>
-                <p className="text-xs text-[#595963]">ลักษณะงาน: {formData.meeting_type === "wedding" ? "จัดเลี้ยงและงานแต่งงาน" : "อบรมสัมมนาทั่วไป"}</p>
+                <p className="text-xs text-[#595963]">ลักษณะงาน: {formData.meeting_type === "wedding" ? "จัดเลี้ยงและงานแต่งงาน" : formData.meeting_type === "internal" ? "ประชุมภายในองค์กร" : "อบรมสัมมนาทั่วไป"}</p>
                 <p className="text-xs text-[#595963]">ผู้ประสานงาน: {formData.coordinator_name} (โทร {formData.coordinator_phone})</p>
                 {formData.coordinator_line_id && (
                   <p className="text-xs text-[#595963]">LINE: {formData.coordinator_line_id}</p>
@@ -1135,20 +1150,37 @@ export default function BookingWizardPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-amber-50/70 border-t border-amber-200/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-amber-700" />
-                      เงินประกันการจองห้อง (50% ของค่าห้อง):
+                {formData.meeting_type === "internal" ? (
+                  <div className="p-4 bg-emerald-50/80 border-t border-emerald-200/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                        สิทธิ์การใช้งานภายในองค์กร:
+                      </span>
+                      <p className="text-xs text-emerald-800/80">
+                        *ไม่มีค่าใช้จ่ายค่าบำรุงห้องและได้รับการยกเว้นเงินประกันการจอง
+                      </p>
+                    </div>
+                    <span className="text-sm font-bold text-emerald-800 sm:text-right">
+                      ยกเว้นเงินประกัน (0 บาท)
                     </span>
-                    <p className="text-xs text-amber-800/80">
-                      *วางเงินประกันการจองห้องครึ่งนึงของค่าห้องเพื่อยืนยันสิทธิ์การใช้งาน
-                    </p>
                   </div>
-                  <span className="text-base font-black text-amber-900 sm:text-right">
-                    {roomDeposit.toLocaleString()} บาท
-                  </span>
-                </div>
+                ) : (
+                  <div className="p-4 bg-amber-50/70 border-t border-amber-200/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-amber-700" />
+                        เงินประกันการจองห้อง (50% ของค่าห้อง):
+                      </span>
+                      <p className="text-xs text-amber-800/80">
+                        *วางเงินประกันการจองห้องครึ่งนึงของค่าห้องเพื่อยืนยันสิทธิ์การใช้งาน
+                      </p>
+                    </div>
+                    <span className="text-base font-black text-amber-900 sm:text-right">
+                      {roomDeposit.toLocaleString()} บาท
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

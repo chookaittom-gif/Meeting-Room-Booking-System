@@ -38,6 +38,7 @@ export const MEETING_TYPE_NAMES: Record<string, string> = {
   seminar: "การอบรม/สัมมนาวิชาการ",
   small_group: "การประชุมกลุ่มย่อย",
   wedding: "งานพิธีการ/มงคลสมรส",
+  internal: "ประชุมภายในองค์กร",
 };
 
 export function formatThaiDateTimeRange(startsAtEpoch: number, endsAtEpoch: number): { dateStr: string; timeStr: string } {

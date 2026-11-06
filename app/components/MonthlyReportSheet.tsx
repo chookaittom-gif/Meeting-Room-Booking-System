@@ -25,6 +25,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
   const approvedBookings = report.approved_bookings || [];
   const hasApprovedBookings = approvedBookings.length > 0;
   const totalPages = hasApprovedBookings ? 2 : 1;
+  const internalCount = report.purposes?.find((p) => p.meeting_type === "internal")?.count ?? 0;
 
   return (
     <div className="w-full">
@@ -175,7 +176,10 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
                 <tr>
                   <td style={tdStyle}>ค่าบำรุงสถานที่/ค่าห้องประชุม</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{fmtMoney(report.financial.room_fee_thb)}</td>
-                  <td style={tdStyle}>คำนวณตามประเภทห้องและลักษณะการใช้งาน</td>
+                  <td style={tdStyle}>
+                    คำนวณตามประเภทห้องและลักษณะการใช้งาน
+                    {internalCount > 0 && ` (รวมการจองภายในองค์กร ${internalCount} ครั้ง — ไม่มีค่าใช้จ่าย)`}
+                  </td>
                 </tr>
                 <tr>
                   <td style={tdStyle}>ค่าอาหารและเครื่องดื่ม</td>

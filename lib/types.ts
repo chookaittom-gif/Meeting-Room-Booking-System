@@ -1,6 +1,6 @@
 export type BookingStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 
-export type MeetingType = 'seminar' | 'small_group' | 'wedding';
+export type MeetingType = 'seminar' | 'small_group' | 'wedding' | 'internal';
 
 export type TableLayout = 'theater' | 'classroom' | 'cluster' | 'ushape' | 'boardroom';
 
@@ -118,11 +118,13 @@ export const ROOM_FEE_CATALOG: Record<string, Record<MeetingType, RoomFeeInfo>> 
     seminar: { dailyRate: 15000, deposit: 7500, categoryLabel: 'อบรมสัมมนาทั่วไป' },
     small_group: { dailyRate: 15000, deposit: 7500, categoryLabel: 'อบรมสัมมนาทั่วไป' },
     wedding: { dailyRate: 20000, deposit: 10000, categoryLabel: 'จัดเลี้ยงและงานแต่งงาน' },
+    internal: { dailyRate: 0, deposit: 0, categoryLabel: 'ประชุมภายในองค์กร' },
   },
   floor7: {
     seminar: { dailyRate: 30000, deposit: 15000, categoryLabel: 'อบรมสัมมนาทั่วไป' },
     small_group: { dailyRate: 30000, deposit: 15000, categoryLabel: 'อบรมสัมมนาทั่วไป' },
     wedding: { dailyRate: 35000, deposit: 17500, categoryLabel: 'จัดเลี้ยงและงานแต่งงาน' },
+    internal: { dailyRate: 0, deposit: 0, categoryLabel: 'ประชุมภายในองค์กร' },
   },
 };
 

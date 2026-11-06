@@ -79,6 +79,7 @@ const PURPOSE_LABELS: Record<string, string> = {
   seminar: "การอบรม/สัมมนา/สอบ",
   small_group: "การประชุม",
   wedding: "พิธีมงคล/กิจกรรมพิเศษ",
+  internal: "ประชุมภายในองค์กร",
 };
 
 /**

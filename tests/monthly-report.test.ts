@@ -154,4 +154,33 @@ describe('Monthly Report Financial & Catering Aggregation', () => {
     expect(report.catering).toEqual([]);
     expect(report.approved_bookings).toEqual([]);
   });
+
+  it('calculates internal meeting_type report stats correctly with zero room fee and proper label', async () => {
+    await db.prepare(`
+      INSERT INTO bookings (
+        id, request_key, booking_code, room_id,
+        activity_name, project_name, coordinator_name, coordinator_phone,
+        meeting_type, attendees_count, staff_count, table_layout,
+        starts_at, ends_at, status, total_price_thb, room_fee_thb, deposit_thb,
+        created_at, updated_at
+      ) VALUES (
+        'b_int', 'rk_int', 'BK-INT', 'floor7',
+        'ประชุมสภาอาจารย์', 'กิจกรรมภายใน', 'ดร.สมชาย', '0812345678',
+        'internal', 40, 2, 'classroom',
+        ?, ?, 'approved', 0, 0, 0,
+        1730000000, 1730000000
+      )
+    `).bind(startsAt, endsAt).run();
+
+    const report = await getMonthlyReport(db, monthKey);
+    expect(report.total_bookings).toBe(1);
+    expect(report.financial.room_fee_thb).toBe(0);
+    expect(report.financial.deposit_thb).toBe(0);
+    expect(report.financial.grand_total_thb).toBe(0);
+
+    const internalPurpose = report.purposes.find((p) => p.meeting_type === 'internal');
+    expect(internalPurpose).toBeDefined();
+    expect(internalPurpose?.label_th).toBe('ประชุมภายในองค์กร');
+    expect(internalPurpose?.count).toBe(1);
+  });
 });

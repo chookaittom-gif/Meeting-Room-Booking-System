@@ -417,6 +417,11 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
       deposit: 10000,
       categoryLabel: 'จัดเลี้ยงและงานแต่งงาน',
     });
+    expect(calculateRoomFee('floor2', 'internal')).toEqual({
+      roomFee: 0,
+      deposit: 0,
+      categoryLabel: 'ประชุมภายในองค์กร',
+    });
 
     // Floor 7
     expect(calculateRoomFee('floor7', 'seminar')).toEqual({
@@ -433,6 +438,11 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
       roomFee: 35000,
       deposit: 17500,
       categoryLabel: 'จัดเลี้ยงและงานแต่งงาน',
+    });
+    expect(calculateRoomFee('floor7', 'internal')).toEqual({
+      roomFee: 0,
+      deposit: 0,
+      categoryLabel: 'ประชุมภายในองค์กร',
     });
 
     // Invalid room / meeting type
@@ -452,6 +462,21 @@ describe('Phase 1: Database Migration, Security, and Atomic Concurrency Tests', 
     const row = await db.prepare('SELECT room_fee_thb, deposit_thb FROM bookings WHERE id = ?').bind(booking.id).first<{ room_fee_thb: number; deposit_thb: number }>();
     expect(row?.room_fee_thb).toBe(35000);
     expect(row?.deposit_thb).toBe(17500);
+  });
+
+  it('7.2.1 should set room_fee_thb = 0 and deposit_thb = 0 for internal meeting_type', async () => {
+    const payload = makeValidPayload({
+      room_id: 'floor7',
+      meeting_type: 'internal',
+    });
+
+    const { booking } = await createBookingAtomic(db, payload);
+    expect(booking.room_fee_thb).toBe(0);
+    expect(booking.deposit_thb).toBe(0);
+
+    const row = await db.prepare('SELECT room_fee_thb, deposit_thb FROM bookings WHERE id = ?').bind(booking.id).first<{ room_fee_thb: number; deposit_thb: number }>();
+    expect(row?.room_fee_thb).toBe(0);
+    expect(row?.deposit_thb).toBe(0);
   });
 
   it('7.3 should reject booking more than 30 days in advance', async () => {
