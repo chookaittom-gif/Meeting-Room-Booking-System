@@ -4,6 +4,25 @@
 
 @import "tailwindcss";
 
+/* TH Sarabun New bundled for deterministic print/PDF embedding on every machine
+   (font stack in MonthlyReportSheet.tsx already prefers this family name).
+   © SIPA — free public font. Source & license: public/fonts/LICENSE-THSarabunNew.md */
+@font-face {
+  font-family: "TH Sarabun New";
+  src: url("/fonts/THSarabunNew.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TH Sarabun New";
+  src: url("/fonts/THSarabunNew-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─── Design Tokens ──────────────────────────────────────────────────── */
 @layer base {
   :root {
