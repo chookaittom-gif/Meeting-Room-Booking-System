@@ -8,12 +8,43 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `d0fc7f6c-c89d-42d4-b203-0b15eb448489` (commit `cdac462`)
+- **Latest Deployed Version**: `306a7b64-e222-4d30-9889-7154c4bb1d2d` (commit `30d8b8e`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
   - Database ID: `62750b8e-5aef-4c94-af6f-e5d9a71f7d28`
   - Binding: `DB`
+
+---
+
+## 🆕 งานล่าสุด (วันที่ 12 พฤศจิกายน 2569)
+
+### 0.00025 ปรับ layout งานพิมพ์รายงานรายเดือน — ตัวอักษรเล็กลง + เนื้อหาไหลข้ามหน้า (`30d8b8e`)
+
+- ยืนยัน print-to-PDF จริงครั้งแรกด้วย playwright `page.pdf` (รวมเวอร์ชันก่อนหน้า `9e04f5a` ที่ bundle ฟอนต์) พบว่า section 4 กระโดดไปหน้า 2 ทั้งก้อนทิ้งช่องว่างครึ่งหน้าแรก
+- สาเหตุ: rule `.report-section { break-inside: avoid }` ที่ประกาศ "นอก" `@media print` ชนะ cascade ทับ override ข้างใน (specificity เท่ากัน ตัวหลังชนะ) + การวัดความสูงด้วย emulateMedia ที่ viewport กว้างกว่าความกว้างพิมพ์จริง (190mm ≈ 719px) ทำให้ประเมินเกิน
+- แก้ (`app/components/MonthlyReportSheet.tsx` — เฉพาะตอนพิมพ์ หน้าจอไม่เปลี่ยน): font 16pt→12pt, line-height 1.45→1.25, `@page` margin 15mm→10mm, padding ตารางแนวตั้ง 2px, **ลบ break-inside:avoid ทั้ง section** ให้เนื้อหาไหลต่อเนื่อง (แถวตารางยังไม่ถูกตัดกลางแถว + หัวตารางซ้ำข้ามหน้าด้วย `table-header-group`)
+- ผลตรวจ prod (deploy `306a7b64`): PDF 2 หน้า — หน้า 1 เต็ม (S1–S4 เริ่มต้น), หน้า 2 ตารางต่อพร้อมหัวซ้ำ + S5–S8, ฝังฟอนต์ THSarabunNew-Regular/Bold ✓ (ตัดสินใจผู้ใช้: ยอมรับ 2 หน้าเพราะข้อความยาว)
+- เกณฑ์ "1 หน้า A4" เดิมถูกแทนด้วย "2 หน้าแบบไหลต่อเนื่อง" ตามคำตัดสินผู้ใช้วันที่ 12 พ.ย. 2569
+
+### 0.00024 Bundle ฟอนต์ TH Sarabun New สำหรับงานพิมพ์ (`9e04f5a`)
+
+- เพิ่ม `public/fonts/THSarabunNew.woff2` + `-bold.woff2` (~39KB/weight) พร้อม `@font-face` ใน `app/globals.css` — PDF ที่พิมพ์จะฝัง TH Sarabun New ทุกเครื่อง ไม่ขึ้นกับฟอนต์ที่ติดตั้งเครื่องลูกข่ายอีกต่อไป
+- ที่มาไฟล์: npm `font-th-sarabun-new@1.0.0` (jsDelivr) → ตรวจ name table (© SIPA, Thai glyphs ครบ) → แปลง TTF→woff2 ด้วย fontTools; license note ที่ `public/fonts/LICENSE-THSarabunNew.md`
+- ยืนยันแล้ว: `document.fonts.check` โหลด 400/700 บน prod + PDF embed `/THSarabunNew` ✓
+
+### 0.00023 เก็บ payload LINE push ลง queue เพื่อการวินิจฉัย (`d84ea1a`)
+
+- Migration `0009_add_line_payload_capture.sql`: เพิ่มคอลัมน์ `line_notifications.payload_json`
+- `lib/line-service.ts`: chokepoint เดียว `pushLineMessage()` ครอบทั้ง 3 จุดเรียก push — เก็บ JSON body ที่ส่งจริงลง queue row (จำกัด 8,000 อักขระ, ล้างหลัง 30 วันเพื่อลด PII ค้าง)
+- การ push pending สร้าง queue row แบบ lazy ครั้งแรกที่ส่งจริง (แถวเก่าสุดของ booking) ใช้ retry-key เดิมซ้ำ และบันทึกสถานะ sent/failed — ปิดช่องส่งซ้ำเมื่อถูกเรียกซ้ำ
+- Test ใหม่: pending builder คง combining marks ไทยครบ (guard บั๊ก `?????`) + capture payload end-to-end; tests 105/105, typecheck, build:worker ผ่านทั้งหมด; อัปเดตรายการ migrations ใน `tests/sqlite-d1-adapter.ts`
+- ข้อสรุปบั๊ก `?????` เดิม (จาก egm-brainstorm + D1 scan 2026-11-12): prod D1 สะอาด (ไม่พบ `'?'` ใน field ผู้ใช้กรอก) — สรุปว่าน่าจะเกิดจากข้อมูลตัวอย่างทดสอบที่เขียนผิวเพี้ยนและถูกลบไปแล้ว ไม่ใช่บั๊กเส้นทางโค้ด; ถ้าพบซ้ำใช้ payload_json ใน queue ตรวจได้ทันที
+
+### งานอื่นในเซสชันนี้
+
+- Re-verify CTA prefill บน prod: `/book?room=floor2|floor7` เลือกห้องถูกต้อง ✓ + เคส sessionStorage draft (draft ห้องอื่น + URL อีกห้อง) → URL prefill ชนะเฉพาะ `room_id` ข้อมูลอื่นใน draft คงเดิม ✓
+- เอกสาร brainstorm: `concepts_brief.md` (ยังไม่ commit — ใช้เป็นแผนอ้างอิง)
 
 ---
 
