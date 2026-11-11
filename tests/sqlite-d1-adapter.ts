@@ -13,6 +13,7 @@ export function applyAllMigrations(db: D1Database) {
     '0006_add_room_fee_deposit.sql',
     '0007_add_staff_role.sql',
     '0008_add_internal_meeting_type.sql',
+    '0009_add_line_payload_capture.sql',
   ];
   for (const f of files) {
     const fullPath = path.join(migrationsDir, f);

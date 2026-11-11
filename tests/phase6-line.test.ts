@@ -7,7 +7,9 @@ import { createSessionToken } from '../lib/auth';
 import { createBookingAtomic, updateBookingStatus } from '../lib/booking-service';
 import {
   buildLineFlexMessage,
+  buildLinePendingFlexMessage,
   sendLineApprovedNotification,
+  sendLinePendingNotification,
   formatThaiDateTimeRange,
   formatFeeDisplay,
   BookingWithDetails,
@@ -380,5 +382,88 @@ describe('Phase 6: LINE Messaging API Integration (Strictly Approved-Only)', () 
     const jsonStr = JSON.stringify(flexMsg);
     expect(jsonStr).toContain('ประชุมภายในองค์กร');
     expect(jsonStr).toContain('฿0 (สิทธิ์ภายในองค์กร — ยกเว้นค่าห้อง/ประกัน)');
+  });
+
+  it('6.9 should build pending Flex Message keeping Thai combining marks intact (????? regression guard)', () => {
+    const pendingBooking: BookingWithDetails = {
+      id: 'booking-pending-id',
+      booking_code: 'BK-PENDING-01',
+      room_id: 'floor2',
+      activity_name: 'การประชุมเชิงปฏิบัติการจัดทำคู่มือหลักสูตร ปีการศึกษา ๒๕๖๙',
+      project_name: 'โครงการพัฒนาคุณภาพการศึกษา',
+      coordinator_name: 'กนกวรรณ สมจิตรพรรณ',
+      coordinator_phone: '0812345678',
+      coordinator_line_id: 'kanokwan.s',
+      meeting_type: 'seminar',
+      attendees_count: 45,
+      staff_count: 3,
+      table_layout: 'classroom',
+      vvip_seats: 0,
+      vip_seats: 0,
+      starts_at: startEpoch,
+      ends_at: endEpoch,
+      status: 'pending',
+      total_price_thb: 3200,
+      items: [],
+    };
+
+    const flexMsg = buildLinePendingFlexMessage(pendingBooking) as any;
+    const jsonStr = JSON.stringify(flexMsg);
+
+    expect(flexMsg.type).toBe('flex');
+    expect(flexMsg.altText).toContain('[คำขอใหม่] การจองห้องประชุม');
+    expect(jsonStr).toContain('การประชุมเชิงปฏิบัติการจัดทำคู่มือหลักสูตร ปีการศึกษา ๒๕๖๙');
+    expect(jsonStr).toContain('กนกวรรณ สมจิตรพรรณ');
+    expect(jsonStr).not.toContain('????');
+  });
+
+  it('6.10 should capture the pending push payload into the line_notifications queue row', async () => {
+    process.env.LINE_CHANNEL_ACCESS_TOKEN = 'test-token';
+    process.env.LINE_GROUP_ID = 'group-123';
+
+    let sentBody = '';
+    let sentRetryKey = '';
+    vi.stubGlobal('fetch', async (url: string, init: any) => {
+      if (url.includes('api.line.me')) {
+        sentBody = init.body;
+        sentRetryKey = init.headers['X-Line-Retry-Key'];
+      }
+      return new Response(JSON.stringify({}), { status: 200 });
+    });
+
+    const { booking } = await createBookingAtomic(db, {
+      request_key: 'line-pending-capture',
+      room_id: 'floor7',
+      activity_name: 'ประชุมทดสอบการเก็บ payload',
+      project_name: 'โครงการทดสอบ',
+      coordinator_name: 'ผู้ประสานงานทดสอบ',
+      coordinator_phone: '0812345678',
+      meeting_type: 'seminar',
+      attendees_count: 20,
+      staff_count: 1,
+      table_layout: 'boardroom',
+      vvip_seats: 0,
+      vip_seats: 0,
+      items: [],
+      starts_at: startEpoch,
+      ends_at: endEpoch,
+    });
+
+    const result = await sendLinePendingNotification(db, booking.id);
+    expect(result.success).toBe(true);
+
+    const rows = await db
+      .prepare('SELECT status, retry_key, payload_json FROM line_notifications WHERE booking_id = ?')
+      .bind(booking.id)
+      .all<{ status: string; retry_key: string; payload_json: string }>();
+    expect(rows.results).toHaveLength(1); // exactly one lazily-created pending row
+
+    const row = rows.results[0];
+    expect(row.status).toBe('sent');
+    expect(row.retry_key).toBe(sentRetryKey); // stored retry key == key sent to LINE
+    expect(row.payload_json).toBe(sentBody); // exact JSON body captured
+    expect(sentBody).toContain('ประชุมทดสอบการเก็บ payload');
+    const parsed = JSON.parse(sentBody);
+    expect(parsed.to).toBe('group-123');
   });
 });

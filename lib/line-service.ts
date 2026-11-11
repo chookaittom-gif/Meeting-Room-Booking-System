@@ -596,6 +596,53 @@ export function buildLineFlexMessage(booking: BookingWithDetails): object {
   };
 }
 
+// Self-evidencing notifications: the exact JSON body sent to the LINE push API
+// is stored in the queue row (payload_json) so rendering bugs (e.g. ?????) can
+// be diagnosed from stored data without redeploying instrumentation.
+const PAYLOAD_CAPTURE_MAX_CHARS = 8000;
+const PAYLOAD_RETENTION_SECONDS = 30 * 86400;
+
+type LinePushResult = { ok: boolean; errorText: string | null; bodyJson: string };
+
+/**
+ * Single chokepoint for all LINE push API calls: builds the JSON body once,
+ * sends it, and reports the outcome together with the exact body that left.
+ */
+async function pushLineMessage(
+  token: string,
+  groupId: string,
+  message: unknown,
+  retryKey?: string
+): Promise<LinePushResult> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+  if (retryKey) {
+    headers["X-Line-Retry-Key"] = retryKey;
+  }
+  const bodyJson = JSON.stringify({ to: groupId, messages: [message] });
+  const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
+    method: "POST",
+    headers,
+    body: bodyJson,
+  });
+  const errorText = lineResponse.ok ? null : await lineResponse.text();
+  return { ok: lineResponse.ok, errorText, bodyJson };
+}
+
+/**
+ * Clears payload_json from queue rows past the retention window (PII housekeeping).
+ */
+async function trimExpiredPayloads(db: D1Database, now: number): Promise<void> {
+  await db
+    .prepare(
+      "UPDATE line_notifications SET payload_json = NULL WHERE sent_at IS NOT NULL AND sent_at < ? AND payload_json IS NOT NULL"
+    )
+    .bind(now - PAYLOAD_RETENTION_SECONDS)
+    .run();
+}
+
 /**
  * Sends a push message via LINE Messaging API for an approved booking.
  */
@@ -667,38 +714,27 @@ export async function sendLineApprovedNotification(
     // 4. Build Flex payload
     const flexMessage = buildLineFlexMessage(booking);
 
-    // 5. Send POST with X-Line-Retry-Key
+    // 5. Send via the shared chokepoint (captures the exact payload)
     const now = Math.floor(Date.now() / 1000);
-    const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "X-Line-Retry-Key": queueRecord.retry_key,
-      },
-      body: JSON.stringify({
-        to: groupId,
-        messages: [flexMessage],
-      }),
-    });
+    const push = await pushLineMessage(token, groupId, flexMessage, queueRecord.retry_key);
+    await trimExpiredPayloads(db, now);
 
-    if (lineResponse.ok) {
+    if (push.ok) {
       await db
         .prepare(
-          "UPDATE line_notifications SET status = 'sent', sent_at = ?, attempts = attempts + 1, last_attempt_at = ? WHERE id = ?"
+          "UPDATE line_notifications SET status = 'sent', sent_at = ?, attempts = attempts + 1, last_attempt_at = ?, payload_json = ? WHERE id = ?"
         )
-        .bind(now, now, queueRecord.id)
+        .bind(now, now, push.bodyJson.slice(0, PAYLOAD_CAPTURE_MAX_CHARS), queueRecord.id)
         .run();
       return { success: true };
     } else {
-      const errorText = await lineResponse.text();
       await db
         .prepare(
-          "UPDATE line_notifications SET status = 'failed', error_message = ?, attempts = attempts + 1, last_attempt_at = ? WHERE id = ?"
+          "UPDATE line_notifications SET status = 'failed', error_message = ?, attempts = attempts + 1, last_attempt_at = ?, payload_json = ? WHERE id = ?"
         )
-        .bind(errorText.slice(0, 500), now, queueRecord.id)
+        .bind(push.errorText ?? "", now, now, push.bodyJson.slice(0, PAYLOAD_CAPTURE_MAX_CHARS), queueRecord.id)
         .run();
-      return { success: false, error: errorText };
+      return { success: false, error: push.errorText ?? "" };
     }
   } catch (err: any) {
     console.error("sendLineApprovedNotification error:", err);
@@ -728,33 +764,69 @@ export async function sendLinePendingNotification(
       return { success: false, error: `Booking not found: ${bookingId}` };
     }
 
+    // Lazily reuse (or create) the queue row for this pending push — the OLDEST
+    // row per booking (approval inserts its own later, read newest-first).
+    // Row is created only when a send is actually attempted, so bookings made
+    // while LINE is disabled (or without credentials) keep no queue rows.
+    let queueRecord = await db
+      .prepare(
+        "SELECT id, retry_key, status FROM line_notifications WHERE booking_id = ? ORDER BY created_at ASC LIMIT 1"
+      )
+      .bind(bookingId)
+      .first<{ id: string; retry_key: string; status: string }>();
+
+    if (queueRecord?.status === "sent") {
+      return { success: true, skipped: true };
+    }
+
     const { token, groupId } = await getLineCredentials();
     if (!token || !groupId) {
       return { success: false, error: "LINE credentials missing in server environment" };
     }
 
-    const flexMessage = buildLinePendingFlexMessage(booking);
-    const retryKey = crypto.randomUUID();
-
-    const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "X-Line-Retry-Key": retryKey,
-      },
-      body: JSON.stringify({
-        to: groupId,
-        messages: [flexMessage],
-      }),
-    });
-
-    if (lineResponse.ok) {
-      return { success: true };
-    } else {
-      const errorText = await lineResponse.text();
-      return { success: false, error: errorText };
+    if (!queueRecord) {
+      const history = await db
+        .prepare("SELECT id FROM booking_status_history WHERE booking_id = ? ORDER BY changed_at ASC LIMIT 1")
+        .bind(bookingId)
+        .first<{ id: string }>();
+      if (history) {
+        const lineNotifId = crypto.randomUUID();
+        const retryKey = crypto.randomUUID();
+        await db
+          .prepare(
+            "INSERT INTO line_notifications (id, booking_id, history_id, retry_key, status, attempts, created_at) VALUES (?, ?, ?, ?, 'pending', 0, ?) ON CONFLICT(booking_id, history_id) DO NOTHING"
+          )
+          .bind(lineNotifId, bookingId, history.id, retryKey, Math.floor(Date.now() / 1000))
+          .run();
+        queueRecord = { id: lineNotifId, retry_key: retryKey, status: "pending" };
+      }
     }
+
+    const flexMessage = buildLinePendingFlexMessage(booking);
+    const now = Math.floor(Date.now() / 1000);
+    const push = await pushLineMessage(token, groupId, flexMessage, queueRecord?.retry_key);
+
+    if (queueRecord) {
+      if (push.ok) {
+        await db
+          .prepare(
+            "UPDATE line_notifications SET status = 'sent', sent_at = ?, attempts = attempts + 1, last_attempt_at = ?, payload_json = ? WHERE id = ?"
+          )
+          .bind(now, now, push.bodyJson.slice(0, PAYLOAD_CAPTURE_MAX_CHARS), queueRecord.id)
+          .run();
+        await trimExpiredPayloads(db, now);
+        return { success: true };
+      }
+      await db
+        .prepare(
+          "UPDATE line_notifications SET status = 'failed', error_message = ?, attempts = attempts + 1, last_attempt_at = ?, payload_json = ? WHERE id = ?"
+        )
+        .bind(push.errorText ?? "", now, now, push.bodyJson.slice(0, PAYLOAD_CAPTURE_MAX_CHARS), queueRecord.id)
+        .run();
+      return { success: false, error: push.errorText ?? "" };
+    }
+
+    return push.ok ? { success: true } : { success: false, error: push.errorText ?? "" };
   } catch (err: any) {
     console.error("sendLinePendingNotification error:", err);
     return { success: false, error: err.message };
@@ -836,24 +908,8 @@ export async function sendLineTestPing(
       },
     };
 
-    const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        to: groupId,
-        messages: [testPayload],
-      }),
-    });
-
-    if (lineResponse.ok) {
-      return { success: true };
-    } else {
-      const errorText = await lineResponse.text();
-      return { success: false, error: errorText };
-    }
+    const push = await pushLineMessage(token, groupId, testPayload);
+    return push.ok ? { success: true } : { success: false, error: push.errorText ?? "" };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
