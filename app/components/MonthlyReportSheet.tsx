@@ -30,11 +30,12 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
   return (
     <div className="w-full">
       <style>{`
-        @page { size: A4 portrait; margin: 15mm; }
+        @page { size: A4 portrait; margin: 10mm; }
         @media print {
           .no-print { display: none !important; }
           html, body { background: #fff !important; }
-          .report-sheet { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; max-width: none !important; padding: 0 !important; }
+          .report-sheet { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; max-width: none !important; padding: 0 !important; font-size: 12pt !important; line-height: 1.25 !important; }
+          .report-sheet header, .report-sheet section { margin-bottom: 8px !important; }
           .report-section { break-inside: avoid; page-break-inside: avoid; }
           .report-page-break { break-before: page !important; page-break-before: always !important; }
           thead { display: table-header-group; }
