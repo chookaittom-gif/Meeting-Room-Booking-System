@@ -41,12 +41,12 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
   const sheetStyle: React.CSSProperties = {
     fontFamily: SHEET_FONT,
     fontSize: SZ.body,
-    lineHeight: 1.25,
+    lineHeight: 1.35,
     color: "#000",
     maxWidth: "210mm",
     padding: "clamp(14px, 4vw, 10mm)",
   };
-  const h2Style: React.CSSProperties = { fontSize: SZ.h2, marginBottom: "2px" };
+  const h2Style: React.CSSProperties = { fontSize: SZ.h2, marginBottom: "3px" };
   const tableStyle: React.CSSProperties = {
     borderCollapse: "collapse",
     fontSize: SZ.table,
@@ -97,7 +97,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </header>
 
         {/* 1. สรุปภาพรวม */}
-        <section className="report-section mb-1.5">
+        <section className="report-section mb-2">
           <h2 className="font-bold" style={h2Style}>
             1. สรุปภาพรวมการให้บริการ
           </h2>
@@ -120,7 +120,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 2. ตารางรายห้อง */}
-        <section className="report-section mb-1.5">
+        <section className="report-section mb-2">
           <h2 className="font-bold" style={h2Style}>
             2. ตารางสถิติการใช้งานห้องประชุม
           </h2>
@@ -156,7 +156,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 3. จำแนกตามประเภทการใช้งาน */}
-        <section className="report-section mb-1.5">
+        <section className="report-section mb-2">
           <h2 className="font-bold" style={h2Style}>
             3. จำแนกสถิติตามประเภทการใช้งาน
           </h2>
@@ -174,16 +174,16 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 4. สรุปประมาณการรายรับและค่าใช้จ่าย */}
-        <section className="report-section mb-1.5">
+        <section className="report-section mb-2">
           <h2 className="font-bold" style={h2Style}>
             4. สรุปประมาณการรายรับและค่าใช้จ่าย (คำขอที่อนุมัติ)
           </h2>
           <table className="w-full table-fixed" style={tableStyle}>
             <thead>
               <tr style={{ backgroundColor: "#f0eaf6" }}>
-                <th style={{ ...tdStyle, width: "38%" }}>รายการรายรับ/ค่าบริการ</th>
-                <th style={{ ...tdStyle, width: "20%" }}>จำนวนเงิน<br />(บาท)</th>
-                <th style={{ ...tdStyle, width: "42%" }}>หมายเหตุ</th>
+                <th style={{ ...tdStyle, width: "35%" }}>รายการรายรับ/ค่าบริการ</th>
+                <th style={{ ...tdStyle, width: "18%" }}>จำนวนเงิน<br />(บาท)</th>
+                <th style={{ ...tdStyle, width: "47%" }}>หมายเหตุ</th>
               </tr>
             </thead>
             <tbody>
@@ -219,7 +219,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 5. สรุปรายการอาหารและเครื่องดื่มที่ให้บริการ */}
-        <section className="report-section mb-1.5">
+        <section className="report-section mb-2">
           <h2 className="font-bold" style={h2Style}>
             5. สรุปรายการอาหารและเครื่องดื่มที่ให้บริการ (คำขอที่อนุมัติ)
           </h2>
@@ -261,7 +261,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 6. การยกเลิก */}
-        <section className="report-section mb-1.5">
+        <section className="report-section mb-2">
           <h2 className="font-bold" style={h2Style}>
             6. รายงานสถิติการยกเลิกการจอง
           </h2>
@@ -271,7 +271,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 7. สรุปรายการคำขอที่ได้รับการอนุมัติ */}
-        <section className="report-section mb-1.5">
+        <section className="report-section mb-2">
           <h2 className="font-bold" style={h2Style}>
             7. สรุปรายการคำขอที่ได้รับการอนุมัติ
           </h2>
