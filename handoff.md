@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `306a7b64-e222-4d30-9889-7154c4bb1d2d` (commit `30d8b8e`)
+- **Latest Deployed Version**: `0ae50385-3062-4ced-908f-9c4066b1b417` (commit `5726fa2`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,16 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 12 พฤศจิกายน 2569)
+
+### 0.00026 ปรับแต่ง Layout และขนาดตัวอักษรเอกสารสรุปประจำเดือนพอดี 1 หน้า A4 (`5726fa2`)
+
+- ตรวจสอบผ่านเบราว์เซอร์จริงพบตารางส่วนที่ 2 และ 4 ติด vertical scrollbar ขวาบน Chromium/Windows เนื่องจากคลาส `overflow-x-auto` และขนาดความสูงแผ่นรายงาน 1,374px ล้นเกิน 1 หน้า A4 (~1,123px)
+- ดำเนินการปรับปรุงใน [`app/components/MonthlyReportSheet.tsx`](file:///d:/Webapp/%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%E0%B8%88%E0%B8%AD%E0%B8%87%E0%B8%AB%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%8A%E0%B8%B8%E0%B8%A1/app/components/MonthlyReportSheet.tsx):
+  - ถอด `overflow-x-auto` ออกจาก div ครอบตารางในส่วนรายงาน และใช้ `table-fixed w-full` พร้อมกำหนดเปอร์เซ็นต์คอลัมน์ชัดเจน
+  - ใส่ `whiteSpace: "nowrap"` ป้องกันข้อความหัวตารางตกบรรทัดหรือแตกวรรคผิดธรรมชาติ
+  - ปรับขนาดฟอนต์บนหน้าจอจาก 16pt / 15pt เป็น 13.5pt / 13pt, line-height 1.3, ปรับ padding ของแผ่นงานเหลือ `p-6 sm:p-8` และกระชับระยะห่างแต่ละ section (`mb-2.5`)
+  - อัปเดต CSS `@media print` กำหนด font 11pt, margin 8mm 10mm, และ `page-break-inside: avoid` ให้แต่ละ section
+- ผลตรวจ Browser บน Production (Deploy `0ae50385`): ตารางไม่มี scrollbar, หัวตารางไม่ตกบรรทัด, ความสูงเอกสารหน้าแรกกระชับเหลือ ~1,107px บรรจุครบทั้ง 8 ส่วนพอดีใน 1 หน้า A4
 
 ### 0.00025 ปรับ layout งานพิมพ์รายงานรายเดือน — ตัวอักษรเล็กลง + เนื้อหาไหลข้ามหน้า (`30d8b8e`)
 
