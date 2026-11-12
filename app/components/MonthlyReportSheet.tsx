@@ -23,11 +23,12 @@ function fmtMoney(n: number): string {
 
 // ขนาดตัวอักษรชุดเดียว ใช้ร่วมกันทั้งหน้าเว็บและงานพิมพ์ (TH Sarabun New)
 const SZ = {
-  body: "12pt",
-  title: "16pt",
-  h2: "13.5pt",
-  table: "11.5pt",
-  small: "10.5pt",
+  body: "10.5pt",
+  title: "14pt",
+  h2: "11.5pt",
+  table: "10pt",
+  small: "9.5pt",
+  meta: "9.5pt",
 };
 
 const SHEET_FONT = "'TH Sarabun New','TH SarabunPSK','TH Sarabun',sans-serif";
@@ -79,8 +80,8 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         style={sheetStyle}
       >
         {/* หัวรายงาน */}
-        <header className="text-center mb-3 report-section">
-          <div className="text-right text-[#222] font-semibold mb-0.5" style={{ fontSize: SZ.table }}>
+        <header className="text-center mb-2.5 report-section">
+          <div className="text-right text-[#222] font-semibold mb-0.5" style={{ fontSize: SZ.meta }}>
             หน้า 1
           </div>
           <p>มหาวิทยาลัยสวนดุสิต ศูนย์การศึกษาลำปาง</p>
@@ -90,13 +91,13 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
           <p className="font-bold" style={{ fontSize: SZ.h2 }}>
             ประจำเดือน {thaiMonthYearFull(monthKey)}
           </p>
-          <p style={{ fontSize: SZ.table, marginTop: "2px", color: "#333" }}>
+          <p style={{ fontSize: SZ.meta, marginTop: "2px", color: "#333" }}>
             ข้อมูล ณ วันที่ {printedAt} | หน่วยงานที่รับผิดชอบข้อมูล: งานอาคารสถานที่ ศูนย์การศึกษาลำปาง
           </p>
         </header>
 
         {/* 1. สรุปภาพรวม */}
-        <section className="report-section mb-2.5">
+        <section className="report-section mb-1.5">
           <h2 className="font-bold" style={h2Style}>
             1. สรุปภาพรวมการให้บริการ
           </h2>
@@ -119,7 +120,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 2. ตารางรายห้อง */}
-        <section className="report-section mb-2.5">
+        <section className="report-section mb-1.5">
           <h2 className="font-bold" style={h2Style}>
             2. ตารางสถิติการใช้งานห้องประชุม
           </h2>
@@ -155,7 +156,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 3. จำแนกตามประเภทการใช้งาน */}
-        <section className="report-section mb-2.5">
+        <section className="report-section mb-1.5">
           <h2 className="font-bold" style={h2Style}>
             3. จำแนกสถิติตามประเภทการใช้งาน
           </h2>
@@ -173,7 +174,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 4. สรุปประมาณการรายรับและค่าใช้จ่าย */}
-        <section className="report-section mb-2.5">
+        <section className="report-section mb-1.5">
           <h2 className="font-bold" style={h2Style}>
             4. สรุปประมาณการรายรับและค่าใช้จ่าย (คำขอที่อนุมัติ)
           </h2>
@@ -218,7 +219,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 5. สรุปรายการอาหารและเครื่องดื่มที่ให้บริการ */}
-        <section className="report-section mb-2.5">
+        <section className="report-section mb-1.5">
           <h2 className="font-bold" style={h2Style}>
             5. สรุปรายการอาหารและเครื่องดื่มที่ให้บริการ (คำขอที่อนุมัติ)
           </h2>
@@ -260,7 +261,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 6. การยกเลิก */}
-        <section className="report-section mb-2.5">
+        <section className="report-section mb-1.5">
           <h2 className="font-bold" style={h2Style}>
             6. รายงานสถิติการยกเลิกการจอง
           </h2>
@@ -270,7 +271,7 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
         </section>
 
         {/* 7. สรุปรายการคำขอที่ได้รับการอนุมัติ */}
-        <section className="report-section mb-2.5">
+        <section className="report-section mb-1.5">
           <h2 className="font-bold" style={h2Style}>
             7. สรุปรายการคำขอที่ได้รับการอนุมัติ
           </h2>
@@ -402,6 +403,6 @@ export function buildPrintedAt(): string {
 
 const tdStyle: React.CSSProperties = {
   border: "1px solid #000",
-  padding: "2px 6px",
+  padding: "2px 4px",
   verticalAlign: "top",
 };
