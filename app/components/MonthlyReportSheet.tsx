@@ -181,9 +181,9 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
           <table className="w-full table-fixed" style={tableStyle}>
             <thead>
               <tr style={{ backgroundColor: "#f0eaf6" }}>
-                <th style={{ ...tdStyle, width: "35%" }}>รายการรายรับ/ค่าบริการ</th>
-                <th style={{ ...tdStyle, width: "18%" }}>จำนวนเงิน<br />(บาท)</th>
-                <th style={{ ...tdStyle, width: "47%" }}>หมายเหตุ</th>
+                <th style={{ ...tdStyle, width: "33%" }}>รายการรายรับ/ค่าบริการ</th>
+                <th style={{ ...tdStyle, width: "17%" }}>จำนวนเงิน<br />(บาท)</th>
+                <th style={{ ...tdStyle, width: "50%" }}>หมายเหตุ</th>
               </tr>
             </thead>
             <tbody>
