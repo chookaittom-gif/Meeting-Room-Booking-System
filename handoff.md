@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `0ae50385-3062-4ced-908f-9c4066b1b417` (commit `5726fa2`)
+- **Latest Deployed Version**: `0b92c0a7-723b-4e9f-8989-235bc4b1847f` (commit `89d8d88`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,17 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 12 พฤศจิกายน 2569)
+
+### 0.00027 รายงานรายเดือนฟอนต์ 12pt เดือนไม่มีรายการพิมพ์ 1 หน้า A4 (`89d8d88`)
+
+- แก้ regression จาก `5726fa2`: `whiteSpace: nowrap` บนหัวตารางทำให้หัวคอลัมน์ทับกัน (ผู้ใช้ส่งภาพหน้าเว็บ+พิมพ์ยืนยัน) — ลบ nowrap, ตัดหัวตารางเป็น 2 บรรทัดโดยตั้งใจ (ชื่อ / (หน่วย)) กึ่งกลาง `word-break: keep-all`
+- ขนาดชุดเดียวใช้ร่วมเว็บ+พิมพ์ (ค่าคงที่ `SZ` ใน `app/components/MonthlyReportSheet.tsx`): body 12pt, title 16pt, h2 13.5pt, ตาราง 11.5pt, ตารางรายการจอง 10.5pt; ฟอนต์ TH Sarabun New เท่านั้น (ลบ `<link>` Google Fonts Sarabun ที่ไม่ได้ใช้)
+- ลบ override `!important` ของ font/padding/line-height ใน `@media print`; padding จอ `clamp(14px,4vw,10mm)` พิมพ์ 0 + `@page` 10mm
+- **สาเหตุที่พิมพ์ได้ 2 หน้าทั้งที่ตัวรายงานสูง 868px:** header/footer ของเว็บ (`body > header/footer`) และ padding/min-height ของ `main` ถูกพิมพ์ติดไปด้วย → ซ่อนเฉพาะตอนพิมพ์ในหน้ารายงาน (`.report-page`)
+- ตารางรายการจอง: ไม่ครอบด้วย `.report-section` แล้ว แถวไหลข้ามหน้า, หัวตารางซ้ำ, แถวไม่ถูกตัดกลาง; ตัดเลขหน้า "/ N" เหลือ "หน้า 1" / "หน้า 2"
+- มือถือ ≤480px: ตารางรายการจอง/อาหารเลื่อนแนวนอนในกล่องตัวเอง (ไม่ทำให้ทั้งหน้าล้น)
+- **Verify (Playwright + Chromium, สคริปต์อยู่นอก repo — ไม่เพิ่ม dependency):** เดือนว่าง (2026-11) PDF = 1 หน้า, หัวตารางไม่ล้น/ไม่ทับกัน, ฟอนต์โหลด ✓ ทั้ง local (`wrangler dev --local`) และ prod (`0b92c0a7`); เดือนมีรายการ 24 แถวทดสอบ local = 7 หน้า (ข้อมูลทดสอบข้อความยาว), หัวตารางซ้ำทุกหน้า, ไม่มีแถวถูกตัด; ลบข้อมูลทดสอบออกจาก D1 local แล้ว
+- ข้อจำกัด: ตรวจเฉพาะ Chromium; ถ้าเดือนมีรายการ หัวข้อ 6–8 อาจไหลไปหน้า 2 แล้วตารางรายการจองขึ้นหน้าใหม่เสมอ (`report-page-break`) — ตามที่ผู้ใช้ยอมรับ
 
 ### 0.00026 ปรับแต่ง Layout และขนาดตัวอักษรเอกสารสรุปประจำเดือนพอดี 1 หน้า A4 (`5726fa2`)
 
