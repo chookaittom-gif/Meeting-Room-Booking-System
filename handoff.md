@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `b2c68bcd-c7db-4cf9-b817-a3ff3c529834` (commit `a1cbc02`)
+- **Latest Deployed Version**: `426f13a1-617d-4820-ab08-638a6985a5c4` (commit `1af992d`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,14 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 12 พฤศจิกายน 2569)
+
+### 0.00029 ปรับระยะบรรทัด (line-height 1.35) และความกว้างตารางที่ 4 จบในบรรทัดเดียว (`1af992d`)
+
+- ตรวจสอบความสมบูรณ์ทางการมองเห็น (Visual Layout & Karpathy Guidelines):
+  - เพิ่มความโปร่งสบายตา: ปรับ `line-height` จาก `1.25` เป็น `1.35` และระยะห่างระหว่างหัวข้อเป็น `mb-2` (8px) กระจายเนื้อหาทั่วกระดาษ A4 สวยงาม ไม่กระจุกตัวด้านบน
+  - ปรับความกว้างคอลัมน์ตารางข้อ 4 เป็น `33% | 17% | 50%` ส่งผลให้ข้อความ *"เงินประกันการจองล่วงหน้าเพื่อยืนยันสิทธิ์ (เพื่อการตรวจสอบ)"* แสดงผลจบในบรรทัดเดียว (Single-line) ความสูงแถวเรียบเสมอเท่ากัน 22.98px ทุกแถว
+  - ยืนยันผ่าน Browser Subagent และ Playwright: หน้าเอกสารพอดี 1 หน้า A4 (872px บนจอ / 794px ตอนพิมพ์), ไม่มี scrollbar, หัวตารางไม่ล้น
+- ตรวจสอบความถูกต้อง: `npm test` ผ่าน 105/105, `npm run typecheck` ผ่าน, `npm run build:worker` ผ่าน และ deploy เรียบร้อย (Version ID: `426f13a1-617d-4820-ab08-638a6985a5c4`)
 
 ### 0.00028 ปรับลดขนาดตัวอักษรรายงานประจำเดือนลง ~15% สัดส่วนพอดี 1 หน้า A4 สบายตา (`a1cbc02`)
 
