@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `0b92c0a7-723b-4e9f-8989-235bc4b1847f` (commit `89d8d88`)
+- **Latest Deployed Version**: `b2c68bcd-c7db-4cf9-b817-a3ff3c529834` (commit `a1cbc02`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,24 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 12 พฤศจิกายน 2569)
+
+### 0.00028 ปรับลดขนาดตัวอักษรรายงานประจำเดือนลง ~15% สัดส่วนพอดี 1 หน้า A4 สบายตา (`a1cbc02`)
+
+- ตามที่ผู้ใช้ระบุว่าตัวหนังสือยังใหญ่เกินไป: ดำเนินการสัมภาษณ์ความต้องการ (Grill-me) และตรวจวัดความสูงหน้าเอกสารด้วย Browser Inspector
+- ปรับสเกล Typography ของ [`app/components/MonthlyReportSheet.tsx`](file:///d:/Webapp/%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%E0%B8%88%E0%B8%AD%E0%B8%87%E0%B8%AB%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%8A%E0%B8%B8%E0%B8%A1/app/components/MonthlyReportSheet.tsx) ลง 12–15%:
+  - ข้อความหลัก (Body): 12pt → **10.5pt**
+  - ชื่อเรื่องหลัก (Title h1): 16pt → **14pt**
+  - หัวข้อหลัก (Section h2) & เดือน: 13.5pt → **11.5pt**
+  - ตาราง (Table th/td): 11.5pt → **10pt**
+  - ข้อความกำกับ / เลขหน้า (Meta/Small): 10.5pt → **9.5pt**
+- ปรับกระชับระยะห่าง (Spacing & Padding):
+  - ระยะห่างระหว่าง Section: `mb-2.5` (10px) → `mb-1.5` (6px)
+  - Padding ในเซลล์ตาราง: `padding: 2px 6px` → `padding: 2px 4px`
+- ผลการวัดความสูงจริงด้วย Playwright & Browser:
+  - ความสูงของแผ่นเอกสารลดลงจาก 966px เหลือ **819px** (ลดลง 147px หรือ ~15.2%)
+  - ตอนพิมพ์ A4 ความสูงเนื้อหาเหลือ 724px (พื้นที่กระดาษ 1,047px) มีขอบว่างด้านบน-ล่างสมดุลสวยงาม อ่านสบายตา และมีพื้นที่สำรองเพียงพอเมื่อเดือนมีรายการจองจริง
+  - ตารางหัวคอลัมน์ไม่ล้น ไม่ทับกัน และไม่ตกบรรทัดผิดธรรมชาติ
+- ตรวจสอบความถูกต้อง: `npm test` ผ่าน 105/105, `npm run typecheck` ผ่าน, `npm run build:worker` ผ่าน และ deploy สู่ Production เรียบร้อย (Version ID: `b2c68bcd-c7db-4cf9-b817-a3ff3c529834`)
 
 ### 0.00027 รายงานรายเดือนฟอนต์ 12pt เดือนไม่มีรายการพิมพ์ 1 หน้า A4 (`89d8d88`)
 
