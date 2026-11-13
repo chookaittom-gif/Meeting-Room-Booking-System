@@ -76,7 +76,8 @@ async function callTelegram(token: string, method: string, body: object = {}): P
     const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      // sendMessage: suppress Telegram's auto link-preview card (it only repeats the admin URL already in the text)
+      body: JSON.stringify(method === "sendMessage" ? { ...body, link_preview_options: { is_disabled: true } } : body),
     });
     const data = (await res.json().catch(() => null)) as any;
     if (res.ok && data?.ok) return { ok: true, result: data.result };
