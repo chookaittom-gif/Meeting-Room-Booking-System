@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `e09401b2-eff6-4ddc-b4ed-a0f86caf0807` (commit `9eb7019`)
+- **Latest Deployed Version**: `b64b2a4b-31ae-49ac-8b84-dbb20b87ec7d` (commit `de1b91b`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,14 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 13 พฤศจิกายน 2569)
+
+### แก้ตารางรายละเอียดในรายงานประจำเดือน (`de1b91b`)
+
+- ที่มา: ทดสอบโหมดพิมพ์ของ `/report` ในเครื่อง (local D1) ด้วยข้อมูลทดสอบ 16 รายการ (id `qa-ptest-%`, ลบแล้ว) พบคำว่า "น." หลุดลงบรรทัดใหม่ในคอลัมน์วันที่-เวลา ทำให้แถวสูง
+- แก้ที่ `app/components/MonthlyReportSheet.tsx`: ปรับความกว้างคอลัมน์ตารางรายละเอียด (ลำดับ 5%, วันที่-เวลา 19%, ห้อง 12%, ผู้ขอจอง 15%, ผู้เข้าร่วม 9%, ยอดรวม 10%) และใส่ `whiteSpace: nowrap` ที่วันที่/เวลา
+- ผลวัดซ้ำ: ความสูงเนื้อหาในโหมดพิมพ์ลดจาก 2426px เหลือ 2122px, เวลาอยู่บรรทัดเดียว, ตารางรายละเอียด 12 รายการยาวราว 900px
+- ตรวจสอบ: `npm test` 112/112, `npm run typecheck`, `npm run build:worker` ผ่าน, deploy `b64b2a4b-31ae-49ac-8b84-dbb20b87ec7d`
+- ยังไม่ได้ดูหน้า PDF จริงทีละหน้า (นับจากภาพ full-page ในเครื่อง) และยังไม่ได้ยืนยันบน production ด้วยข้อมูลจริง
 
 ### ปิด link preview ของข้อความ Telegram (`9eb7019`)
 
