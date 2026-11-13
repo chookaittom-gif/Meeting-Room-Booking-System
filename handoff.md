@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `a1478e9c-2fb5-4c9a-8be9-8770601e6e60` (commit `90e8075`)
+- **Latest Deployed Version**: `e09401b2-eff6-4ddc-b4ed-a0f86caf0807` (commit `9eb7019`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,13 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 13 พฤศจิกายน 2569)
+
+### ปิด link preview ของข้อความ Telegram (`9eb7019`)
+
+- ปัญหา: ข้อความแจ้งเตือนใน Telegram มีการ์ด link preview ของ URL หน้า `/admin` ซ้ำอยู่ใต้ข้อความ (ชื่อเว็บ + คำอธิบายทั่วไป)
+- แก้ที่ `lib/telegram-service.ts` (`callTelegram`): เมื่อ method เป็น `sendMessage` จะเติม `link_preview_options: { is_disabled: true }` จุดเดียว ครอบคลุมข้อความ pending, approved และข้อความทดสอบ URL ในข้อความยังกดได้ตามเดิม
+- ตรวจสอบ: `npm test` 112/112, `npm run typecheck`, `npm run build:worker` ผ่าน, deploy `e09401b2-eff6-4ddc-b4ed-a0f86caf0807`
+- ยังไม่ได้ยืนยันกับ Telegram จริงว่าการ์ดหายไป (ต้องส่งข้อความทดสอบจากหน้าตั้งค่า Telegram)
 
 ### 0.00030 เพิ่มปุ่มลบรายการจองถาวรสำหรับ Superadmin (`90e8075`)
 
