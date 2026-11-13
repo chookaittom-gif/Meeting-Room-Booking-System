@@ -8,12 +8,28 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `426f13a1-617d-4820-ab08-638a6985a5c4` (commit `1af992d`)
+- **Latest Deployed Version**: `a1478e9c-2fb5-4c9a-8be9-8770601e6e60` (commit `90e8075`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
   - Database ID: `62750b8e-5aef-4c94-af6f-e5d9a71f7d28`
   - Binding: `DB`
+
+---
+
+## 🆕 งานล่าสุด (วันที่ 13 พฤศจิกายน 2569)
+
+### 0.00030 เพิ่มปุ่มลบรายการจองถาวรสำหรับ Superadmin (`90e8075`)
+
+- ที่มา: ทดสอบ UX ด้วย 6 Persona (subagent) บน production แล้วต้องล้างข้อมูลทดสอบ แต่หน้าผู้ดูแลไม่มีปุ่มลบ จึงออกแบบด้วย Grill-me และได้ข้อสรุป: ลบถาวร, ลบได้เฉพาะ `cancelled`/`rejected`, เฉพาะ Superadmin, มีกล่องยืนยัน, ไม่ส่งแจ้งเตือน LINE/Telegram, บันทึกร่องรอยลง Worker log (ไม่แก้ schema)
+- โค้ดที่เปลี่ยน:
+  - `lib/booking-service.ts`: เพิ่ม `deleteBooking()` และ `BookingNotFoundError` ลบตารางลูก (`line_notifications`, `notifications`, `booking_status_history`, `booking_items`) แล้วลบ `bookings` ใน D1 batch เดียว โดยมีเงื่อนไขสถานะกำกับทุกคำสั่ง
+  - `app/api/admin/bookings/[id]/route.ts` (ใหม่): `DELETE` ตรวจสิทธิ์ Superadmin (401/403), ตอบ 404/409 ตามกรณี และ `console.info` JSON `booking_deleted` (booking_id, booking_code, admin_id, admin_username)
+  - `app/admin/page.tsx`: ปุ่ม "ลบรายการ" สีแดงในแถว `cancelled`/`rejected` เฉพาะ Superadmin พร้อมกล่องยืนยัน (แจ้งว่ากู้คืนไม่ได้ และหายจากสถิติ/รายงานด้วย)
+  - `tests/phase11-delete-booking.test.ts` (ใหม่): 7 เทสต์ (401, 403 admin/staff, ลบ cancelled/rejected พร้อมตารางลูก, 409 สำหรับ pending/approved, 404, ไม่กระทบรายการอื่น)
+- ตรวจสอบความถูกต้อง: `npm test` ผ่าน 112/112, `npm run typecheck` ผ่าน, `npm run build:worker` ผ่าน, deploy เรียบร้อย (Version ID: `a1478e9c-2fb5-4c9a-8be9-8770601e6e60`), smoke test `DELETE /api/admin/bookings/<id>` ไม่มี cookie บน production ได้ 401
+- ยังไม่ได้ทดสอบบน production ด้วยบัญชี Superadmin จริงว่าลบสำเร็จ (ไม่มีรายการให้ลบ ตารางว่างหลังล้างข้อมูลทดสอบ)
+- ข้อสังเกตจากการทดสอบ UX (ยังไม่ได้แก้): ข้อจำกัดจองล่วงหน้า 30 วันแสดงตัวอักษรเล็ก, ฟอร์มไม่มีช่องอีเมล, input ไม่มี label ผูกกับช่อง (a11y), ไม่มี skip link, checkbox อุปกรณ์เล็กกว่า 44px บนมือถือ, หน้าสำเร็จไม่บอกขั้นตอนชำระเงินประกัน
 
 ---
 
