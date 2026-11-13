@@ -28,6 +28,7 @@ import {
   User,
   Sparkles,
   Users,
+  Trash2,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; bg: string; text: string; border: string; dot: string; pulse: boolean }> = {
@@ -283,6 +284,50 @@ export default function AdminDashboardPage() {
       // Reload
       setRejectingBooking(null);
       setRejectReason("");
+      await loadBookings();
+    } catch {
+      await dialog.alert({
+        title: "เกิดข้อผิดพลาด",
+        message: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง",
+        tone: "danger",
+        confirmLabel: "รับทราบ",
+        cancelLabel: "",
+      });
+    } finally {
+      setIsProcessingAction(false);
+    }
+  };
+
+  const handleDeleteBooking = async (booking: any) => {
+    const ok = await dialog.confirm({
+      title: "ยืนยันการลบรายการจองถาวร",
+      message: `ลบรายการ ${booking.booking_code} (${booking.activity_name}) ออกจากระบบถาวร กู้คืนไม่ได้ และรายการนี้จะหายจากสถิติและรายงานด้วย`,
+      tone: "danger",
+      confirmLabel: "ยืนยันลบถาวร",
+    });
+    if (!ok) return;
+
+    setIsProcessingAction(true);
+    try {
+      const res = await fetch(`/api/admin/bookings/${booking.id}`, { method: "DELETE" });
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+
+      if (!res.ok) {
+        await dialog.alert({
+          title: "ไม่สามารถลบรายการได้",
+          message: `${data?.error || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์"} (รหัส ${res.status})`,
+          tone: "danger",
+          confirmLabel: "รับทราบ",
+          cancelLabel: "",
+        });
+        return;
+      }
+
       await loadBookings();
     } catch {
       await dialog.alert({
@@ -722,6 +767,17 @@ export default function AdminDashboardPage() {
                       >
                         <AlertTriangle className="w-4 h-4 text-red-600" />
                         ยกเลิกการจองนี้
+                      </button>
+                    )}
+
+                    {adminUser.role === "superadmin" && (b.status === "cancelled" || b.status === "rejected") && (
+                      <button
+                        disabled={isProcessingAction}
+                        onClick={() => handleDeleteBooking(b)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-red-300 bg-red-50/70 text-red-700 hover:bg-red-100 text-xs font-bold touch-target disabled:opacity-50 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                        ลบรายการ
                       </button>
                     )}
                       </>

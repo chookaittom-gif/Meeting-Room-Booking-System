@@ -366,3 +366,53 @@ export async function updateBookingStatus(
 
   await db.batch(batchStmts);
 }
+
+export class BookingNotFoundError extends Error {
+  constructor(message = 'ไม่พบรายการจองที่ต้องการลบ') {
+    super(message);
+    this.name = 'BookingNotFoundError';
+  }
+}
+
+const DELETABLE_STATUSES: BookingStatus[] = ['cancelled', 'rejected'];
+
+/**
+ * Permanently deletes a booking and its dependent rows.
+ * Only cancelled/rejected bookings may be deleted. All deletes run in one
+ * D1 batch (transaction) and are guarded by the status so a concurrent status
+ * change cannot cause an approved/pending booking to be removed.
+ */
+export async function deleteBooking(
+  db: D1Database,
+  bookingId: string
+): Promise<{ booking_code: string; activity_name: string; status: BookingStatus }> {
+  const booking = await db
+    .prepare('SELECT id, booking_code, activity_name, status FROM bookings WHERE id = ?')
+    .bind(bookingId)
+    .first<{ id: string; booking_code: string; activity_name: string; status: BookingStatus }>();
+
+  if (!booking) {
+    throw new BookingNotFoundError();
+  }
+  if (!DELETABLE_STATUSES.includes(booking.status)) {
+    throw new StatusTransitionError(
+      `ลบได้เฉพาะรายการที่ยกเลิกหรือไม่อนุมัติแล้วเท่านั้น (สถานะปัจจุบัน: ${booking.status})`
+    );
+  }
+
+  const deletable = `SELECT id FROM bookings WHERE id = ? AND status IN ('cancelled', 'rejected')`;
+  const results = await db.batch([
+    db.prepare(`DELETE FROM line_notifications WHERE booking_id IN (${deletable})`).bind(bookingId),
+    db.prepare(`DELETE FROM notifications WHERE booking_id IN (${deletable})`).bind(bookingId),
+    db.prepare(`DELETE FROM booking_status_history WHERE booking_id IN (${deletable})`).bind(bookingId),
+    db.prepare(`DELETE FROM booking_items WHERE booking_id IN (${deletable})`).bind(bookingId),
+    db.prepare(`DELETE FROM bookings WHERE id = ? AND status IN ('cancelled', 'rejected')`).bind(bookingId),
+  ]);
+
+  const bookingDeleted = results[results.length - 1]?.meta?.changes ?? 0;
+  if (bookingDeleted === 0) {
+    throw new StatusTransitionError('ไม่สามารถลบได้ เนื่องจากสถานะของรายการเปลี่ยนไปแล้ว');
+  }
+
+  return { booking_code: booking.booking_code, activity_name: booking.activity_name, status: booking.status };
+}
