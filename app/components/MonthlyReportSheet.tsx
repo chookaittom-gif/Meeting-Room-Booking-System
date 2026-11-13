@@ -324,13 +324,13 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
           >
             <thead>
               <tr style={{ backgroundColor: "#f0eaf6" }}>
-                <th style={{ ...tdStyle, width: "6%" }}>ลำดับ</th>
-                <th style={{ ...tdStyle, width: "15%" }}>วันที่-เวลา</th>
-                <th style={{ ...tdStyle, width: "13%" }}>ห้องประชุม</th>
+                <th style={{ ...tdStyle, width: "5%" }}>ลำดับ</th>
+                <th style={{ ...tdStyle, width: "19%" }}>วันที่-เวลา</th>
+                <th style={{ ...tdStyle, width: "12%" }}>ห้องประชุม</th>
                 <th style={tdStyle}>ชื่อกิจกรรม / โครงการ</th>
-                <th style={{ ...tdStyle, width: "17%" }}>ผู้ขอจอง /<br />โทรศัพท์</th>
-                <th style={{ ...tdStyle, width: "10%" }}>ผู้เข้าร่วม<br />(คน)</th>
-                <th style={{ ...tdStyle, width: "11%" }}>ยอดรวม<br />(บาท)</th>
+                <th style={{ ...tdStyle, width: "15%" }}>ผู้ขอจอง /<br />โทรศัพท์</th>
+                <th style={{ ...tdStyle, width: "9%" }}>ผู้เข้าร่วม<br />(คน)</th>
+                <th style={{ ...tdStyle, width: "10%" }}>ยอดรวม<br />(บาท)</th>
               </tr>
             </thead>
             <tbody>
@@ -338,8 +338,8 @@ export default function MonthlyReportSheet({ report, monthKey, printedAt }: Prop
                 <tr key={b.id || idx}>
                   <td style={{ ...tdStyle, textAlign: "center" }}>{idx + 1}</td>
                   <td style={tdStyle}>
-                    <div className="font-semibold">{formatThaiEpochDate(b.starts_at, false)}</div>
-                    <div style={{ color: "#444" }}>
+                    <div className="font-semibold" style={{ whiteSpace: "nowrap" }}>{formatThaiEpochDate(b.starts_at, false)}</div>
+                    <div style={{ color: "#444", whiteSpace: "nowrap" }}>
                       {formatThaiEpochTime(b.starts_at)} – {formatThaiEpochTime(b.ends_at)}
                     </div>
                   </td>
