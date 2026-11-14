@@ -268,30 +268,26 @@ export function buildLinePendingFlexMessage(booking: BookingWithDetails): object
               },
               {
                 type: "box",
-                layout: "horizontal",
+                layout: "vertical",
+                spacing: "xs",
                 contents: [
-                  { type: "text", text: "ผู้ประสานงาน:", size: "xs", color: "#8e8e99", flex: 3 },
-                  { type: "text", text: `${booking.coordinator_name} (โทร. ${formattedPhone})`, size: "xs", color: "#1e1e24", flex: 5, weight: "bold" },
+                  { type: "text", text: "ผู้ประสานงาน:", size: "xs", color: "#8e8e99", weight: "bold" },
+                  { type: "text", text: booking.coordinator_name, size: "xs", color: "#1e1e24", weight: "bold", wrap: true, margin: "xs" },
+                  { type: "text", text: `โทร. ${formattedPhone}`, size: "xs", color: "#1e1e24", margin: "xs" },
                 ],
               },
               {
                 type: "box",
-                layout: "horizontal",
+                layout: "vertical",
+                spacing: "xs",
                 contents: [
-                  { type: "text", text: "อุปกรณ์ที่ขอ:", size: "xs", color: "#8e8e99", flex: 3 },
-                  { type: "text", text: equipmentText, size: "xs", color: "#1e1e24", flex: 5, wrap: true },
+                  { type: "text", text: "อุปกรณ์ที่ขอ:", size: "xs", color: "#8e8e99", weight: "bold" },
+                  { type: "text", text: equipmentText, size: "xs", color: "#1e1e24", wrap: true, margin: "xs" },
+                  ...(equipmentNotesText ? [
+                    { type: "text", text: `หมายเหตุ: ${equipmentNotesText}`, size: "xs", color: "#b45309", wrap: true, margin: "xs" },
+                  ] : []),
                 ],
               },
-              ...(equipmentNotesText ? [
-                {
-                  type: "box",
-                  layout: "horizontal",
-                  contents: [
-                    { type: "text", text: "หมายเหตุ:", size: "xs", color: "#8e8e99", flex: 3 },
-                    { type: "text", text: equipmentNotesText, size: "xs", color: "#b45309", flex: 5, wrap: true },
-                  ],
-                }
-              ] : []),
             ],
           },
         ],
