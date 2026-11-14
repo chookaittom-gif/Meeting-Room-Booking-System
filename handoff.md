@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `b64b2a4b-31ae-49ac-8b84-dbb20b87ec7d` (commit `de1b91b`)
+- **Latest Deployed Version**: `c432f15a-065a-4b5d-9291-a97a2b0f43eb` (commit `1726fa1`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -17,7 +17,20 @@
 
 ---
 
-## 🆕 งานล่าสุด (วันที่ 13 พฤศจิกายน 2569)
+## 🆕 งานล่าสุด (วันที่ 14 พฤศจิกายน 2569)
+
+### แก้ LINE Flex Message (Pending) แสดงผู้ประสานงาน/เบอร์โทรและอุปกรณ์ไม่ครบ (`1726fa1`)
+
+- **ปัญหา**: ใน Pending notification ชื่อผู้ประสานงาน + เบอร์โทรรวมอยู่ใน text node เดียวแบบ horizontal layout ทำให้ถูกตัด เช่น `สมชาย (โทร. 081-234-5678)` ถูกตัดท้าย; รายการอุปกรณ์ยาวก็ถูกตัดด้วย `flex: 5`
+- **แก้ที่**: `lib/line-service.ts` ฟังก์ชัน `buildLinePendingFlexMessage` (L269–295)
+  - เปลี่ยน `ผู้ประสานงาน:` จาก horizontal → vertical layout แยก label/ชื่อ/เบอร์เป็น 3 บรรทัด (ชื่อ wrap: true)
+  - เปลี่ยน `อุปกรณ์ที่ขอ:` จาก horizontal → vertical layout ลบ `flex: 5` ที่จำกัดความกว้าง ใส่ `wrap: true` เต็มที่; รวม `หมายเหตุ:` เข้าในกล่องเดียวกัน
+- **ไม่กระทบ**: `buildLineFlexMessage` (Approved) ซึ่ง coordinator section ใช้ vertical อยู่แล้ว
+- **ตรวจสอบ**: typecheck PASS, tests 112/112 PASS, build:worker PASS, deployed
+
+---
+
+## 🆕 งานก่อนหน้า (วันที่ 13 พฤศจิกายน 2569)
 
 ### แก้ตารางรายละเอียดในรายงานประจำเดือน (`de1b91b`)
 
