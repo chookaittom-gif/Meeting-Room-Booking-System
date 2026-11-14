@@ -8,7 +8,7 @@
 
 - **GitHub Repository**: [https://github.com/chookaittom-gif/Meeting-Room-Booking-System](https://github.com/chookaittom-gif/Meeting-Room-Booking-System)
 - **Live Production URL**: [https://meeting-room-booking-system.chookait-tom.workers.dev/](https://meeting-room-booking-system.chookait-tom.workers.dev/)
-- **Latest Deployed Version**: `c432f15a-065a-4b5d-9291-a97a2b0f43eb` (commit `1726fa1`)
+- **Latest Deployed Version**: `d5f1d961-636c-490b-887d-dbab96d749c0` (commit `7cbad55`)
 - **Cloudflare D1 Database**:
   - Dashboard: [https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics](https://dash.cloudflare.com/17abb4914aa1cbfcf03edddedbaea672/workers/d1/databases/62750b8e-5aef-4c94-af6f-e5d9a71f7d28/metrics)
   - Database Name: `meeting_db`
@@ -18,6 +18,19 @@
 ---
 
 ## 🆕 งานล่าสุด (วันที่ 14 พฤศจิกายน 2569)
+
+### ปรับปรุง LINE Flex Message (Approved) เพิ่มข้อมูลอุปกรณ์และ wrap ชื่อ/เบอร์โทร (`7cbad55`)
+
+- **เป้าหมาย**: ให้ข้อความแจ้งเตือนเมื่ออนุมัติการจอง (Approved) แสดงข้อมูลอุปกรณ์ครบถ้วนเพื่อให้เจ้าหน้าที่โสตทัศนูปกรณ์และฝ่ายอาคารเตรียมห้องได้ทันที และแยกบรรทัดชื่อ-เบอร์โทรพร้อม `wrap: true` เพื่อไม่ให้ถูกตัด
+- **แก้ที่**: `lib/line-service.ts` ฟังก์ชัน `buildLineFlexMessage`
+  - เพิ่มการ parse `equipment_needed` (items + other + notes)
+  - เพิ่มบล็อก "อุปกรณ์ที่ขอ:" แบบ vertical layout พร้อม `wrap: true` ในส่วน Meeting Details
+  - ปรับส่วน "ผู้ประสานงาน:" เป็น vertical layout แยกชื่อ (`wrap: true`) และเบอร์โทรศัพท์ออกจากกัน
+- **ตรวจสอบ**: typecheck PASS, tests 112/112 PASS, build:worker PASS, deployed `d5f1d961-636c-490b-887d-dbab96d749c0`
+
+---
+
+## 🆕 งานก่อนหน้า (วันที่ 14 พฤศจิกายน 2569)
 
 ### แก้ LINE Flex Message (Pending) แสดงผู้ประสานงาน/เบอร์โทรและอุปกรณ์ไม่ครบ (`1726fa1`)
 
